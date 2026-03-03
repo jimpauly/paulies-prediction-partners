@@ -2,7 +2,7 @@
 
 https://github.com/jimpauly/polly-prediction-partners.git
 
-Last update: 02-27-26
+Last update: 03-02-26
 
 ## *Chapter 0. Overview*
 
@@ -78,14 +78,21 @@ Last update: 02-27-26
 ### System Prompt:
 
 - Role
+
     - Veteran Full Stack Developer.
     - Insightful Artist.
     - Expert in Kalshi and prediction market trading.
 
 - Tasks
+
+- **1st Stage:** plan for 7 phases 
     - Develop coolest WebPage ever.
     - Develop Design Studio.
-    - Develop smart reinforced-learned super-profitable full-automatic high-frequency trading-agent studio.
+- **2nd Stage:** (Main Goal) plan for 7 phases 
+    - Deeply develop our smart, reinforced-learning, super-profitable,high-frequency, full-auto trading-agent studio.
+    - Stage 2.
+- **Stage 3:** plan for 7 phases
+    - **Reminder:** 1st and 2nd stage **must be** 110% complete. Shippable - exceeding industry-standard quality.
     - Develop SuperHero + Aircraft Flight-Sim.
     - Develop File Converter app. 
 
@@ -177,7 +184,7 @@ Last update: 02-27-26
 | 3 | Left Sidebar | ~ 1/6th of viewport width | Vertical only |
 | 4 | Right Sidebar | ~ 1/6th of viewport width | Vertical only |
 | 5 | Bottom Bar | ~ 1/6th of viewport height; ~ 4/6th of viewport width | Horizontal Scroll|
-| 6 | Action Bar | ~ 1/6th of viewport height, one-third width of bottom bar | No Scroll |
+| 6 | Action Bar | ~ 1/6th of viewport height, one-third width of viewport | No Scroll |
 | 7 | Main Stage | No fixed dimensions | Varies with studio |
 
 #### Header Bar:
@@ -193,7 +200,7 @@ Last update: 02-27-26
 -  No header in nav bar
 
     - **`Navigation`** text label aligned left, vertically centered
-    - **Studio Selecting:** Card with Powerful Chunky Radio Buttons for `Design`, `Trade` and `Fly`.
+    - **Studio Selecting:** Card with Powerful Chunky Radio Buttons for `Design`, `Trade`, `Fly`, `Convert`.
     - **`Telemetry`** card. right-aligned, vertically centered
 
 #### Left Sidebar:
@@ -224,19 +231,21 @@ Last update: 02-27-26
 - **`Ignition`** text aligned top-left
 
     - Leave empty for eventual cards to be developed.
-    - Yes, this is as functional as all other regions
+    - Yes, this is as functional as all other regions.
+    - do not align the gutter line that is between the main region and side bar, with the gutter line between the bottom bars.
 
 #### Main Region:
 
 -  **`Viewing Port`** text aligned top centered.
-
+-  **Design Studio:** Creative cards and content to show off pretty design of UI/UX
     -  Keep main stage content centered horizontally and vertically
     -  Prevent overflow and scrolling; arrange content creatively
     -  Keep main stage stocked with diverse elements/cards/displays for visual testing.
     -  Prevent main stage cards from overflowing the region bounds in Design State; Be creative with design.
     -  Keep main stage content to fill full width and height and centered both horizontally and vertically.
--  **Design Studio:** Creative cards and content to show off pretty design of UI/UX
--  **Trading Studio:** `No data` and an iss live feed displayed until after succesful API key connection.
+-  **Trading Studio:** `No data` displayed until after succesful API key connection, the main view port auto-navigates to trading studio state.
+-  **Fly Studio:** `No data` and an iss live feed displayed until after succesful API key connection.
+-  **File Converter Studio:** PNG to PDF, URL to MP4, etc.
 
 ### Components:
 
@@ -323,15 +332,14 @@ Last update: 02-27-26
 -  Design Studio Default State
     -  Creative Design Cards and Elements
     -  **Default State:** Design Studio: Creative cards and content to show off pretty design of UI/UX
-    -  **Hero:** Keep the main hero compact to protect vertical space.
-    -  **Real data only** — map gauges to Battery, Network Downlink, or Memory (no mocks)
-    -  **Live logs:** terminal printing 7 events at a time (click, resize, focus)
+    -  **Hero:** Keep the main hero thin and compact to protect vertical space.
+    -  **Map gauges** to Battery, Network Downlink, Memory (no mocks), CPU, GPU, etc.
+        - **Diverse mechanical manometers and plumbing**
+    -  **Live logs:** terminal printing 7 events at a time (click, resize, focus), keep compact, include any errors/warnings
     -  **Web elements:** assorted, do‑nothing elements for visual testing
-    -  **Dev logs** card, a display window log for any errors/warnings
-    -  **Three manometers** (no numbers/text) inside a rounded triangle card
-    -  **Palette viewer** with color samples for selected palette
-    -  **MS paint 1998 inspired app** the best main features of ms paint with functional tools. Local. No saves. like people should believe it is microsoft paint 1998. Can upload images for editing and painting like ms paint. no saves.
-        -  see inspiration photos for ms-paint-app
+    -  **Palette viewer** accurate with each theme selection light or dark mode.
+        - Color swatches for selected palette with 12 of the more major selectors, make a choice which ones to include.
+    -  **MS paint 1998 Clone** Fully functioning clone of ms paint with functional tools. New file, open, save, save as, etc. We want people to believe it is exactly microsoft paint 1998.
 -  Trading Studio State
     -  **Trading Studio:** `No data` displayed until after succesful API key connection.
     -  Sleek initilization animations glowing animations and/or brief glow intensity spike. 
@@ -348,6 +356,9 @@ Last update: 02-27-26
         -  3 columns, full width of the main region
         -  scroll down allowed
         -  `show more markets` button at bottom loads 18 additional series cards.
+Fly Studio State
+    -  **Fly Studio:** `No data` displayed until after succesful API key connection.
+    - the iss live feed displayed until after succesful API key connection.
 
 
 #### Precision Tools:
