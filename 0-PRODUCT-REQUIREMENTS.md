@@ -77,26 +77,26 @@ Last update: 03-02-26
 
 ### System Prompt:
 
-- Role
+#### Role:
 
-    - Veteran Full Stack Developer.
-    - Insightful Artist.
-    - Expert in Kalshi and prediction market trading.
+1. You are a: Veteran Full-stack Programmer - with over 1,000 years experience in Software Engineering for Web Application Development, Design, and Maintenance.
+2. You are an expert in using automated high-frequency trading algorithms/bots/agents for prediction market contracts on Kalshi.
 
-- Tasks
+#### Tasks:
 
-- **1st Stage:** plan for 7 phases 
-    - Develop coolest WebPage ever.
-    - Develop Design Studio.
-- **2nd Stage:** (Main Goal) plan for 7 phases 
+- **1st Stage:**
+    - Develop up to Design Studio.
+- **2nd Stage:** (Main Goal)
     - Deeply develop our smart, reinforced-learning, super-profitable,high-frequency, full-auto trading-agent studio.
-    - Stage 2.
-- **Stage 3:** plan for 7 phases
-    - **Reminder:** 1st and 2nd stage **must be** 110% complete. Shippable - exceeding industry-standard quality.
+    - **2.5th Stage:** Reach shippable quality.
+        - Expect hundreds of tweaks/fixes/upgrades/polishings/refinements/improvements.
+- **Stage 3:**
+    - Ask if main user has successfully gained efficient profits. If not, stay in Stage 2.5*
+    - **Reminder:** 1st and 2nd stage **must be** 110% complete - shippable and exceeding industry-standard quality.
     - Develop SuperHero + Aircraft Flight-Sim.
     - Develop File Converter app. 
 
-- Tools
+#### Tools:
 
     - This PRD.
     - Photos for inspiration — photos located in the root folder.
@@ -132,7 +132,7 @@ Last update: 03-02-26
 
     - Javascript Vanilla
     - Tailwind CSS
-    -  HTML/HTMX
+    - HTML/HTMX
 
 ### WebPage:
 
@@ -189,10 +189,9 @@ Last update: 03-02-26
 
 #### Header Bar:
 
--  No header in header bar.
+- **`Polly Prediction Partners`** Beautiful and professionally designed WebPage Header and Title - aligned Left, vertically centered.
 
-    - **`Polly Prediction Partners v0.03.01`** H1 text label aligned Left, vertically centered.
-    - *insert model name and number under*
+    - A large Robot emoji.
     - **Illumination Panel Card:** right-aligned, vertically centered.
 
 #### Nav Bar:
@@ -219,16 +218,16 @@ Last update: 03-02-26
 
 #### Bottom Bar:
 
-- **`Hangar Bay`** Header text top, centered
+- **`Hangar Bay`** Vertical Header aligned left, vertically centered.
 
     - **`Connect API Keys to engage`**
     - **`Agent Access`** Card for elements to control ai trading agents or algorithms
     - **`P/L`** Graph display window
-    - More ideas eventually
+    - More ideas that will help visualize or interface with the agents
 
 #### Action Bar:
 
-- **`Ignition`** text aligned top-left
+- **`Ignition`** text aligned top centered.
 
     - Leave empty for eventual cards to be developed.
     - Yes, this is as functional as all other regions.
@@ -1619,14 +1618,13 @@ Events broadcast:
 ### Trading Studio
 
 - The entire reason why we are doing this: To make money.
-- Two Agents at first. Seperate environments. After initial success runs, add more agents.
+- Three Agents at first. Seperate environments to avoid cross-contamination of performance.
     -  Each agent has 3 states: Auto, Semi-Auto, Full-Stop.
 
 ---
 
 ### Flight Studio
 
-- **v0.2.01–v0.2.99**
 -  *`No Flight Plan` displayed until the agents make 2,000 dollars so we can develop this and play. Live view of the ISS video feeds if possible.*
 
 ---
@@ -1661,18 +1659,10 @@ Events broadcast:
 
 -  No approval needed to execute buys/sells.
 
-#### Third Agent Slot
-
--  Architecture could stay open for a third agent, codename `007xe`
-
 ### Trading Strategy
 
 - High high Frequency, multiple yes/no buy/sell per minute.
-- Not asset-focused, Kalshi is different trading - the focus should be unassuming until internet research, and after reading Kalshis-API-Reports.md
-- A/B testing with our two agents.
-    - One is normal default, dumb and auto. Base
-    - The other we will actually try to build a smart agent or algorithm. Both get smarter.
--  The only hard stop condition could be an account balance under $5
+- The only hard stop condition could be an account balance under $5
     
 ### Agent Prime
 
@@ -1684,12 +1674,18 @@ Events broadcast:
 
 -  prime could watch total buy and sell volume direction within each minute
     -  prime could place bets aligned with whichever side the majority is trading in that window
-    -  The idea is that the group consensus of a market tends toward the most accurate answer
+    -  This idea is that the group consensus of a market tends toward the most accurate answer
 
 ### Agent Peritia
 
 - We will put heart into this one and try to get this one to focus on the 15 minute recurring BTC price up/down yes/no series.
-- This is the main main main main goal of this project.
+- This is the main main main main #1 goal of this project.
+- Eventually will be really good at all the crypto.
+
+### Agent P007
+
+- this one only goes for the markets that are sports.
+- its going to get really good at at sports
 
 
 ### Ideas
