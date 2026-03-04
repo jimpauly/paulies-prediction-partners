@@ -160,22 +160,36 @@ Last update: 03-02-26
 +-------------------------------------------------------------+
 ```
 
-- Dimensions & Spacing:
+- Viewport:
 
-    -  1920px wide; 944px high
-        - ! height is not 1080px, because of taskbar, browser's bars, et cetera.
-    - **Gutter:**
-        - `18px` shared Outer space between all 7 regions.
-        - Equal spacing among all 4 sides of all 7 regions.
-    - **Bezel logic:**
-        - `6px` div inner wrapper for regions and cards for realism
-        - `12px` div outer wrapper for regions and cards for more realism
-    -  Use Flexbox, Bento, Grid, and others.
-        - Use multiple tools or techniques if one feels too limiting.
-    -  If you have a better idea for each specific region, teach us how to use that tool or technique while developing component layouts.
-    -  Headers and labels should look like physical labels, or etches, on an actual physical dashboard panel interface.
+    -  1920px wide; 944px short.
+        - height is not 1080px because of taskbar, browser's bars, et cetera.
+    - - Region size, gutter size, card size should remain fixed
+            - Contents in cards should shrink/expand if zoomed out/in.
+
+    - **Bezel logic:** for realism
+
+        - Regions:
+
+            - `6px` div inner wrapper
+            - `12px` div outer wrapper
+    
+        - Cards or special components:
+
+            - `6px` div inner wrapper
+            - `6px` div outer wrapper
+
+    -  Arrangement: Use Flexbox, Masonry, Bento, Grid, or others to creatively fit everything; minimal negative space.
+        - This is like a compact Command Bridge, a cockpit, a trading floor dashboard suite. Dense compact professional control interfaces.
+        - Multiple tools or techniques are allowed
+        - If you have a better idea for each specific region, teach us how to use that tool or technique while developing component layouts.
+    
+    - Larger Headers and or titles should look like physical etched text on an actual physical panel.
+    - Smaller headers or labels should look like a label maker was used to make a sticker
 
 ### Regions:
+
+#### Overview:
 
 | # | Name | Size | Scroll |
 | :- | :--- | :--- | :----- |
@@ -207,30 +221,28 @@ Last update: 03-02-26
 - **`System Design`** Header text aligned top, centered.
 
     - **`Mode`** - light/dark toggle (side‑by‑side, centered).
-    - **`System Theme`** - Buttons to select system design theme
+    - **`System Theme`** - Buttons to select system design theme.
+    - **3D toggle** 
 
 #### Right Sidebar:
 
 - **`Inspector Panel`** Header text aligned top, centered.
 
     - **`To‑do list` app** (card, `width: 100%`)
-    - **Visibility toggles:** card with toggles forprecision tools, grid, rulers, etc.
+    - **Send-an-idea**  text box and button to send message to main user
 
 #### Bottom Bar:
 
 - **`Hangar Bay`** Vertical Header aligned left, vertically centered.
 
-    - **`Connect API Keys to engage`**
     - **`Agent Access`** Card for elements to control ai trading agents or algorithms
-    - **`P/L`** Graph display window
+    - **`+/- $`** professionally labeled
+        - Graph display window
     - More ideas that will help visualize or interface with the agents
 
 #### Action Bar:
 
 - **`Ignition`** text aligned top centered.
-
-    - Leave empty for eventual cards to be developed.
-    - Yes, this is as functional as all other regions.
     - do not align the gutter line that is between the main region and side bar, with the gutter line between the bottom bars.
 
 #### Main Region:
@@ -247,8 +259,6 @@ Last update: 03-02-26
 -  **File Converter Studio:** PNG to PDF, URL to MP4, etc.
 
 ### Components:
-
-*This might not be a full list.*
 
 #### Header Bar:
 
@@ -272,59 +282,74 @@ Last update: 03-02-26
     - **Trade:** Trading active and main region switches to markets or series cards.
     - **Fly:** Dashboard morphs into a cockpit (Agents have to make us money before we can play).
 -  Telemetry - aligned-right, vertically-centered
-    - **PING:** live `<canvas>` tiny sparkline using `navigator.connection.rtt` (slow animation, real-time)
+    - **PING:** live `<canvas>` tiny sparkline using `navigator.connection.rtt` (calming-slow-smooth animation, real-time)
     - **SPD:** static text `"MACH 4.20"` (only allowed mock data ever)
-    - **LOAD:** page load time (e.g., `"0.42s"`)
-    - **DAT/TIM:** real-time clock — format `M/D` and 24-hour `HH:MM`
+    - **DATE/TIME:** real-time clock — format `M/D` and 24-hour `HH:MM`. don't include the seconds in the time, it's stressful.
 
 #### Left Sidebar:
 
--  Light/Dark Mode Toggle buttons card
+- Light/Dark Mode Toggle button,
+    - if in light mode, `dark`mode button that looks like dark mode
+    - if in dark mode, `light`mode button that looks like light mode
+- 3D/2D Toggle button
+    - Alters architecture elevation effects. Bezels make things look cooler automatically.
+    - One more simple idea to make 3D effective and not lame.
 -  22 Theme Selector buttons card
-    -  Styled as their respective themes
-    -  Affected by light and dark mode
-    -  Buttons selectors accurately pull from and represent their theme regardless of current styles selected
-    -  If in light or Day mode, they all in light mode
-    -  If in dark or Night mode, they all in dark mode
-    -  Button style: `font-size: 12px`, padding `6px 2px 4px 2px`, `font-weight: 700` centered.
+    - Styled as their respective themes
+    - Affected by light and dark mode
+    - Buttons selectors accurately pull from and represent their theme regardless of current styles selected
+    - If in light or Day mode, they all in light mode
+    - If in dark or Night mode, they all in dark mode
+    - Button style: `font-size: 12px`, padding `6px 2px 4px 2px`, `font-weight: 700` centered.
+-  simple Visibility toggles for tools while developing.
+    - accruate Ruler and grid
 
 #### Right Sidebar:
 
--  Local, Simple-yet-super-useful-&-responsive To-do list App
-    -  **Spiral Notebook** pages look like they are in or connected to a spiral notebook.
-    -  **Bold text toggle** small square button. Can bolden H1 and also Aa sizes.
-    -  **H1 / Aa toggle** — H1 size default; auto-switch to Aa reular style after first paragraph.
-    -  **Bullet list toggler** (icon button below notepad)
-        -  Ensure toggling preserves other paragraph lines
--  Visibility toggles for tools.
-    -  Ruler and grid
+- Local, Responsive To-do list App
+    - **Spiral Notebook** pages look like they are in or connected to a spiral notebook.
+    - **Bold text toggle** small square button. Can bolden H1 and also Aa sizes.
+    - **H1 / Aa toggle** — H1 size default; auto-switch to Aa reular style after first paragraph.
+    - **Bullet list toggler** (icon button below notepad)
+        - Ensure toggling preserves other paragraph lines
+    - saves file as .txt in documents.
+    - can't load files.
+- Card for submitting ideas.
+    - exports message in an email to chickensaurusrex@outlook.com for main user.
+    - Dont display the email address, only a send-an-idea button.
+
 
 #### Bottom Bar:
 
--  Connect API Keys
-    -  **`Connect API Keys to engage`** displays until API keys are logged in.
-    -  After successful key login all cards and components for trading appear in bottom bar and main region.
-    -  Card with text inputs for a user's API keys
-    -  Two pairs of 2 key inputs: two boxes for live keys, and the two boxes for demo keys.
-        -  Two Keys needed for Kalshi activation: API Key and Private RSI Key
--  Live/Demo Trading Mode glowing Indicator Lights
--  Agent Access
-    -  global dial
-    -  individual agent controls
-    -  agent status
-    -  **Agent Access** Card for elements to control ai trading agents or algorithms
-    -  **Global Trading Permission Dial:** Auto, Semi-Auto, Full-Stop. Master global for all agents.
-    -  **Individual Agent Controls Dials:** Auto, Semi-Auto, Full-Stop.
-    -  **Agent:** Displays agent status in a lot of different ways.
--  **Profit/Loss Line Graph** if no data, display `no data`.
-    -  Displays colored lines for each agent's accurate profit/loss data.
-    -  Five Tiny buttons for x axis views `24 hours`, `1 week`, `1 month`, `1 year`, `all`.
-    -  Five Tiny buttons for y axis views `$10` `100`, `1k`, `10k`, `all`.
-    - This is a packed region. Fit everything, plus we need two more ways to visualize and interface with the agents and their performance.
+- Connect API Keys
+    - After successful key login all cards and components for trading appear in bottom bar and main region.
+    - Card with text inputs for a user's API keys
+        - Live/Demo mode selection. After selection, the 2 text boxes ungray and can recieve input.
+        - 1 single line text box for api key
+        - 3 line text box for the larger rsa key
+        - after correctly-formatted keys are in the text boxes, the `connect Kalshi stream` button ungrays
+- Live/Demo Trading Mode pulsing glowing Indicator Lights
+- Agent Access
+    - individual agent controls
+    - agent status
+    - **Agent Access** Card for elements to interface with agents
+    - **Global Trading Permission Dial:** Auto, Semi-Auto, Full-Stop. Master global for all agents.
+    - **Individual Agent Controls Dials:** Auto, Semi-Auto, Full-Stop.
+    - **Agent:** Displays agent status in a lot of different ways.
 
 #### Action Bar:
 
--  Ignition
+- Ignition
+- Global Control for agents
+    - Oceanliner or Submarine Throttle design: Full-Auto, Semi, Full-Stop (default)
+- **Profit/Loss Line Graph** if no data, display `no data`.
+    - **`+/- $`** professionally labeled
+    - One Main line for portfolio balance - simple, charcoal.
+    - Each agent, gets their own line
+        - accurate lines for each agent's accurate profit/loss data, colors pull from active theme color palette so they match.
+    - Five Tiny buttons for x axis views `24 hours`, `1 week`, `1 month`, `1 year`, `all`.
+    - Five Tiny buttons for y axis views `$10` `100`, `1k`, `10k`, `all`.
+    - This is a packed region. Fit everything, plus we need two more ways to visualize and interface with the agents and their performance.
 
 #### Main Region:
 
@@ -337,10 +362,11 @@ Last update: 03-02-26
     -  **Live logs:** terminal printing 7 events at a time (click, resize, focus), keep compact, include any errors/warnings
     -  **Web elements:** assorted, do‑nothing elements for visual testing
     -  **Palette viewer** accurate with each theme selection light or dark mode.
-        - Color swatches for selected palette with 12 of the more major selectors, make a choice which ones to include.
+        - random unique splat-shaped color swatches for selected palette with 12 of the more major selectors, make a choice which ones to include.
     -  **MS paint 1998 Clone** Fully functioning clone of ms paint with functional tools. New file, open, save, save as, etc. We want people to believe it is exactly microsoft paint 1998.
--  Trading Studio State
+-  Trading Studio State.
     -  **Trading Studio:** `No data` displayed until after succesful API key connection.
+    - No mock data ever. Leave empty cards with full formatting, no data or similar place holder text until api keys connect 
     -  Sleek initilization animations glowing animations and/or brief glow intensity spike. 
     -  Live vs Demo mode Indicator and Light.
         -  Completely Different data sets depending on Live or Demo modes initiated.
@@ -377,8 +403,8 @@ Fly Studio State
 ### Themes:
 
 - Read Theme Name Explanations when developing Color Palettes.
-- Develop one at a time, slowly.
-- Light and dark mode can share a lot of the same colors within their palette.
+- Develop one at a time, slowly. develop diverse unique spectrums of complex color palettes.
+- Light and dark mode can share a lot of the same colors within their palette (border colors/illuminations, success/warning/info, etc.)
 
 | Theme Name           | Name Explanation                                                           |
 | :------------------- | :------------------------------------------------------------------------- |
@@ -561,7 +587,7 @@ Fly Studio State
 -  Update UI when state changes (don't just change state silently)
 -  Always put base rules, then theme rules, then mode rules, then illumination rules.
 -  Group variables by category
--  Document variable purposes
+-  Document variable purposes where necessary with brief dev notes in the codes.
 -  Plan for scoped variables (component-level)
 -  Theme and illumination state remain unchanged when switching between studios. They reset on new browser.
 
@@ -1646,6 +1672,7 @@ Events broadcast:
 ### Agent Interfaces
 
 -  Agents will mostly be interfaced through their Agent Access content card in the bottom bar.
+- interfaces for approval/deny bids in semi-auto
 
 #### Semi-Auto Approval Flow
 
@@ -1694,8 +1721,8 @@ Events broadcast:
 -  Both agents operate in Demo environment first. Neither touches Live until Demo performance is validated over a meaningful sample.
 -  prime is the control. Its job is to lose slowly or break even — establishing a baseline that peritia must beat to prove its strategy is real.
 -  peritia reads the BTC recurring series orderbook and recent trade history on every market update. Decisions are made from live data only, never cached assumptions.
--  A/B comparison data — win rate, fills, PnL, order count — is displayed side by side in the Bottom Bar P/L graph, one colored line per agent.
--  Both agents write every decision and its outcome to the database. This creates a training record even before any ML is involved.
+- comparison data — win rate, fills, PnL, order count — is displayed side by side in the Bottom Bar P/L graph, one colored line per agent.
+-  All agents write or log every decision and its outcome to the database. This creates a training record even before any ML is involved.
 -  peritia's strategy should be developed incrementally: start with one simple signal, measure it, then add complexity only when the simpler version is understood.
 
 #### API Key Auto-Fill
