@@ -89,10 +89,14 @@ Last update: 03-02-26
 - **2nd Stage:** (Main Goal)
     - Deeply develop our smart, reinforced-learning, super-profitable,high-frequency, full-auto trading-agent studio.
     - **2.5th Stage:** Reach shippable quality.
-        - Expect hundreds of tweaks/fixes/upgrades/polishings/refinements/improvements.
+        - Windows and Mac Desktop apps with setup wizards.
+        - Individuals ith minimal technical background should be able to install, and easily interface with, their copy of this app.
+    - Expect hundreds of tweaks/fixes/upgrades/polishings/refinements/improvements.
+    - Do not ever ask for stage 3. Continue developing, refining, improving in step 2.5.
+    - Close security holes. Close data leak possibilities. Critique security and fix.
 - **Stage 3:**
     - Ask if main user has successfully gained efficient profits. If not, stay in Stage 2.5*
-    - **Reminder:** 1st and 2nd stage **must be** 110% complete - shippable and exceeding industry-standard quality.
+        - **Reminder:** 1st and 2nd stage **must be** 110% complete - shippable and exceeding industry-standard quality.
     - Develop SuperHero + Aircraft Flight-Sim.
     - Develop File Converter app. 
 
@@ -128,11 +132,11 @@ Last update: 03-02-26
 
 ### Front End Stack:
 
-- Begin with:
+**Begin with:**
 
-    - Javascript Vanilla
-    - Tailwind CSS
-    - HTML/HTMX
+- JavaScript Vanilla
+- Tailwind CSS
+- HTML/HTMX
 
 ### WebPage:
 
@@ -160,34 +164,22 @@ Last update: 03-02-26
 +-------------------------------------------------------------+
 ```
 
-- Viewport:
+- **Viewport:** `1920px` wide × `944px` tall
+    - Height accounts for taskbar, browser bars, etc. (not full `1080px`)
+    - Region size, gutter size, and card size should remain fixed
+    - Content within cards should shrink/expand on zoom
+- **Bezel Logic**
+    - Regions: `6px` inner wrapper, `12px` outer wrapper
+    - Cards or special components: `6px` inner wrapper, `6px` outer wrapper
+- **Arrangement:** Use Flexbox, Masonry, Bento, Grid, or other techniques to creatively fit content with minimal negative space
+    - Think compact Command Bridge, cockpit, trading floor dashboard suite — dense, compact, professional control interfaces
+    - Multiple tools or techniques are allowed
+    - Suggest improvements and teach us new techniques while developing
+- **Typography**
+    - Larger headers/titles should look like physical etched text on an actual control panel
+    - Smaller headers/labels should look like label maker stickers
 
-    -  1920px wide; 944px short.
-        - height is not 1080px because of taskbar, browser's bars, et cetera.
-    - - Region size, gutter size, card size should remain fixed
-            - Contents in cards should shrink/expand if zoomed out/in.
-
-    - **Bezel logic:** for realism
-
-        - Regions:
-
-            - `6px` div inner wrapper
-            - `12px` div outer wrapper
-    
-        - Cards or special components:
-
-            - `6px` div inner wrapper
-            - `6px` div outer wrapper
-
-    -  Arrangement: Use Flexbox, Masonry, Bento, Grid, or others to creatively fit everything; minimal negative space.
-        - This is like a compact Command Bridge, a cockpit, a trading floor dashboard suite. Dense compact professional control interfaces.
-        - Multiple tools or techniques are allowed
-        - If you have a better idea for each specific region, teach us how to use that tool or technique while developing component layouts.
-    
-    - Larger Headers and or titles should look like physical etched text on an actual physical panel.
-    - Smaller headers or labels should look like a label maker was used to make a sticker
-
-### Regions:
+### Regions & Elements:
 
 #### Overview:
 
@@ -203,246 +195,220 @@ Last update: 03-02-26
 
 #### Header Bar:
 
-- **`Polly Prediction Partners`** Beautiful and professionally designed WebPage Header and Title - aligned Left, vertically centered.
-
-    - A large Robot emoji.
-    - **Illumination Panel Card:** right-aligned, vertically centered.
-
--  Illumination Control Panel
-    - Aligned-right
-    - looks like an overhead-control-panel, see photos for inpiration.
-    - Channels, components, elements, and Default states for flip toggles, dimmer dials.
-    - **DAY/NVG:** secondary light/dark toggle, tied in with, and equal to, main light/dark circuit. Default: Day.
-    - **Master:** switch OFF; master dimmer at max
-    - **Text:** primary & secondary ON; dimmer at max
-    - **Bars:** primary & secondary ON; dimmer at max
-    - **Flood:** ON; dimmer at max
-    - **Display:** ON; dimmer at max
+- **`Polly Prediction Partners`** — Beautiful, professionally designed header and title. Aligned left, vertically centered.
+    - **Large Robot emoji**
+    - **Illumination Control Panel** — Right-aligned, vertically centered. Looks like an overhead control panel. See photos for inspiration.
+        - **Channels & Groups:** Chunky flip toggles and rotary dimmer dials.
+        - **DAY/NVG:** Secondary light/dark toggle, tied to and equal with main light/dark circuit. Default: Day.
+        - **Master:** Switch OFF; dimmer at max.
+        - **Text:** Primary & secondary ON; dimmer at max.
+        - **Bars:** Primary & secondary ON; dimmer at max.
+        - **Flood:** ON; dimmer at max.
+        - **Display:** ON; dimmer at max.
+        - Ensure consistency in spacing and heights/sizes of switches and dials.
+        - Everything set to ON and MAX except Master ON/OFF.
+        - Once Master is flipped ON, full illumination effects applied.
+        - Must be accurate to real physics and electronics for illumination controls.
 
 #### Nav Bar:
 
--  No header in nav bar
-
-    - **`Navigation`** text label aligned left, vertically centered
-    - **Studio Selecting:** Card with Powerful Chunky Radio Buttons for `Design`, `Trade`, `Fly`, `Convert`.
-    - **`Telemetry`** card. right-aligned, vertically centered
-
--  Studio Selectors
-    - aligned-left, veritcally-centered.
-    - Card with Powerful Chunky Radio Buttons for `Design`, `Trade` and `Fly`.
-    - **Design:** Default Studio. Creative Modern WebPage
-    - **Trade:** Trading active and main region switches to markets or series cards.
-    - **Fly:** Dashboard morphs into a cockpit (Agents have to make us money before we can play).
--  Telemetry - aligned-right, vertically-centered
-    - **PING:** live `<canvas>` tiny sparkline using `navigator.connection.rtt` (calming-slow-smooth animation, real-time)
-    - **SPD:** static text `"MACH 4.20"` (only allowed mock data ever)
-    - **DATE/TIME:** real-time clock — format `M/D` and 24-hour `HH:MM`. don't include the seconds in the time, it's stressful.
+- **No header** in nav bar
+    - **`Navigation`** text label — Aligned left, vertically centered
+    - **Studio Selector** — Card with chunky radio buttons for `Design`, `Trade`, `Fly`, `Convert`. Aligned left, vertically centered.
+        - **Design:** Default studio. Creative modern webpage.
+        - **Trade:** Trading active; main region switches to markets or series cards.
+        - **Fly:** Dashboard morphs into a cockpit (Agents must earn $2k profit to unlock).
+    - **Telemetry** card — Aligned right, vertically centered
+        - **PING:** Live `<canvas>` tiny sparkline using `navigator.connection.rtt` (calming, slow-smooth animation, real-time).
+        - **SPD:** Static text `"MACH 4.20"` (only allowed mock data ever).
+        - **DATE/TIME:** Real-time clock — Format `M/D` and 24-hour `HH:MM`. Exclude seconds (it's stressful).
 
 #### Left Sidebar:
 
-- **`System Design`** Header text aligned top, centered.
-
-    - **`Mode`** - light/dark toggle (side‑by‑side, centered).
-    - **`System Theme`** - Buttons to select system design theme.
-    - **3D toggle**
-
-- Light/Dark Mode Toggle button,
-    - if in light mode, `dark`mode button that looks like dark mode
-    - if in dark mode, `light`mode button that looks like light mode
-- 3D/2D Toggle button
-    - Alters architecture elevation effects. Bezels make things look cooler automatically.
-    - One more simple idea to make 3D effective and not lame.
--  22 Theme Selector buttons card
-    - Styled as their respective themes
-    - Affected by light and dark mode
-    - Buttons selectors accurately pull from and represent their theme regardless of current styles selected
-    - If in light or Day mode, they all in light mode
-    - If in dark or Night mode, they all in dark mode
-    - Button style: `font-size: 12px`, padding `6px 2px 4px 2px`, `font-weight: 700` centered.
--  simple Visibility toggles for tools while developing.
-    - accruate Ruler and grid
+- **`System Design`** header — Aligned top, centered
+    - **`Mode`:** Light/dark toggle (side-by-side, centered)
+    - **`System Theme`:** Buttons to select system design theme
+    - **3D Toggle:** Alters architectural elevation effects. Bezels make things look cooler automatically. One more simple idea to make 3D effective and not lame.
+- **Light/Dark Mode Toggle Button**
+    - **When in light mode:** displays a button that looks like dark mode.
+    - **When in dark mode:** displays a button that looks like light mode.
+- **3D/2D Toggle Button**
+    - Alters architectural elevation effects. Bezels automatically enhance appearance.
+- **22-Theme Selector Button Card**
+    - Styled to represent each respective theme.
+    - Affected by light and dark mode.
+    - Button selectors accurately pull from and represent their theme regardless of current selection.
+    - **When in light or day mode:** all theme buttons display in light mode.
+    - **When in dark or night mode:** all theme buttons display in dark mode.
+    - **Button styling:** `font-size: 12px`, padding `6px 2px 4px 2px`, `font-weight: 700`, centered.
+- **Simple Visibility Toggles** for tools while developing
+    - Accurate ruler and grid.
 
 #### Right Sidebar:
 
-- **`Inspector Panel`** Header text aligned top, centered.
-
-    - **`To‑do list` app** (card, `width: 100%`)
-    - **Send-an-idea**  text box and button to send message to main user
-
-- Local, Responsive To-do list App
-    - **Spiral Notebook** pages look like they are in or connected to a spiral notebook.
-    - **Bold text toggle** small square button. Can bolden H1 and also Aa sizes.
-    - **H1 / Aa toggle** — H1 size default; auto-switch to Aa reular style after first paragraph.
-    - **Bullet list toggler** (icon button below notepad)
-        - Ensure toggling preserves other paragraph lines
-    - saves file as .txt in documents.
-    - can't load files.
-- Card for submitting ideas.
-    - exports message in an email to chickensaurusrex@outlook.com for main user.
-    - Dont display the email address, only a send-an-idea button.
+- **`Inspector Panel`** header — Aligned top, centered
+    - **`To-Do List` App** (card, `width: 100%`)
+        - **Spiral Notebook** pages look like they're in or connected to a spiral notebook.
+        - **Bold Text Toggle:** Small square button. Can bold H1 and Aa sizes.
+        - **H1 / Aa Toggle:** H1 size default; auto-switch to regular Aa style after first paragraph.
+        - **Bullet List Toggler** (icon button below notepad) — Toggling preserves other paragraph lines.
+        - **Saves file** as `.txt` in Documents.
+        - **Cannot load files**.
+    - **Send-an-Idea Card**
+        - Exports message in an email to `chickensaurusrex@outlook.com` for main user.
+        - Display only the send-an-idea button (do not display email address).
 
 #### Bottom Bar:
 
-- **`Hangar Bay`** Vertical Header aligned left, vertically centered.
-
-    - **`Agent Access`** Card for elements to control ai trading agents or algorithms
-    - **`+/- $`** professionally labeled
-        - Graph display window
-    - More ideas that will help visualize or interface with the agents
-
-- Connect API Keys
-    - After successful key login all cards and components for trading appear in bottom bar and main region.
-    - Card with text inputs for a user's API keys
-        - Live/Demo mode selection. After selection, the 2 text boxes ungray and can recieve input.
-        - 1 single line text box for api key
-        - 3 line text box for the larger rsa key
-        - after correctly-formatted keys are in the text boxes, the `connect Kalshi stream` button ungrays
-- Live/Demo Trading Mode pulsing glowing Indicator Lights
-- Agent Access
-    - individual agent controls
-    - agent status
-    - **Agent Access** Card for elements to interface with agents
-    - **Global Trading Permission Dial:** Auto, Semi-Auto, Full-Stop. Master global for all agents.
-    - **Individual Agent Controls Dials:** Auto, Semi-Auto, Full-Stop.
-    - **Agent:** Displays agent status in a lot of different ways.
+- **`Hangar Bay`** header — Aligned left, vertically centered
+    - **`Agent Access`** card — For elements to control AI trading agents or algorithms
+        - **Graph display window** labeled **`+/- $`** professionally
+        - **More ideas** to visualize or interface with agents
+- **Connect API Keys**
+    - After successful key login, all trading cards and components appear in bottom bar and main region.
+    - Card with text inputs for user API keys
+        - **Live/Demo mode selection:** After selection, text boxes ungray and can receive input.
+        - **Single-line text box** for API key.
+        - **Multi-line text box** for larger RSA key.
+        - **`Connect Kalshi Stream` button** ungrays once correctly-formatted keys are entered.
+- **Live/Demo Trading Mode Indicator Lights** — Pulsing, glowing indicator.
+- **Agent Access**
+    - **Individual agent controls**.
+    - **Agent Access Card** — For interactive agent interface
+        - **Individual Agent Control Dials:** `Auto`, `Semi-Auto`, `Safe`.
+        - **Agent Status Display** — Shows agent status in multiple ways.
 
 #### Action Bar:
 
-- **`Ignition`** text aligned top centered.
-    - do not align the gutter line that is between the main region and side bar, with the gutter line between the bottom bars.
-
-- Ignition
-- Global Control for agents
-    - Oceanliner or Submarine Throttle design: Full-Auto, Semi, Full-Stop (default)
-- **Profit/Loss Line Graph** if no data, display `no data`.
-    - **`+/- $`** professionally labeled
-    - One Main line for portfolio balance - simple, charcoal.
-    - Each agent, gets their own line
-        - accurate lines for each agent's accurate profit/loss data, colors pull from active theme color palette so they match.
-    - Five Tiny buttons for x axis views `24 hours`, `1 week`, `1 month`, `1 year`, `all`.
-    - Five Tiny buttons for y axis views `$10` `100`, `1k`, `10k`, `all`.
-    - This is a packed region. Fit everything, plus we need two more ways to visualize and interface with the agents and their performance.
+- **`Ignition`** header — Aligned top, centered
+    - **Do not align gutter lines** between main region/sidebar with gutter lines between bottom bars.
+- **Global Control for Agents:**
+    - Oceanliner or Submarine Throttle design: `Full-Auto`, `Semi-Auto`, `Full-Stop` (default).
+- **Profit/Loss Line Graph** — Display `No data` if no data available
+    - **`+/- $`** professionally labeled.
+    - One main line for portfolio balance (simple, charcoal).
+    - Each agent gets their own colored line.
+    - Accurate profit/loss data per agent; colors pulled from active theme color palette.
+    - Five small buttons for X-axis views: `24 hours`, `1 week`, `1 month`, `1 year`, `all`.
+    - Five small buttons for Y-axis views: `$10`, `$100`, `$1k`, `$10k`, `all`.
+    - This is a packed region. Fit everything creatively, plus two more ways to visualize and interface with agents and performance.
 
 #### Main Region:
 
--  **`Viewing Port`** text aligned top centered.
--  **Design Studio:** Creative cards and content to show off pretty design of UI/UX
-    -  Keep main stage content centered horizontally and vertically
-    -  Prevent overflow and scrolling; arrange content creatively
-    -  Keep main stage stocked with diverse elements/cards/displays for visual testing.
-    -  Prevent main stage cards from overflowing the region bounds in Design State; Be creative with design.
-    -  Keep main stage content to fill full width and height and centered both horizontally and vertically.
--  **Trading Studio:** `No data` displayed until after succesful API key connection, the main view port auto-navigates to trading studio state.
--  **Fly Studio:** `No data` and an iss live feed displayed until after succesful API key connection.
--  **File Converter Studio:** PNG to PDF, URL to MP4, etc.
+- **`Viewing Port`** header — Aligned top, centered
 
--  Design Studio Default State
-    -  Creative Design Cards and Elements
-    -  **Default State:** Design Studio: Creative cards and content to show off pretty design of UI/UX
-    -  **Hero:** Keep the main hero thin and compact to protect vertical space.
-    -  **Map gauges** to Battery, Network Downlink, Memory (no mocks), CPU, GPU, etc.
-        - **Diverse mechanical manometers and plumbing**
-    -  **Live logs:** terminal printing 7 events at a time (click, resize, focus), keep compact, include any errors/warnings
-    -  **Web elements:** assorted, do‑nothing elements for visual testing
-    -  **Palette viewer** accurate with each theme selection light or dark mode.
-        - random unique splat-shaped color swatches for selected palette with 12 of the more major selectors, make a choice which ones to include.
-    -  **MS paint 1998 Clone** Fully functioning clone of ms paint with functional tools. New file, open, save, save as, etc. We want people to believe it is exactly microsoft paint 1998.
--  Trading Studio State.
-    -  **Trading Studio:** `No data` displayed until after succesful API key connection.
-    - No mock data ever. Leave empty cards with full formatting, no data or similar place holder text until api keys connect
-    -  Sleek initilization animations glowing animations and/or brief glow intensity spike.
-    -  Live vs Demo mode Indicator and Light.
-        -  Completely Different data sets depending on Live or Demo modes initiated.
-    -  Category Nav menu, Horizontal scrolling
-        -  Sub-Category Nav Menu, horizontal scrolling
-        -  Filter options: Volume, frequency, time-to-close.
-    -  **Series Cards**: 3 columns, full width of the main region. Scroll down allowed. `show more markets` button at bottom loads 18 additional series.
-        -  Cards show information similar to Kalshi's cards in our photos folder
-        -  Cards have tiny button element in bottom right to expand that card to expand to fill the main region.
-        -  after api keys are successfully connected, as much data as allowed, as frequently as allowed, will be collected.
-        -  only the first 9 series cards are rendered to keep the UI fast
-        -  3 columns, full width of the main region
-        -  scroll down allowed
-        -  `show more markets` button at bottom loads 18 additional series cards.
--  Fly Studio State
-    -  **Fly Studio:** `No data` displayed until after succesful API key connection.
-    - the iss live feed displayed until after succesful API key connection.
+##### Design Studio
+
+- Creative cards and content showcasing UI/UX design.
+- Keep main stage content centered horizontally and vertically.
+- Prevent overflow and excessive scrolling; arrange content creatively.
+- Keep main stage stocked with diverse elements, cards, and displays for visual testing.
+- Prevent cards from overflowing region bounds; be creative with design.
+- Fill full width and height; center both horizontally and vertically.
+- **Creative Design Cards and Elements:**
+    - **Hero:** Keep thin and compact to preserve vertical space.
+    - **Map Gauges:** Battery, Network Downlink, Memory (no mocks), CPU, GPU, etc.
+        - Diverse mechanical manometers and plumbing.
+    - **Live Logs:** Terminal printing 7 events at a time (click, resize, focus). Keep compact; include errors/warnings.
+    - **Web Elements:** Assorted, non-functional elements for visual testing.
+    - **Palette Viewer:** Accurate with each theme selection and light/dark mode.
+        - Random unique splat-shaped color swatches for selected palette (12 major selectors).
+    - **MS Paint 1998 Clone:** Fully functional with tools (New, Open, Save, Save As, etc.). Should look exactly like Microsoft Paint 1998.
+
+##### Trading Studio
+
+- **Display:** `No data` until after successful API key connection, then auto-navigate to trading studio state.
+- **No mock data ever.** Empty cards with full formatting, `No data` placeholder until API keys connect.
+- **Sleek initialization animations** and glowing effects with brief glow intensity spikes.
+- **Live vs Demo mode indicator and light:** Completely different data sets based on mode.
+- **Category Nav Menu:** Horizontal scrolling
+    - **Sub-Category Nav Menu:** Horizontal scrolling.
+    - **Filter Options:** Volume, frequency, time-to-close.
+- **Series Cards:** 3 columns, full width of main region. Scroll down allowed.
+    - Cards show information similar to Kalshi cards (see photos folder).
+    - Tiny expand button in bottom right to expand card to fill main region.
+    - After successful API key connection: collect as much data as allowed, as frequently as allowed.
+    - Render only first 18 series cards to keep UI fast.
+    - `Show More Markets` button at bottom loads additional 18 series cards.
+
+##### Fly Studio
+
+- **Display:** `No data` until after successful API key connection.
+- **ISS live feed** displayed (once API keys connected; Agents must earn $2k profit to unlock).
 
 
 #### Precision Tools:
 
--  **Rulers:** x-axis (top) and y-axis (left); 18px wide.
-    -  Tick heights: 6px / 8px / 12px at every 10px.
-    -  shared Zero-square.
-    -  Accurate to the device pixels.
--  **X-axis end px label:** located in the ruler at the end of the x-axis.
--  **Y-axis end px label:** located in the ruler at the end of the y-axis.
--  **Grid:** toggleable 60×60px overlay aligned with the rulers.
--  **Dynamic tracking:** recalculate on `resize` and `visualViewport` change events
--  **Device-pixel assignment:** align measurements to actual device pixels.
+- **Rulers:** X-axis (top) and Y-axis (left); 18px wide
+    - **Tick heights:** `6px` / `8px` / `12px` at every 10px.
+    - **Shared Zero-square.**
+    - **Accurate to device pixels.**
+- **X-Axis End px Label:** Located in ruler at end of X-axis.
+- **Y-Axis End px Label:** Located in ruler at end of Y-axis.
+- **Grid:** Toggleable `60×60px` overlay aligned with rulers.
+- **Dynamic Tracking:** Recalculate on `resize` and `visualViewport` change events.
+- **Device-Pixel Assignment:** Align measurements to actual device pixels.
 
 ---
 
 ### Themes:
 
-- Read Theme Name Explanations when developing Color Palettes.
-- Develop one at a time, slowly. develop diverse unique spectrums of complex color palettes.
-- Light and dark mode can share a lot of the same colors within their palette (border colors/illuminations, success/warning/info, etc.)
+**When developing color palettes:**
+- Read theme name explanations carefully.
+- Develop one theme at a time, slowly.
+- Create diverse, unique spectrums with complex color palettes.
+- Light and dark modes can share many colors (borders, illumination, state colors, etc.).
 
 | Theme Name           | Name Explanation                                                           |
 | :------------------- | :------------------------------------------------------------------------- |
-| Webpage Light        | 2026 WebPage. Modern Default Normal. diversely colored, yet professional   |
-| Webpage Dark         | Modern Default Normal "Night Mode" reading. Like google's dark mode        |
-| Mosaic 1993 Light    | Windows 3.1 Silver chrome, chiseled borders. Teal bg (0, 128, 128)         |
-| Mosaic 1993 Dark     | Exact Inverse of mosaic 1993 light mode                                    |
-| Gen7 Cockpit Light   | Gen 7 Fighter. Dark Gull Gray (FS 36231), MFD Green.                       |
-| Gen7 Cockpit Dark    | Night Vision/Stealth. Deep charcoal, NVG Green glow.                       |
-| USSR Cockpit Light   | Soviet Cold War. MiG Turquoise (#3d90a2). Stress-reducing blue.            |
-| USSR Cockpit Dark    | Night Intercept. region bodies still (#3d90a2).                            |
-| Neon Vice 1985 Light | GTA Neon Vice Neon City. Miami pastels, linen suits, art deco pinks.       |
-| Neon Vice 1985 Dark  | Ocean Drive Midnight. Wide misty purple haze, humid glow.                  |
-| Neon City 2085 Light | 2085 Utopia. Hopeful, Chromium, Electric neon.                             |
-| Neon City 2085 Dark  | 2085 Dystopia. Netrunner. sharp laser edges.                               |
-| Coniforest Light     | Evergreens. Mt. Rainier (Cold green). Mist, Granite, Pine, and Khaki.      |
-| Coniforest Dark      | PNW Night. Deep evergreen, cold shadows, campfire ash.                     |
-| Raneforest Light     | Amazon (Hot green). Humid, Pith Helmet Beige, Parrot Green.                |
-| Raneforest Dark      | Amazon Night. Deep canopy, bioluminescence, toxic accents.                 |
-| Art Deco Light       | Roaring Twenties. Ivory, lacquer black, champagne gold, geometric trim.    |
-| Art Deco Dark        | Ballroom. Piano black, brass lines, emerald accents, sharp symmetry.       |
-| Chrome Light         | Polished studio metal. Brushed aluminum, clean white, cool blue reflections|
-| Chrome Dark          | Gunmetal and smoked glass. Cold cyan edge lights with mirror-like contrast.|
-| Holographic Light    | Iridescent daylight. Pearl base with shifting teal spectral shimmer        |
-| Holographic Dark     | Prism noir. Charcoal base, spectral highlights, neon refraction edges.     |
-| Vapor Light          | Pastel arcade sunrise. Mint, peach, sky blue haze, soft retro gradients.   |
-| Vapor Dark           | Late-night vaporwave. Deep navy, hot pink, cyan glow, retro grid ambience. |
-| Paper Light          | The Office. Copier paper, toner black, ballpoint blue.                     |
-| Paper Dark           | Carbon. Deep indigo back, faint blue transfer text.                        |
-| Ledger 1920 Light    | Wall St Ledger. Manila folder, Banker Green, Typewriter.                   |
-| Ledger 1920 Dark     | Jazz Moderne / Gatsby. Matte Black Cardstock, Gold Foil.                   |
-| Blueprint Light      | Physical drafting table.                                                   |
-| Blueprint Dark       | AutoCAD / Terminal Aesthetic. High contrast lines.                         |
-| Chalkboard Light     | Greenboard. Chalk colors, aluminum.                                        |
-| Chalkboard Dark      | Classic Blackboard. Slate Black, dusty white chalk                         |
-| Oceanic Light        | Maritime / Yacht Club. Navy Blue, White, Brass accents. coral              |
-| Oceanic Dark         | The Abyss. Crushing depth. Black-Blue, Coral, Bioluminescence.             |
-| Glacier Light        | Glacier Sheet. Blinding white, sharp slate.                                |
-| Glacier Dark         | Deep Freeze. Oxygen-starved blue glacier. Research station.                |
-| Volcano Light        | Active Caldera. Ash gray, Pumglacier, Sulfur, and Magma.                   |
-| Volcano Dark         | Magma Chamber. Basalt black, flowing lava, heat shimmer.                   |
-| Phosphor Light       | dark terminal. P3 Amber CRT old computer                                   |
-| Phosphor Dark        | dark terminal. green Phosphor old computer, retro blur.                    |
-| Steampunk Light      | Victorian Sci-Fi. Parchment, Brass, Mahogany, Steam.                       |
-| Steampunk Dark       | London Fog. Gaslight, Soot, Dark Leather, Copper.                          |
-| Dieselpunk Light     | WWI Trench. Khaki, Grease, Riveted Steel, Olive.                           |
-| Dieselpunk Dark      | NoirCity. Oily Steel, Smog, Grime, Weak Yellow Light.                      |
-| Solarpunk Light      | Eco-Utopia. Cream ceramic, lush green, solar gold.                         |
-| Solarpunk Dark       | Night Garden. Bioluminescence, deep teal, soft amber.                      |
-| Stonepunk Light      | Bedrock Quarry. Sandstone, Slate, Leather, Clay.                           |
-| Stonepunk Dark       | Cave Fire. Soot black, Torch Orange, Ash White.                            |
-| Dreamcore Light      | Daydream. Pastel clouds, blinding light, nostalgia. Cotton Candy clouds    |
-| Dreamcore Dark       | Nightmare. The Void, static noise, watching eyes.                          |
-| Frutiger Aero Light  | Window Vista / Web 2.0. Bubbly, Glossy, Sky Blue, Grass Green, Glass.      |
-| Frutiger Aero Dark   | Midnight Aurora. Glassy Black, Glowing Cyan, Deep Blue.                    |
+| Webpage Light        | 2026 webpage. Modern default. Diverse colors, professional   |
+| Webpage Dark         | Modern default "Night Mode" reading. Like Google's dark mode |
+| Mosaic 1993 Light    | Windows 3.1 Silver chrome, chiseled borders. Teal BG (0, 128, 128) |
+| Mosaic 1993 Dark     | Exact inverse of Mosaic 1993 Light                          |
+| Gen7 Cockpit Light   | Gen 7 Fighter. Dark Gull Gray (FS 36231), MFD Green          |
+| Gen7 Cockpit Dark    | Night Vision/Stealth. Deep charcoal, NVG Green glow         |
+| USSR Cockpit Light   | Soviet Cold War. MiG Turquoise (#3d90a2). Stress-reducing blue |
+| USSR Cockpit Dark    | Night Intercept. Region bodies still (#3d90a2)              |
+| Neon Vice 1985 Light | GTA Neon Vice Neon City. Miami pastels, linen suits, art deco pinks |
+| Neon Vice 1985 Dark  | Ocean Drive Midnight. Misty purple haze, humid glow          |
+| Neon City 2085 Light | 2085 Utopia. Hopeful, chromium, electric neon               |
+| Neon City 2085 Dark  | 2085 Dystopia. Netrunner. Sharp laser edges                 |
+| Coniforest Light     | Evergreens. Mt. Rainier (Cold green). Mist, Granite, Pine, Khaki |
+| Coniforest Dark      | PNW Night. Deep evergreen, cold shadows, campfire ash        |
+| Rainforest Light     | Amazon (Hot green). Humid, Pith Helmet Beige, Parrot Green  |
+| Rainforest Dark      | Amazon Night. Deep canopy, bioluminescence, toxic accents   |
+| Art Deco Light       | Roaring Twenties. Ivory, lacquer black, champagne gold, geometric trim |
+| Art Deco Dark        | Ballroom. Piano black, brass lines, emerald accents, sharp symmetry |
+| Holographic Light    | Iridescent daylight. Pearl base with shifting teal spectral shimmer |
+| Holographic Dark     | Prism Noir. Charcoal base, spectral highlights, neon refraction edges |
+| Vapor Light          | Pastel arcade sunrise. Mint, peach, sky blue haze, soft retro gradients |
+| Vapor Dark           | Late-night vaporwave. Deep navy, hot pink, cyan glow, retro grid ambience |
+| Paper Light          | The Office. Copier paper, toner black, ballpoint blue       |
+| Paper Dark           | Carbon. Deep indigo, faint blue transfer text               |
+| Ledger 1920 Light    | Wall St. Ledger. Manila folder, Banker Green, Typewriter    |
+| Ledger 1920 Dark     | Jazz Moderne / Gatsby. Matte Black Cardstock, Gold Foil     |
+| Blueprint Light      | Physical drafting table                                     |
+| Blueprint Dark       | AutoCAD / Terminal Aesthetic. High contrast lines           |
+| Chalkboard Light     | Greenboard. Chalk colors, aluminum                          |
+| Chalkboard Dark      | Classic Blackboard. Slate Black, dusty white chalk          |
+| Oceanic Light        | Maritime / Yacht Club. Navy Blue, White, Brass accents, coral |
+| Oceanic Dark         | The Abyss. Crushing depth. Black-Blue, Coral, Bioluminescence |
+| Volcano Light        | Active Caldera. Ash gray, Pumice, Sulfur, and Magma         |
+| Volcano Dark         | Magma Chamber. Basalt black, flowing lava, heat shimmer     |
+| Phosphor Light       | Dark terminal. P3 Amber CRT old computer                    |
+| Phosphor Dark        | Dark terminal. Green Phosphor old computer, retro blur      |
+| Steampunk Light      | Victorian Sci-Fi. Parchment, Brass, Mahogany, Steam         |
+| Steampunk Dark       | London Fog. Gaslight, Soot, Dark Leather, Copper            |
+| Dieselpunk Light     | WWI Trench. Khaki, Grease, Riveted Steel, Olive             |
+| Dieselpunk Dark      | Noir City. Oily Steel, Smog, Grime, Weak Yellow Light       |
+| Solarpunk Light      | Eco-Utopia. Cream ceramic, lush green, solar gold            |
+| Solarpunk Dark       | Night Garden. Bioluminescence, deep teal, soft amber        |
+| Stonepunk Light      | Bedrock Quarry. Sandstone, Slate, Leather, Clay             |
+| Stonepunk Dark       | Cave Fire. Soot black, Torch Orange, Ash White              |
+| Dreamcore Light      | Daydream. Pastel clouds, blinding light, nostalgia, Cotton Candy |
+| Dreamcore Dark       | Nightmare. The Void, static noise, watching eyes            |
+| Frutiger Aero Light  | Windows Vista / Web 2.0. Bubbly, Glossy, Sky Blue, Grass Green, Glass |
+| Frutiger Aero Dark   | Midnight Aurora. Glassy Black, Glowing Cyan, Deep Blue     |
 
 #### Token System:
 
@@ -470,8 +436,7 @@ Last update: 03-02-26
 - `neoncity-2085`
 - `coniforest`
 - `raneforest`
-- `streamline-moderne`
-- `chrome`
+- `art-deco`
 - `holographic`
 - `vapor`
 - `paper`
@@ -481,7 +446,6 @@ Last update: 03-02-26
 - `phosphor`
 - `volcano`
 - `oceanic`
-- `glacier`
 - `steampunk`
 - `dieselpunk`
 - `solarpunk`
@@ -527,11 +491,12 @@ Last update: 03-02-26
 
 #### Controls:
 
-- Each layer/group has one On/Off Switch and one Dimmer Dial. Text and Bar have two On/Off Switches and one dimmer dial.
+- Each layer/group has one On/Off Switch and one rotary Dimmer Dial.
+- Text and Bar groups have two On/Off Switches and one dimmer dial.
     
     -  **DAY/NVG** - toggle is tied and equal to Light/Dark toggle.
         -  Visually flips to show which mode is currently active. The two modes override each other
-    -  **Master** - global ON/OFF Illumination switch; OFF default; Global DIM Dial; DIM MAX default.
+    -  **Master** - global ON/OFF Illumination switch, OFF default; Global DIM Dial, DIM MAX default.
     -  **Text** - controls glow, luminance, and opacity for primary and secondary text groups; Find 100% of text elements and apply these effects.
         -  primary text — main content/headings/labels
         -  secondary text — descriptions/metadata/tertiary; effects — text-shadow glow, opacity modulation, luminance.
@@ -539,8 +504,9 @@ Last update: 03-02-26
         -  primary bars — all region border opacity and glow intensity; outer spread into gutter.
         -  secondary bars — all card border opacity and glow intensity; Outer spread into regions' areas.
     -  **Flood** - ambient fill within regions — controls opacity and brightness for atmospheric gradient centered wash over whole WebPage.
+        - Simulated Post lights that flood their region with light.
     -  **Display** - self-illumination intensity display-like components; simulates LCD/LED or MFD displays.
-        -   Displays are cards or content that are windows, and dropdown menus, graphs, logs Et cetera.
+        -   Displays are cards or content that are windows, dropdown menus, graphs, logs, etc.
 
 #### Effects Tokens:
 
@@ -554,25 +520,25 @@ Last update: 03-02-26
 
 #### Development Tips:
 
--  Define ALL channels and their purposes upfront
--  Document physics model clearly
--  Design control UI before implementing effects
--  Test with all switches OFF, not just ON
--  Combine box-shadows properly (don't override)
--  Initialize CSS variables on page load
--  Define lighting channels upfront
--  Plan physics model
--  Define default states for all channels
--  Plan for master control (global dimming, emergency mode)
--  Establish CSS variable naming for effects
--  Apply effects to both light mode `.6` limited intensity and dark mode `1.0` full intensity.
--  Keep JavaScript state in sync with HTML attributes
--  Update UI when state changes (don't just change state silently)
--  Always put base rules, then theme rules, then mode rules, then illumination rules.
--  Group variables by category
--  Document variable purposes where necessary with brief dev notes in the codes.
--  Plan for scoped variables (component-level)
--  Theme and illumination state remain unchanged when switching between studios. They reset on new browser.
+- Define ALL channels and their purposes upfront
+- Document physics model clearly
+- Design control UI before implementing effects
+- Test with all switches OFF, not just ON
+- Combine box-shadows properly (don't override)
+- Initialize CSS variables on page load
+- Define lighting channels upfront
+- Plan physics model
+- Define default states for all channels
+- Plan for master control (global dimming, emergency mode)
+- Establish CSS variable naming for effects
+- Apply effects to both light mode (`.6` limited intensity) and dark mode (`1.0` full intensity)
+- Keep JavaScript state in sync with HTML attributes
+- Update UI when state changes (don't just change state silently)
+- Always apply: base rules → theme rules → mode rules → illumination rules
+- Group variables by category
+- Document variable purposes with brief dev notes in code
+- Plan for scoped variables (component-level)
+- Theme and illumination state persist when switching studios. They reset on new browser session
 
 ### UI/UX Polish:
 
@@ -1657,6 +1623,10 @@ Events broadcast:
 -  Agents will mostly be interfaced through their Agent Access content card in the bottom bar.
 - interfaces for approval/deny bids in semi-auto
 
+#### Full-Auto
+
+-  No approval needed to execute buys/sells.
+
 #### Semi-Auto Approval Flow
 
 -  Semi-Auto approval flow could surface the relevant series card at the top of Trading Studio
@@ -1664,10 +1634,6 @@ Events broadcast:
     -  Card could show the agent's reasoning for wanting to execute the trade
 -  Agents could request approval before buying Yes or No contracts
 -  Agents could sell Yes or No contracts without requiring approval
-
-#### Full-Auto
-
--  No approval needed to execute buys/sells.
 
 ### Trading Strategy
 
