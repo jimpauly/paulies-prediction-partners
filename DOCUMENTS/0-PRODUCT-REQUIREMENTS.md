@@ -918,21 +918,40 @@ Behavior:
 
 #### Retry Policy
 
-- `429`: bounded exponential backoff with jitter.
-- `5xx`/timeout: bounded retries and circuit-breaker protection.
-- `4xx` validation/auth errors: no blind retries.
-- Retries must reuse the original `client_order_id`.
+**Before 10,000 Users: Aggressive Retries (No Circuit Breaker)**
+
+- `429` (rate limit): exponential backoff with jitter, retry up to 10 times (honor Retry-After if present)
+- `5xx` and network timeouts: exponential backoff, retry up to 10 times
+- `4xx` validation/auth errors: no retries (terminal failure)
+- Retries must reuse the original `client_order_id`
+- Do NOT implement circuit-breaker logic before 10k users—let orders retry aggressively
+
+**After 10,000 Users: Conservative Retries with Circuit Breaker (Optional)**
+
+- Implement circuit-breaker protection to prevent cascading failures
+- Reduce retry limits when serving many concurrent users
+- Fail fast on repeated 429s to avoid Kalshi account suspension
 
 ---
 
 ### Rate Limits and Backpressure
 
-- Read limits from `GET /account/limits`; do not hardcode tier values.
-- Maintain separate internal budgets for reads and writes.
-- Under pressure:
-  - reduce non-critical polling
-  - preserve execution-critical paths
-  - emit operator warnings and metrics
+**Before 10,000 Users: No Artificial Throttling**
+
+- Read account limits from `GET /account/limits` (dynamic configuration only)
+- Do not hardcode tier values
+- Maintain separate internal budgets for reads and writes
+- Do NOT implement backpressure logic or rate-limiting before 10k users
+- Run orders at full capacity—let Kalshi's API limits be the natural constraint
+- Preserve all execution paths; no degradation mode until scaling thresholds are hit
+
+**After 10,000 Users: Intelligent Backpressure (Optional)**
+
+- Only after reaching 10k+ active installations should you implement intelligent degradation:
+  - Reduce non-critical polling (e.g., market discovery, slower reconciliation intervals)
+  - Preserve execution-critical paths (order submission, fill confirmation, position updates)
+  - Emit operator warnings and metrics when hitting Kalshi rate limits
+  - Implement automatic fallback to Polymarket if Kalshi is consistently rate-limiting
 
 ---
 
