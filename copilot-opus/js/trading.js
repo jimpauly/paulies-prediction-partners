@@ -540,8 +540,13 @@ const TradingStudio = (() => {
       return;
     }
     const priceDollars = side === 'yes'
-      ? (market.yes_ask_dollars || market.yes_bid_dollars || '0.50')
-      : (market.no_ask_dollars || market.no_bid_dollars || '0.50');
+      ? (market.yes_ask_dollars || market.yes_bid_dollars || '')
+      : (market.no_ask_dollars || market.no_bid_dollars || '');
+
+    if (!priceDollars) {
+      showToast('Price data unavailable — cannot place order', 'error');
+      return;
+    }
 
     showToast(`Submitting ${side.toUpperCase()} order for ${ticker}…`, 'info');
 
@@ -583,10 +588,12 @@ const TradingStudio = (() => {
         const balanceElement = document.getElementById('account-balance-display');
         const portfolioElement = document.getElementById('portfolio-value-display');
         if (balanceElement && balanceData.balance !== undefined) {
-          balanceElement.textContent = '$' + parseFloat(balanceData.balance).toFixed(2);
+          const balanceValue = parseFloat(balanceData.balance);
+          balanceElement.textContent = isNaN(balanceValue) ? '—' : '$' + balanceValue.toFixed(2);
         }
         if (portfolioElement && balanceData.portfolio_value !== undefined) {
-          portfolioElement.textContent = '$' + parseFloat(balanceData.portfolio_value).toFixed(2);
+          const portfolioValue = parseFloat(balanceData.portfolio_value);
+          portfolioElement.textContent = isNaN(portfolioValue) ? '—' : '$' + portfolioValue.toFixed(2);
         }
       }
 
@@ -595,11 +602,15 @@ const TradingStudio = (() => {
         const pnlElement = document.getElementById('daily-pnl-display');
         if (pnlElement && tradingData.daily_pnl !== undefined) {
           const pnl = parseFloat(tradingData.daily_pnl);
-          const sign = pnl >= 0 ? '+' : '';
-          pnlElement.textContent = sign + '$' + pnl.toFixed(2);
-          pnlElement.style.color = pnl >= 0
-            ? 'var(--color-state-success)'
-            : 'var(--color-state-danger)';
+          if (isNaN(pnl)) {
+            pnlElement.textContent = '—';
+          } else {
+            const sign = pnl >= 0 ? '+' : '';
+            pnlElement.textContent = sign + '$' + pnl.toFixed(2);
+            pnlElement.style.color = pnl >= 0
+              ? 'var(--color-state-success)'
+              : 'var(--color-state-danger)';
+          }
         }
       }
     } catch (error) {

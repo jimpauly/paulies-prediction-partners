@@ -153,8 +153,8 @@ All 14 phases verified complete:
 3. **No setup wizard** — PRD requires first-run experience with environment selection
 4. **No auto-updater** — electron-updater not configured
 5. **No code signing** — Required for macOS Gatekeeper + Windows SmartScreen
-6. **Buy/Sell buttons don't work** — Most critical gap
-7. **No error handling UX** — Users see nothing when things fail
+6. ~~**Buy/Sell buttons don't work**~~ ✅ Fixed — Wired to manual order API
+7. ~~**No error handling UX**~~ ✅ Fixed — Toast notification system added
 8. **Simulated data in gauges** — CPU gauge is random numbers
 9. **No input validation** on trading forms
 10. **Hardcoded localhost URL** — Should be configurable
