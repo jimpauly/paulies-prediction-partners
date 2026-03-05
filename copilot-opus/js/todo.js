@@ -356,9 +356,31 @@
 
   function insertTask() {
     dom.editor.focus();
-    var id = "task-" + Date.now();
-    var html = '<div class="todo-task-line"><label><input type="checkbox" id="' + id + '"> <span>New task</span></label></div>';
-    document.execCommand("insertHTML", false, html);
+    var line = document.createElement("div");
+    line.className = "todo-task-line";
+    var label = document.createElement("label");
+    var cb = document.createElement("input");
+    cb.type = "checkbox";
+    var span = document.createElement("span");
+    span.textContent = "New task";
+    label.appendChild(cb);
+    label.appendChild(document.createTextNode(" "));
+    label.appendChild(span);
+    line.appendChild(label);
+
+    /* Insert at caret or append */
+    var sel = window.getSelection();
+    if (sel.rangeCount) {
+      var range = sel.getRangeAt(0);
+      range.deleteContents();
+      range.insertNode(line);
+      range.setStartAfter(line);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    } else {
+      dom.editor.appendChild(line);
+    }
     scheduleSave();
   }
 
@@ -378,24 +400,26 @@
 
   function convertBracketTasks() {
     if (!dom.editor) return;
-    var html = dom.editor.innerHTML;
-    /* Match [ ] and [x] at start of a line/div */
-    var changed = html
-      .replace(/(\[ \])\s*/g, '<input type="checkbox"> ')
-      .replace(/(\[x\])\s*/g, '<input type="checkbox" checked> ');
-    if (changed !== html) {
-      /* Preserve caret as best we can */
-      var sel = window.getSelection();
-      var range = sel.rangeCount ? sel.getRangeAt(0) : null;
-      var cursorAtEnd = false;
-      if (range) {
-        cursorAtEnd = range.startContainer === dom.editor &&
-                      range.startOffset === dom.editor.childNodes.length;
+    var walker = document.createTreeWalker(dom.editor, NodeFilter.SHOW_TEXT, null, false);
+    var node;
+    var replacements = [];
+    while ((node = walker.nextNode())) {
+      var text = node.nodeValue;
+      var match = text.match(/^\[( |x)\]\s*/);
+      if (match) {
+        replacements.push({ node: node, checked: match[1] === "x", matchLen: match[0].length });
       }
-      dom.editor.innerHTML = changed;
-      if (cursorAtEnd) {
-        placeCaretAtEnd(dom.editor);
-      }
+    }
+    for (var i = replacements.length - 1; i >= 0; i--) {
+      var r = replacements[i];
+      var cb = document.createElement("input");
+      cb.type = "checkbox";
+      if (r.checked) cb.checked = true;
+      var remaining = r.node.nodeValue.slice(r.matchLen);
+      var parent = r.node.parentNode;
+      parent.replaceChild(document.createTextNode(remaining), r.node);
+      parent.insertBefore(document.createTextNode(" "), parent.firstChild);
+      parent.insertBefore(cb, parent.firstChild);
     }
   }
 
