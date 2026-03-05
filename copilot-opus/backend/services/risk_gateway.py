@@ -40,6 +40,13 @@ class RiskGateway:
         self._config = config
         self._cache = state_cache
 
+        # Pre-compute Decimal limits from config to avoid repeated conversion
+        self._max_order_notional = Decimal(str(config.max_order_notional))
+        self._max_per_market_exposure = Decimal(str(config.max_per_market_exposure))
+        self._max_per_event_exposure = Decimal(str(config.max_per_event_exposure))
+        self._daily_loss_cap = Decimal(str(config.daily_loss_cap))
+        self._min_balance = Decimal(str(config.min_balance_threshold))
+
         # --- Permission gates ---
         self._trading_enabled: bool = False  # disabled at startup per PRD
         self._environment_healthy: bool = False
@@ -239,43 +246,38 @@ class RiskGateway:
         notional = self._compute_notional(intent)
 
         # Risk 2: max order notional
-        max_notional = Decimal(str(self._config.max_order_notional))
-        if notional > max_notional:
-            return False, f"max_order_notional_exceeded:notional={notional},limit={max_notional}"
+        if notional > self._max_order_notional:
+            return False, f"max_order_notional_exceeded:notional={notional},limit={self._max_order_notional}"
 
         # Risk 3: max per-market exposure
-        max_market_exp = Decimal(str(self._config.max_per_market_exposure))
         market_exposure = self._current_market_exposure(intent.ticker)
-        if market_exposure + notional > max_market_exp:
+        if market_exposure + notional > self._max_per_market_exposure:
             return False, (
                 f"max_per_market_exposure_exceeded:"
-                f"current={market_exposure},order={notional},limit={max_market_exp}"
+                f"current={market_exposure},order={notional},limit={self._max_per_market_exposure}"
             )
 
         # Risk 4: max per-event exposure
-        max_event_exp = Decimal(str(self._config.max_per_event_exposure))
         event_exposure = self._current_event_exposure(market.event_ticker)
-        if event_exposure + notional > max_event_exp:
+        if event_exposure + notional > self._max_per_event_exposure:
             return False, (
                 f"max_per_event_exposure_exceeded:"
-                f"current={event_exposure},order={notional},limit={max_event_exp}"
+                f"current={event_exposure},order={notional},limit={self._max_per_event_exposure}"
             )
 
         # Risk 5: daily loss cap
         self._maybe_auto_reset()
-        daily_loss_cap = Decimal(str(self._config.daily_loss_cap))
-        if self._daily_pnl < Decimal("0") and abs(self._daily_pnl) >= daily_loss_cap:
+        if self._daily_pnl < Decimal("0") and abs(self._daily_pnl) >= self._daily_loss_cap:
             return False, (
-                f"daily_loss_cap_reached:pnl={self._daily_pnl},cap={daily_loss_cap}"
+                f"daily_loss_cap_reached:pnl={self._daily_pnl},cap={self._daily_loss_cap}"
             )
 
         # Risk 6: min balance threshold
-        min_balance = Decimal(str(self._config.min_balance_threshold))
         balance_data = self._cache.get_balance()
         current_balance = Decimal(str(balance_data.get("balance", "0")))
-        if current_balance < min_balance:
+        if current_balance < self._min_balance:
             return False, (
-                f"balance_below_minimum:balance={current_balance},min={min_balance}"
+                f"balance_below_minimum:balance={current_balance},min={self._min_balance}"
             )
 
         # Risk 7: duplicate client_order_id suppression
@@ -323,10 +325,12 @@ class RiskGateway:
 
     def _check_duplicate(self, intent: TradeIntent) -> tuple[bool, str]:
         """Reject if the same client_order_id was already seen recently."""
-        # Build a deterministic client_order_id from intent fields
+        # Normalize Decimal strings to avoid '1.5' vs '1.5000' mismatches
+        norm_count = str(Decimal(intent.count_fp).normalize())
+        norm_price = str(Decimal(intent.price_dollars).normalize())
         coid = (
             f"{intent.agent_name}:{intent.ticker}:{intent.side}:"
-            f"{intent.action}:{intent.count_fp}:{intent.price_dollars}"
+            f"{intent.action}:{norm_count}:{norm_price}"
         )
         now = time.monotonic()
         self._prune_old_client_ids(now)
