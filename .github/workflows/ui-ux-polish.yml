@@ -5,6 +5,9 @@ on:
     - cron: '0 0 * * *'   # run once a day (midnight UTC)
   workflow_dispatch:     # allow manual trigger as well
 
+permissions:
+  contents: read
+
 jobs:
   check-and-polish:
     runs-on: ubuntu-latest
