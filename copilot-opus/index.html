@@ -98,18 +98,13 @@
     <!-- ================================================================== -->
     <header id="header-bar" class="region region-header glow-bars-primary" role="banner">
       <div class="flex items-center gap-3">
-        <span class="text-2xl" role="img" aria-label="Target logo">🎯</span>
+        <span class="text-2xl" role="img" aria-label="Robot logo">🤖</span>
         <div>
           <h1 class="app-title">
             <span class="app-title__accent">Paulie's</span> Prediction Partners
           </h1>
           <p class="text-xs text-muted m-0">AI-Powered Prediction Trading</p>
         </div>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <!-- Theme selector (rendered by ThemeManager.createSelector) -->
-        <div id="theme-selector-mount" aria-label="Theme selection"></div>
       </div>
 
     <!-- ╔══════════════════════════════════════════════════╗
@@ -274,6 +269,7 @@
     <!-- NAV BAR                                                            -->
     <!-- ================================================================== -->
     <nav id="nav-bar" class="region region-nav glow-bars-secondary" role="navigation" aria-label="Studio navigation">
+      <span class="region-title glow-text-secondary" style="margin:0;white-space:nowrap;">Navigation</span>
       <ul class="nav-tabs" role="tablist">
         <li role="presentation">
           <button
@@ -283,7 +279,7 @@
             aria-selected="true"
             aria-controls="studio-design"
             data-studio="design"
-          >🎨 Design Studio</button>
+          >🎨 Design</button>
         </li>
         <li role="presentation">
           <button
@@ -294,7 +290,7 @@
             aria-controls="studio-trading"
             data-studio="trading"
             tabindex="-1"
-          >📈 Trading Studio</button>
+          >📈 Trade</button>
         </li>
         <li role="presentation">
           <button
@@ -305,7 +301,7 @@
             aria-controls="studio-fly"
             data-studio="fly"
             tabindex="-1"
-          >✈️ Fly Studio</button>
+          >✈️ Fly</button>
         </li>
         <li role="presentation">
           <button
@@ -316,17 +312,32 @@
             aria-controls="studio-converter"
             data-studio="converter"
             tabindex="-1"
-          >🔄 Converter Studio</button>
+          >🔄 Convert</button>
         </li>
       </ul>
+      <!-- Telemetry Card (right-aligned) -->
+      <div class="flex items-center gap-3 ml-auto" style="font-family:var(--font-family-mono);font-size:0.6rem;white-space:nowrap;">
+        <div class="flex items-center gap-1" title="Network latency">
+          <span style="font-weight:700;color:var(--color-fg-muted);">PING</span>
+          <canvas id="ping-sparkline" width="60" height="16" style="display:block;"></canvas>
+        </div>
+        <div title="Speed indicator">
+          <span style="font-weight:700;color:var(--color-fg-muted);">SPD</span>
+          <span style="color:var(--color-fg-default);">MACH 4.20</span>
+        </div>
+        <div title="Date and time">
+          <span style="font-weight:700;color:var(--color-fg-muted);">DATE/TIME</span>
+          <span id="datetime-display" style="color:var(--color-fg-default);">--/-- --:--</span>
+        </div>
+      </div>
     </nav>
 
     <!-- ================================================================== -->
     <!-- LEFT SIDEBAR                                                       -->
     <!-- ================================================================== -->
-    <aside id="left-sidebar" class="region region-left glow-flood" role="complementary" aria-label="Left sidebar">
+    <aside id="left-sidebar" class="region region-left glow-flood" role="complementary" aria-label="System Design sidebar">
       <div class="flex items-center justify-between">
-        <span class="region-title glow-text-primary">Left Panel</span>
+        <span class="region-title glow-text-primary">System Design</span>
         <button
           class="btn btn-ghost btn-sm btn-icon"
           id="collapse-left"
@@ -335,71 +346,52 @@
         >◀</button>
       </div>
 
-      <!-- Agent Status Panel -->
-      <div class="sidebar-panel" aria-label="Agent status">
+      <!-- Light/Dark Mode Toggle -->
+      <div class="sidebar-panel" aria-label="Mode selection">
         <div class="sidebar-panel__header">
-          <span class="sidebar-panel__title glow-text-secondary">Agent Status</span>
+          <span class="sidebar-panel__title glow-text-secondary">Mode</span>
         </div>
-        <div class="sidebar-panel__body">
-          <div class="card card--compact">
-            <div class="card-header">
-              <span>🤖 Analysis Agent</span>
-              <span class="status-bar__dot status-bar__dot--live" aria-label="Online"></span>
-            </div>
-            <div class="card-body text-xs text-muted">Idle — awaiting tasks</div>
-          </div>
-          <div class="card card--compact">
-            <div class="card-header">
-              <span>📊 Data Agent</span>
-              <span class="status-bar__dot status-bar__dot--warning" aria-label="Busy"></span>
-            </div>
-            <div class="card-body text-xs text-muted">Processing market feed…</div>
-          </div>
-          <div class="card card--compact">
-            <div class="card-header">
-              <span>🧠 Prediction Agent</span>
-              <span class="status-bar__dot status-bar__dot--info" aria-label="Standby"></span>
-            </div>
-            <div class="card-body text-xs text-muted">Standby — model loaded</div>
-          </div>
+        <div class="sidebar-panel__body" style="display:flex;justify-content:center;gap:var(--space-2);">
+          <button id="mode-toggle" class="btn btn-sm" aria-label="Toggle light/dark mode" style="min-width:80px;">🌙 Dark</button>
+        </div>
+      </div>
+
+      <!-- 3D / 2D Toggle -->
+      <div class="sidebar-panel" aria-label="3D toggle">
+        <div class="sidebar-panel__header">
+          <span class="sidebar-panel__title glow-text-secondary">3D Toggle</span>
+        </div>
+        <div class="sidebar-panel__body" style="display:flex;justify-content:center;gap:var(--space-2);">
+          <button id="toggle-3d" class="btn btn-sm btn-ghost" aria-label="Toggle 3D/2D mode" style="min-width:80px;">🧊 3D Off</button>
         </div>
       </div>
 
       <hr class="divider">
 
-      <!-- System Monitor Panel -->
-      <div class="sidebar-panel" aria-label="System monitor">
+      <!-- 24-Theme Selector -->
+      <div class="sidebar-panel" aria-label="Theme selection">
         <div class="sidebar-panel__header">
-          <span class="sidebar-panel__title glow-text-secondary">System Monitor</span>
+          <span class="sidebar-panel__title glow-text-secondary">System Theme</span>
         </div>
         <div class="sidebar-panel__body">
-          <div class="gauge">
-            <div class="flex w-full justify-between">
-              <span class="gauge__label">🔋 Battery</span>
-              <span class="gauge__label">87%</span>
-            </div>
-            <div class="gauge__bar">
-              <div class="gauge__fill" style="width:87%;background:var(--color-state-success)"></div>
-            </div>
-          </div>
-          <div class="gauge">
-            <div class="flex w-full justify-between">
-              <span class="gauge__label">📶 Network</span>
-              <span class="gauge__label">Strong</span>
-            </div>
-            <div class="gauge__bar">
-              <div class="gauge__fill" style="width:92%;background:var(--color-state-info)"></div>
-            </div>
-          </div>
-          <div class="gauge">
-            <div class="flex w-full justify-between">
-              <span class="gauge__label">⚙️ CPU</span>
-              <span class="gauge__label">34%</span>
-            </div>
-            <div class="gauge__bar">
-              <div class="gauge__fill" style="width:34%;background:var(--color-state-warning)"></div>
-            </div>
-          </div>
+          <div id="theme-selector-mount" aria-label="Theme selector buttons"></div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- Visibility Toggles (Dev Tools) -->
+      <div class="sidebar-panel" aria-label="Visibility tools">
+        <div class="sidebar-panel__header">
+          <span class="sidebar-panel__title glow-text-secondary">Visibility</span>
+        </div>
+        <div class="sidebar-panel__body flex flex-col gap-2">
+          <label class="checkbox text-xs">
+            <input type="checkbox" id="toggle-rulers"> Rulers (X/Y)
+          </label>
+          <label class="checkbox text-xs">
+            <input type="checkbox" id="toggle-grid"> Grid (60×60px)
+          </label>
         </div>
       </div>
     </aside>
@@ -416,7 +408,52 @@
         role="tabpanel"
         aria-labelledby="tab-design"
       >
-        <h2 class="region-title glow-text-primary">Design Studio</h2>
+        <h2 class="region-title glow-text-primary">Viewing Port</h2>
+
+        <!-- Hero Card (thin/compact) -->
+        <div class="card mb-4" style="text-align:center;padding:var(--space-3);">
+          <h3 style="font-size:1rem;font-weight:800;color:var(--color-accent-primary);margin-bottom:2px;">🤖 Paulie's Prediction Partners</h3>
+          <p class="text-xs text-muted m-0">AI-Powered Trading Cockpit — Design Studio Active</p>
+        </div>
+
+        <!-- Map Gauges (Battery, Network, Memory, CPU) -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <span>🔧 System Gauges</span>
+          </div>
+          <div class="card-body" style="display:flex;gap:var(--space-3);justify-content:space-around;flex-wrap:wrap;">
+            <div id="gauge-battery" class="gauge-container" style="text-align:center;">
+              <canvas width="72" height="72"></canvas>
+              <div class="gauge-value" style="font-family:var(--font-family-mono);font-size:0.6rem;color:var(--color-fg-muted);">—</div>
+              <div style="font-family:var(--font-family-mono);font-size:0.55rem;font-weight:700;color:var(--color-fg-muted);letter-spacing:0.1em;">BATT</div>
+            </div>
+            <div id="gauge-network" class="gauge-container" style="text-align:center;">
+              <canvas width="72" height="72"></canvas>
+              <div class="gauge-value" style="font-family:var(--font-family-mono);font-size:0.6rem;color:var(--color-fg-muted);">—</div>
+              <div style="font-family:var(--font-family-mono);font-size:0.55rem;font-weight:700;color:var(--color-fg-muted);letter-spacing:0.1em;">NET</div>
+            </div>
+            <div id="gauge-memory" class="gauge-container" style="text-align:center;">
+              <canvas width="72" height="72"></canvas>
+              <div class="gauge-value" style="font-family:var(--font-family-mono);font-size:0.6rem;color:var(--color-fg-muted);">—</div>
+              <div style="font-family:var(--font-family-mono);font-size:0.55rem;font-weight:700;color:var(--color-fg-muted);letter-spacing:0.1em;">MEM</div>
+            </div>
+            <div id="gauge-cpu" class="gauge-container" style="text-align:center;">
+              <canvas width="72" height="72"></canvas>
+              <div class="gauge-value" style="font-family:var(--font-family-mono);font-size:0.6rem;color:var(--color-fg-muted);">—</div>
+              <div style="font-family:var(--font-family-mono);font-size:0.55rem;font-weight:700;color:var(--color-fg-muted);letter-spacing:0.1em;">CPU</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Logs Terminal -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <span>📟 Live Logs</span>
+          </div>
+          <div class="card-body p-0">
+            <div id="live-logs" style="font-family:var(--font-family-mono);font-size:0.6rem;padding:var(--space-2);background:var(--color-bg-canvas);min-height:100px;max-height:120px;overflow-y:auto;color:var(--color-fg-muted);line-height:1.6;"></div>
+          </div>
+        </div>
 
         <!-- Paint App -->
         <div class="card mb-4">
@@ -648,9 +685,9 @@
     <!-- ================================================================== -->
     <!-- RIGHT SIDEBAR                                                      -->
     <!-- ================================================================== -->
-    <aside id="right-sidebar" class="region region-right glow-flood" role="complementary" aria-label="Right sidebar">
+    <aside id="right-sidebar" class="region region-right glow-flood" role="complementary" aria-label="Inspector Panel">
       <div class="flex items-center justify-between">
-        <span class="region-title glow-text-primary">Notes</span>
+        <span class="region-title glow-text-primary">Inspector Panel</span>
         <button
           class="btn btn-ghost btn-sm btn-icon"
           id="collapse-right"
@@ -661,46 +698,158 @@
 
       <!-- To-Do / Notes App -->
       <div id="todo-container" class="flex-1 overflow-auto" aria-label="Notes and to-do application"></div>
+
+      <hr class="divider">
+
+      <!-- Send-an-Idea Card -->
+      <div class="sidebar-panel" aria-label="Send an idea">
+        <div class="sidebar-panel__header">
+          <span class="sidebar-panel__title glow-text-secondary">Send an Idea</span>
+        </div>
+        <div class="sidebar-panel__body" style="text-align:center;">
+          <p class="text-xs text-muted" style="margin-bottom:var(--space-2);">Have an idea for Paulie's? Send it our way!</p>
+          <button id="send-idea-button" class="btn btn-sm btn-primary" aria-label="Send an idea via email">💡 Send an Idea</button>
+        </div>
+      </div>
     </aside>
 
     <!-- ================================================================== -->
-    <!-- ACTION BAR (below left sidebar)                                    -->
+    <!-- FOOT BAR (Bottom Bar + Action Bar in flex row)                     -->
     <!-- ================================================================== -->
-    <div class="region region-action glow-bars-secondary" role="toolbar" aria-label="Quick actions">
-      <span class="region-title glow-text-secondary">Quick Actions</span>
-      <div class="flex flex-col gap-1">
-        <button class="btn btn-sm btn-ghost w-full" aria-label="New prediction">➕ New Prediction</button>
-        <button class="btn btn-sm btn-ghost w-full" aria-label="Export data">📤 Export Data</button>
-        <button class="btn btn-sm btn-ghost w-full" aria-label="Settings">⚙️ Settings</button>
+    <div class="region-foot">
+
+      <!-- BOTTOM BAR — "Hangar Bay" (~2/3 width) -->
+      <footer id="bottom-bar" class="region region-bottom glow-bars-primary" role="contentinfo" aria-label="Hangar Bay">
+        <div style="display:flex;flex-direction:column;gap:var(--space-2);width:100%;padding:var(--space-2);">
+          <span class="region-title glow-text-primary" style="margin:0;">Hangar Bay</span>
+
+          <div style="display:flex;gap:var(--space-3);align-items:flex-start;flex-wrap:nowrap;overflow-x:auto;">
+
+            <!-- Agent Access Card -->
+            <div class="card card--compact" style="min-width:200px;flex:1;">
+              <div class="card-header" style="padding:4px 8px;">
+                <span style="font-size:0.65rem;font-weight:700;">🤖 Agent Access</span>
+              </div>
+              <div class="card-body" style="padding:4px 8px;font-size:0.6rem;">
+                <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;">
+                  <!-- Agent 1 -->
+                  <div class="agent-card" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;border:1px solid var(--color-border-muted);border-radius:4px;min-width:55px;">
+                    <span>🎯</span>
+                    <span style="font-weight:700;font-size:0.5rem;">PERITIA</span>
+                    <span class="status-bar__dot status-bar__dot--live" style="width:6px;height:6px;"></span>
+                    <div class="agent-dial-options" style="display:flex;gap:1px;">
+                      <button class="agent-dial-option active" style="font-size:0.45rem;padding:1px 3px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-surface);cursor:pointer;">A</button>
+                      <button class="agent-dial-option" style="font-size:0.45rem;padding:1px 3px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-surface);cursor:pointer;">S</button>
+                      <button class="agent-dial-option" style="font-size:0.45rem;padding:1px 3px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-surface);cursor:pointer;">⛔</button>
+                    </div>
+                  </div>
+                  <!-- Agent 2 -->
+                  <div class="agent-card" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;border:1px solid var(--color-border-muted);border-radius:4px;min-width:55px;">
+                    <span>📊</span>
+                    <span style="font-weight:700;font-size:0.5rem;">AUDAX</span>
+                    <span class="status-bar__dot status-bar__dot--warning" style="width:6px;height:6px;"></span>
+                    <div class="agent-dial-options" style="display:flex;gap:1px;">
+                      <button class="agent-dial-option" style="font-size:0.45rem;padding:1px 3px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-surface);cursor:pointer;">A</button>
+                      <button class="agent-dial-option active" style="font-size:0.45rem;padding:1px 3px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-surface);cursor:pointer;">S</button>
+                      <button class="agent-dial-option" style="font-size:0.45rem;padding:1px 3px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-surface);cursor:pointer;">⛔</button>
+                    </div>
+                  </div>
+                  <!-- Agent 3 -->
+                  <div class="agent-card" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;border:1px solid var(--color-border-muted);border-radius:4px;min-width:55px;">
+                    <span>🧠</span>
+                    <span style="font-weight:700;font-size:0.5rem;">CAUTUS</span>
+                    <span class="status-bar__dot status-bar__dot--info" style="width:6px;height:6px;"></span>
+                    <div class="agent-dial-options" style="display:flex;gap:1px;">
+                      <button class="agent-dial-option" style="font-size:0.45rem;padding:1px 3px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-surface);cursor:pointer;">A</button>
+                      <button class="agent-dial-option" style="font-size:0.45rem;padding:1px 3px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-surface);cursor:pointer;">S</button>
+                      <button class="agent-dial-option active" style="font-size:0.45rem;padding:1px 3px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-surface);cursor:pointer;">⛔</button>
+                    </div>
+                  </div>
+                  <!-- Agent 4 (grayed out) -->
+                  <div class="agent-card inactive" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;border:1px solid var(--color-border-muted);border-radius:4px;min-width:55px;opacity:0.35;">
+                    <span>🔮</span>
+                    <span style="font-weight:700;font-size:0.5rem;">AGENT 4</span>
+                    <span class="status-bar__dot" style="width:6px;height:6px;background:var(--color-fg-subtle);"></span>
+                  </div>
+                  <!-- Agent 5 (grayed out) -->
+                  <div class="agent-card inactive" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;border:1px solid var(--color-border-muted);border-radius:4px;min-width:55px;opacity:0.35;">
+                    <span>⚡</span>
+                    <span style="font-weight:700;font-size:0.5rem;">AGENT 5</span>
+                    <span class="status-bar__dot" style="width:6px;height:6px;background:var(--color-fg-subtle);"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Connect API Keys Card -->
+            <div id="api-key-card" class="card card--compact" style="min-width:220px;flex:1;">
+              <div class="card-header" style="padding:4px 8px;">
+                <span style="font-size:0.65rem;font-weight:700;">🔑 Connect API Keys</span>
+              </div>
+              <div class="card-body card-inner" style="padding:6px 8px;font-size:0.6rem;display:flex;flex-direction:column;gap:4px;">
+                <div class="api-mode-selector" style="display:flex;gap:var(--space-2);align-items:center;">
+                  <label class="radio" style="font-size:0.6rem;">
+                    <input type="radio" name="api-mode" value="live"> Live
+                  </label>
+                  <label class="radio" style="font-size:0.6rem;">
+                    <input type="radio" name="api-mode" value="demo"> Demo
+                  </label>
+                </div>
+                <input id="api-key-input" class="input api-input" type="text" placeholder="API Key" disabled style="font-size:0.55rem;padding:3px 6px;height:22px;">
+                <textarea id="rsa-key-input" class="input api-input" placeholder="RSA Private Key (PEM)" disabled rows="2" style="font-size:0.55rem;padding:3px 6px;resize:none;"></textarea>
+                <button id="connect-button" class="btn btn-sm btn-primary connect-button" disabled style="font-size:0.55rem;padding:3px 8px;">Connect Kalshi Stream</button>
+              </div>
+            </div>
+
+            <!-- Live/Demo Indicator -->
+            <div class="card card--compact" style="min-width:90px;text-align:center;">
+              <div class="card-header" style="padding:4px 8px;">
+                <span style="font-size:0.65rem;font-weight:700;">MODE</span>
+              </div>
+              <div class="card-body" style="padding:8px;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                <div id="connection-light" class="indicator-light" style="width:18px;height:18px;border-radius:50%;background:var(--color-fg-subtle);box-shadow:0 0 4px var(--color-fg-subtle);"></div>
+                <span id="connection-status" style="font-family:var(--font-family-mono);font-size:0.6rem;font-weight:700;color:var(--color-fg-muted);">OFFLINE</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </footer>
+
+      <!-- ACTION BAR — "Ignition" (~1/3 width) -->
+      <div id="action-bar" class="region region-action glow-bars-secondary" role="toolbar" aria-label="Ignition controls">
+        <div style="display:flex;flex-direction:column;gap:var(--space-2);height:100%;padding:var(--space-2);">
+          <span class="region-title glow-text-secondary" style="margin:0;text-align:center;">Ignition</span>
+
+          <div style="display:flex;gap:var(--space-3);flex:1;align-items:stretch;">
+            <!-- Throttle Control -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:var(--space-1);min-width:50px;">
+              <span style="font-family:var(--font-family-mono);font-size:0.5rem;font-weight:700;color:var(--color-fg-muted);letter-spacing:0.1em;">THROTTLE</span>
+              <div id="throttle-track" role="slider" aria-valuenow="0" aria-valuemin="0" aria-valuemax="2" aria-valuetext="Full-Stop" tabindex="0" style="position:relative;width:24px;flex:1;background:var(--color-bg-canvas);border:1px solid var(--color-border-default);border-radius:4px;cursor:pointer;">
+                <div id="throttle-handle" style="position:absolute;left:2px;right:2px;height:16px;bottom:2px;background:var(--color-accent-primary);border-radius:3px;transition:top 0.2s;"></div>
+                <div style="position:absolute;right:-28px;top:2px;font-size:0.4rem;font-weight:700;color:var(--color-fg-subtle);white-space:nowrap;">FULL</div>
+                <div style="position:absolute;right:-28px;top:calc(50% - 4px);font-size:0.4rem;font-weight:700;color:var(--color-fg-subtle);white-space:nowrap;">SEMI</div>
+                <div style="position:absolute;right:-28px;bottom:2px;font-size:0.4rem;font-weight:700;color:var(--color-fg-subtle);white-space:nowrap;">STOP</div>
+              </div>
+            </div>
+
+            <!-- P/L Graph -->
+            <div style="flex:1;display:flex;flex-direction:column;min-width:0;">
+              <span style="font-family:var(--font-family-mono);font-size:0.5rem;font-weight:700;color:var(--color-fg-muted);letter-spacing:0.1em;">+/- $</span>
+              <canvas id="pl-graph" width="300" height="80" style="width:100%;flex:1;border:1px solid var(--color-border-muted);border-radius:4px;background:var(--color-bg-canvas);"></canvas>
+              <div style="display:flex;gap:2px;margin-top:2px;flex-wrap:wrap;">
+                <button class="axis-button active" data-axis="x" style="font-size:0.4rem;padding:1px 4px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-surface);cursor:pointer;">24h</button>
+                <button class="axis-button" data-axis="x" style="font-size:0.4rem;padding:1px 4px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-surface);cursor:pointer;">1w</button>
+                <button class="axis-button" data-axis="x" style="font-size:0.4rem;padding:1px 4px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-surface);cursor:pointer;">1m</button>
+                <button class="axis-button" data-axis="x" style="font-size:0.4rem;padding:1px 4px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-surface);cursor:pointer;">1y</button>
+                <button class="axis-button" data-axis="x" style="font-size:0.4rem;padding:1px 4px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-surface);cursor:pointer;">all</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- ================================================================== -->
-    <!-- BOTTOM BAR                                                         -->
-    <!-- ================================================================== -->
-    <footer id="bottom-bar" class="region region-bottom glow-bars-primary" role="contentinfo" aria-label="Status bar">
-      <div class="status-bar flex-1">
-        <!-- Left: status text -->
-        <span class="status-bar__item" id="status-text">
-          <span class="status-bar__dot status-bar__dot--live" aria-hidden="true"></span>
-          Ready
-        </span>
-
-        <!-- Center: connection status -->
-        <span class="status-bar__item flex-1 justify-center">
-          <span class="status-bar__dot status-bar__dot--live" aria-hidden="true"></span>
-          Connected
-        </span>
-
-        <!-- Right: clock + theme name -->
-        <span class="status-bar__item">
-          🕐 <time id="status-clock" datetime="">--:--:--</time>
-        </span>
-        <span class="status-bar__item">
-          🎨 <span id="status-theme-name">webpage</span>
-        </span>
-      </div>
-    </footer>
+    </div><!-- /.region-foot -->
 
   </div><!-- /.app-shell -->
 
@@ -711,6 +860,11 @@
   <script src="js/illumination.js"></script>
   <script src="js/paint.js"></script>
   <script src="js/todo.js"></script>
+  <script src="js/telemetry.js"></script>
+  <script src="js/gauges.js"></script>
+  <script src="js/logs.js"></script>
+  <script src="js/rulers.js"></script>
+  <script src="js/trading.js"></script>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -720,11 +874,52 @@
       PaintApp.init(document.getElementById('paint-container'));
       TodoApp.init(document.getElementById('todo-container'));
 
-      /* ---- Theme selector (header) ---- */
+      /* ---- Initialize new modules ---- */
+      if (typeof Telemetry !== 'undefined') Telemetry.initialize();
+      if (typeof Gauges !== 'undefined') Gauges.initialize();
+      if (typeof LiveLogs !== 'undefined') LiveLogs.initialize();
+      if (typeof Rulers !== 'undefined') Rulers.initialize();
+      if (typeof TradingStudio !== 'undefined') TradingStudio.initialize();
+
+      /* ---- Theme selector (left sidebar) ---- */
       ThemeManager.createSelector({
-        type: 'dropdown',
-        showModeToggle: true,
+        type: 'grid',
+        showModeToggle: false,
         container: document.getElementById('theme-selector-mount')
+      });
+
+      /* ---- Mode toggle (left sidebar) ---- */
+      const modeToggle = document.getElementById('mode-toggle');
+      function updateModeButton() {
+        const currentMode = document.documentElement.dataset.mode;
+        modeToggle.textContent = currentMode === 'light' ? '🌙 Dark' : '☀️ Light';
+      }
+      modeToggle.addEventListener('click', () => {
+        ThemeManager.toggleMode();
+        updateModeButton();
+      });
+      updateModeButton();
+
+      /* ---- 3D Toggle (left sidebar) ---- */
+      const toggle3d = document.getElementById('toggle-3d');
+      let is3d = false;
+      toggle3d.addEventListener('click', () => {
+        is3d = !is3d;
+        document.documentElement.classList.toggle('mode-3d', is3d);
+        toggle3d.textContent = is3d ? '🧊 3D On' : '🧊 3D Off';
+      });
+
+      /* ---- Visibility toggles ---- */
+      document.getElementById('toggle-rulers')?.addEventListener('change', (e) => {
+        document.querySelectorAll('.ruler-overlay').forEach(el => {
+          el.style.display = e.target.checked ? 'block' : 'none';
+        });
+        if (e.target.checked && typeof Rulers !== 'undefined') Rulers.draw();
+      });
+      document.getElementById('toggle-grid')?.addEventListener('change', (e) => {
+        document.querySelectorAll('.grid-overlay').forEach(el => {
+          el.style.display = e.target.checked ? 'block' : 'none';
+        });
       });
 
       /* ---- Tab switching logic ---- */
@@ -760,17 +955,6 @@
           }
         });
       });
-
-      /* ---- Clock update ---- */
-      const clockEl = document.getElementById('status-clock');
-      function updateClock() {
-        const now = new Date();
-        const ts = now.toLocaleTimeString('en-US', { hour12: false });
-        clockEl.textContent = ts;
-        clockEl.setAttribute('datetime', now.toISOString());
-      }
-      updateClock();
-      setInterval(updateClock, 1000);
 
       /* ---- Sidebar collapse toggles ---- */
       const shell = document.querySelector('.app-shell');
@@ -825,16 +1009,115 @@
 
       renderPalette();
 
-      /* ---- Update palette & status on theme/mode change ---- */
-      const statusThemeName = document.getElementById('status-theme-name');
-
+      /* ---- Update palette on theme/mode change ---- */
       document.addEventListener('themechange', () => {
         renderPalette();
-        statusThemeName.textContent = ThemeManager.getCurrentTheme();
       });
       document.addEventListener('modechange', () => {
         renderPalette();
+        updateModeButton();
       });
+
+      /* ---- Send-an-Idea ---- */
+      const sendIdeaButton = document.getElementById('send-idea-button');
+      if (sendIdeaButton) {
+        sendIdeaButton.addEventListener('click', () => {
+          const subject = encodeURIComponent("Paulie's Prediction Partners - Idea");
+          const body = encodeURIComponent('Here is my idea:\n\n');
+          window.location.href = `mailto:chickensaurusrex@outlook.com?subject=${subject}&body=${body}`;
+        });
+      }
+
+      /* ---- API Key Connection ---- */
+      const modeRadios = document.querySelectorAll('input[name="api-mode"]');
+      const apiKeyInput = document.getElementById('api-key-input');
+      const rsaKeyInput = document.getElementById('rsa-key-input');
+      const connectButton = document.getElementById('connect-button');
+      const apiKeyCard = document.getElementById('api-key-card');
+      const connectionLight = document.getElementById('connection-light');
+      const connectionStatus = document.getElementById('connection-status');
+      let selectedMode = null;
+
+      function validateApiInputs() {
+        if (!connectButton || !apiKeyInput || !rsaKeyInput) return;
+        const hasApiKey = apiKeyInput.value.trim().length > 0;
+        const hasRsaKey = rsaKeyInput.value.trim().length > 0;
+        connectButton.disabled = !(selectedMode && hasApiKey && hasRsaKey);
+      }
+
+      modeRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+          selectedMode = radio.value;
+          if (apiKeyInput) apiKeyInput.disabled = false;
+          if (rsaKeyInput) rsaKeyInput.disabled = false;
+          validateApiInputs();
+        });
+      });
+
+      if (apiKeyInput) apiKeyInput.addEventListener('input', validateApiInputs);
+      if (rsaKeyInput) rsaKeyInput.addEventListener('input', validateApiInputs);
+
+      if (connectButton) {
+        connectButton.addEventListener('click', async () => {
+          const apiKeyValue = apiKeyInput ? apiKeyInput.value.trim() : '';
+          const rsaKeyValue = rsaKeyInput ? rsaKeyInput.value.trim() : '';
+          if (!selectedMode || !apiKeyValue || !rsaKeyValue) return;
+
+          connectButton.disabled = true;
+          connectButton.textContent = 'Connecting…';
+
+          try {
+            await fetch('http://127.0.0.1:8000/api/connection/connect', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                environment: selectedMode,
+                api_key_id: apiKeyValue,
+                private_key_pem: rsaKeyValue,
+              }),
+            });
+          } catch (e) { /* Backend not running */ }
+
+          /* Clear credentials from DOM immediately */
+          if (apiKeyInput) apiKeyInput.value = '';
+          if (rsaKeyInput) rsaKeyInput.value = '';
+
+          if (connectionLight) connectionLight.style.background = selectedMode === 'live' ? 'var(--color-state-success)' : 'var(--color-state-warning)';
+          if (connectionLight) connectionLight.style.boxShadow = `0 0 8px ${selectedMode === 'live' ? 'var(--color-state-success)' : 'var(--color-state-warning)'}`;
+          if (connectionStatus) connectionStatus.textContent = selectedMode === 'live' ? 'LIVE' : 'DEMO';
+
+          /* Hide input elements */
+          apiKeyCard.querySelectorAll('.api-input, .connect-button, .api-mode-selector').forEach(el => el.style.display = 'none');
+
+          /* Auto-navigate to Trading Studio */
+          switchStudio('trading');
+
+          /* Notify TradingStudio */
+          if (typeof TradingStudio !== 'undefined' && TradingStudio.onConnected) {
+            TradingStudio.onConnected(selectedMode);
+          }
+        });
+      }
+
+      /* ---- Throttle Control ---- */
+      const throttleTrack = document.getElementById('throttle-track');
+      const throttleHandle = document.getElementById('throttle-handle');
+      if (throttleTrack && throttleHandle) {
+        const positions = [
+          { top: 'calc(100% - 18px)', value: 0, label: 'Full-Stop' },
+          { top: 'calc(50% - 8px)', value: 1, label: 'Semi-Auto' },
+          { top: '2px', value: 2, label: 'Full-Auto' },
+        ];
+        let currentPosition = 0;
+        throttleTrack.addEventListener('click', () => {
+          currentPosition = (currentPosition + 1) % positions.length;
+          const pos = positions[currentPosition];
+          throttleHandle.style.top = pos.top;
+          throttleHandle.style.bottom = 'auto';
+          throttleTrack.setAttribute('aria-valuenow', pos.value);
+          throttleTrack.setAttribute('aria-valuetext', pos.label);
+        });
+      }
     });
   </script>
 </body>

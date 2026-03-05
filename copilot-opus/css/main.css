@@ -1495,3 +1495,47 @@ textarea.input {
 
 .cursor-pointer { cursor: pointer; }
 .select-none    { user-select: none; }
+
+/* ==========================================================================
+   28. LIVE LOGS
+   ========================================================================== */
+.log-entry {
+  font-family: var(--font-family-mono);
+  font-size: 0.6rem;
+  line-height: 1.6;
+  padding: 0 var(--space-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.log-info  { color: var(--color-fg-muted); }
+.log-warn  { color: var(--color-state-warning); }
+.log-error { color: var(--color-state-error); }
+
+/* ==========================================================================
+   29. INDICATOR LIGHT (connection status)
+   ========================================================================== */
+.indicator-light {
+  transition: background 0.3s, box-shadow 0.3s;
+}
+.indicator-light.live {
+  background: var(--color-state-success);
+  box-shadow: 0 0 8px var(--color-state-success);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+.indicator-light.demo {
+  background: var(--color-state-warning);
+  box-shadow: 0 0 8px var(--color-state-warning);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* ==========================================================================
+   30. FOOT BAR (Bottom + Action wrapper)
+   ========================================================================== */
+.region-foot > .region {
+  padding: var(--space-2) var(--space-3);
+}
