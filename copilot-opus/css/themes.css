@@ -1,0 +1,647 @@
+/* ============================================================
+   Paulie's Prediction Partners — Theme System
+   10 themes × 2 modes = 20 palettes (Stage 1)
+   Token precedence: base → theme → mode → illumination
+   ============================================================ */
+
+/* ---- Required Baseline Tokens (defaults) ---- */
+:root {
+  /* Color tokens */
+  --color-bg-canvas: #ffffff;
+  --color-bg-surface: #f5f5f5;
+  --color-bg-brand: #2563eb;
+  --color-fg-default: #1f2937;
+  --color-fg-strong: #111827;
+  --color-border-default: #d1d5db;
+  --color-border-muted: #e5e7eb;
+  --color-border-focus: #3b82f6;
+  --color-link-default: #2563eb;
+  --color-link-visited: #7c3aed;
+  --color-code-bg: #f3f4f6;
+  --color-code-fg: #dc2626;
+  --color-state-success: #16a34a;
+  --color-state-warning: #d97706;
+  --color-state-error: #dc2626;
+  --color-state-info: #2563eb;
+  --color-selection-bg: #bfdbfe;
+  --color-debug-marker: #f0abfc;
+
+  /* Effects tokens */
+  --fx-master-scale: 1;
+  --fx-glow-text-primary: 0px 0px 0px transparent;
+  --fx-glow-text-secondary: 0px 0px 0px transparent;
+  --fx-glow-bars-primary: 0px 0px 0px transparent;
+  --fx-glow-bars-secondary: 0px 0px 0px transparent;
+  --fx-glow-flood: transparent;
+  --fx-glow-display: 0px 0px 0px transparent;
+
+  /* Illumination base */
+  --illumination-base: 0.6;
+  --illumination-master-on: 0;
+  --illumination-master-dim: 1;
+  --illumination-text-primary-on: 1;
+  --illumination-text-secondary-on: 1;
+  --illumination-text-dim: 1;
+  --illumination-bars-primary-on: 1;
+  --illumination-bars-secondary-on: 1;
+  --illumination-bars-dim: 1;
+  --illumination-flood-on: 1;
+  --illumination-flood-dim: 1;
+  --illumination-display-on: 1;
+  --illumination-display-dim: 1;
+
+  /* Computed illumination intensities */
+  --text-primary-intensity: 1;
+  --text-secondary-intensity: 1;
+  --bars-primary-intensity: 1;
+  --bars-secondary-intensity: 1;
+  --flood-intensity: 1;
+  --display-intensity: 1;
+
+  /* Theme-specific accent colors for agents */
+  --color-agent-1: #ef4444;
+  --color-agent-2: #8b5cf6;
+  --color-agent-3: #06b6d4;
+  --color-agent-4: #f59e0b;
+  --color-agent-5: #10b981;
+
+  /* Header/label typography */
+  --font-header: 'Segoe UI', 'Arial Black', sans-serif;
+  --font-body: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font-mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+
+  /* 3D bezel */
+  --bezel-highlight: rgba(255,255,255,0.15);
+  --bezel-shadow: rgba(0,0,0,0.25);
+  --bezel-enabled: 1;
+}
+
+/* ============================================================
+   THEME: modern-webpage (default)
+   ============================================================ */
+[data-theme="modern-webpage"][data-mode="light"] {
+  --color-bg-canvas: #ffffff;
+  --color-bg-surface: #f8fafc;
+  --color-bg-brand: #2563eb;
+  --color-fg-default: #1e293b;
+  --color-fg-strong: #0f172a;
+  --color-border-default: #cbd5e1;
+  --color-border-muted: #e2e8f0;
+  --color-border-focus: #3b82f6;
+  --color-link-default: #2563eb;
+  --color-link-visited: #7c3aed;
+  --color-code-bg: #f1f5f9;
+  --color-code-fg: #e11d48;
+  --color-state-success: #16a34a;
+  --color-state-warning: #d97706;
+  --color-state-error: #dc2626;
+  --color-state-info: #0284c7;
+  --color-selection-bg: #bfdbfe;
+  --color-debug-marker: #f0abfc;
+  --color-agent-1: #ef4444;
+  --color-agent-2: #8b5cf6;
+  --color-agent-3: #06b6d4;
+  --color-agent-4: #f59e0b;
+  --color-agent-5: #10b981;
+}
+
+[data-theme="modern-webpage"][data-mode="dark"] {
+  --color-bg-canvas: #0f172a;
+  --color-bg-surface: #1e293b;
+  --color-bg-brand: #3b82f6;
+  --color-fg-default: #e2e8f0;
+  --color-fg-strong: #f8fafc;
+  --color-border-default: #334155;
+  --color-border-muted: #1e293b;
+  --color-border-focus: #60a5fa;
+  --color-link-default: #60a5fa;
+  --color-link-visited: #a78bfa;
+  --color-code-bg: #1e293b;
+  --color-code-fg: #fb7185;
+  --color-state-success: #22c55e;
+  --color-state-warning: #fbbf24;
+  --color-state-error: #f87171;
+  --color-state-info: #38bdf8;
+  --color-selection-bg: #1e40af;
+  --color-debug-marker: #d946ef;
+  --color-agent-1: #f87171;
+  --color-agent-2: #a78bfa;
+  --color-agent-3: #22d3ee;
+  --color-agent-4: #fbbf24;
+  --color-agent-5: #34d399;
+}
+
+/* ============================================================
+   THEME: mosaic-1993
+   Windows 3.1 — Silver chrome, chiseled borders, teal BG
+   ============================================================ */
+[data-theme="mosaic-1993"][data-mode="light"] {
+  --color-bg-canvas: #008080;
+  --color-bg-surface: #c0c0c0;
+  --color-bg-brand: #000080;
+  --color-fg-default: #000000;
+  --color-fg-strong: #000000;
+  --color-border-default: #808080;
+  --color-border-muted: #dfdfdf;
+  --color-border-focus: #000080;
+  --color-link-default: #000080;
+  --color-link-visited: #800080;
+  --color-code-bg: #ffffff;
+  --color-code-fg: #800000;
+  --color-state-success: #008000;
+  --color-state-warning: #808000;
+  --color-state-error: #ff0000;
+  --color-state-info: #000080;
+  --color-selection-bg: #000080;
+  --color-debug-marker: #ff00ff;
+  --color-agent-1: #ff0000;
+  --color-agent-2: #000080;
+  --color-agent-3: #008080;
+  --color-agent-4: #808000;
+  --color-agent-5: #008000;
+  --font-header: 'MS Sans Serif', 'Arial', sans-serif;
+  --font-body: 'MS Sans Serif', 'Arial', sans-serif;
+}
+
+[data-theme="mosaic-1993"][data-mode="dark"] {
+  --color-bg-canvas: #1a0033;
+  --color-bg-surface: #3f3f3f;
+  --color-bg-brand: #7f7fff;
+  --color-fg-default: #e0e0e0;
+  --color-fg-strong: #ffffff;
+  --color-border-default: #808080;
+  --color-border-muted: #505050;
+  --color-border-focus: #7f7fff;
+  --color-link-default: #7f7fff;
+  --color-link-visited: #bf7fbf;
+  --color-code-bg: #2a2a2a;
+  --color-code-fg: #ff7f7f;
+  --color-state-success: #7fff7f;
+  --color-state-warning: #ffff7f;
+  --color-state-error: #ff7f7f;
+  --color-state-info: #7f7fff;
+  --color-selection-bg: #000080;
+  --color-debug-marker: #ff00ff;
+  --color-agent-1: #ff7f7f;
+  --color-agent-2: #7f7fff;
+  --color-agent-3: #7fffff;
+  --color-agent-4: #ffff7f;
+  --color-agent-5: #7fff7f;
+}
+
+/* ============================================================
+   THEME: gen7-cockpit
+   Gen 7 Fighter — Dark Gull Gray, MFD Green
+   ============================================================ */
+[data-theme="gen7-cockpit"][data-mode="light"] {
+  --color-bg-canvas: #8a9197;
+  --color-bg-surface: #9ca3a9;
+  --color-bg-brand: #2d5a27;
+  --color-fg-default: #1a1a1a;
+  --color-fg-strong: #000000;
+  --color-border-default: #6b7280;
+  --color-border-muted: #9ca3af;
+  --color-border-focus: #4ade80;
+  --color-link-default: #22c55e;
+  --color-link-visited: #86efac;
+  --color-code-bg: #374151;
+  --color-code-fg: #4ade80;
+  --color-state-success: #4ade80;
+  --color-state-warning: #facc15;
+  --color-state-error: #ef4444;
+  --color-state-info: #38bdf8;
+  --color-selection-bg: #365314;
+  --color-debug-marker: #c084fc;
+  --color-agent-1: #ef4444;
+  --color-agent-2: #a855f7;
+  --color-agent-3: #06b6d4;
+  --color-agent-4: #eab308;
+  --color-agent-5: #22c55e;
+}
+
+[data-theme="gen7-cockpit"][data-mode="dark"] {
+  --color-bg-canvas: #1a1c1e;
+  --color-bg-surface: #252729;
+  --color-bg-brand: #166534;
+  --color-fg-default: #4ade80;
+  --color-fg-strong: #86efac;
+  --color-border-default: #374151;
+  --color-border-muted: #1f2937;
+  --color-border-focus: #22c55e;
+  --color-link-default: #4ade80;
+  --color-link-visited: #86efac;
+  --color-code-bg: #111827;
+  --color-code-fg: #4ade80;
+  --color-state-success: #22c55e;
+  --color-state-warning: #eab308;
+  --color-state-error: #dc2626;
+  --color-state-info: #0ea5e9;
+  --color-selection-bg: #14532d;
+  --color-debug-marker: #a855f7;
+  --color-agent-1: #f87171;
+  --color-agent-2: #c084fc;
+  --color-agent-3: #22d3ee;
+  --color-agent-4: #facc15;
+  --color-agent-5: #4ade80;
+}
+
+/* ============================================================
+   THEME: ussr-cockpit
+   Soviet Cold War — MiG Turquoise, stress-reducing blue
+   ============================================================ */
+[data-theme="ussr-cockpit"][data-mode="light"] {
+  --color-bg-canvas: #3d90a2;
+  --color-bg-surface: #4da8b8;
+  --color-bg-brand: #8b1a1a;
+  --color-fg-default: #1a1a2e;
+  --color-fg-strong: #000000;
+  --color-border-default: #2d7a8a;
+  --color-border-muted: #5bc0d0;
+  --color-border-focus: #ff6b35;
+  --color-link-default: #ffd700;
+  --color-link-visited: #ff8c00;
+  --color-code-bg: #2d6a7a;
+  --color-code-fg: #ffdd57;
+  --color-state-success: #2ecc71;
+  --color-state-warning: #f39c12;
+  --color-state-error: #e74c3c;
+  --color-state-info: #3498db;
+  --color-selection-bg: #1a5276;
+  --color-debug-marker: #e74c3c;
+  --color-agent-1: #e74c3c;
+  --color-agent-2: #9b59b6;
+  --color-agent-3: #1abc9c;
+  --color-agent-4: #f1c40f;
+  --color-agent-5: #2ecc71;
+}
+
+[data-theme="ussr-cockpit"][data-mode="dark"] {
+  --color-bg-canvas: #0d1f26;
+  --color-bg-surface: #3d90a2;
+  --color-bg-brand: #cc0000;
+  --color-fg-default: #b8d4da;
+  --color-fg-strong: #e0f0f4;
+  --color-border-default: #2a6a78;
+  --color-border-muted: #1a4a58;
+  --color-border-focus: #ff6b35;
+  --color-link-default: #ffd700;
+  --color-link-visited: #ff8c00;
+  --color-code-bg: #0a1a22;
+  --color-code-fg: #ffdd57;
+  --color-state-success: #2ecc71;
+  --color-state-warning: #f39c12;
+  --color-state-error: #e74c3c;
+  --color-state-info: #5dade2;
+  --color-selection-bg: #1a5276;
+  --color-debug-marker: #e74c3c;
+  --color-agent-1: #ff6b6b;
+  --color-agent-2: #bb8fce;
+  --color-agent-3: #48c9b0;
+  --color-agent-4: #f7dc6f;
+  --color-agent-5: #58d68d;
+}
+
+/* ============================================================
+   THEME: neonvice-1985
+   Miami pastels, linen suits, art deco pinks
+   ============================================================ */
+[data-theme="neonvice-1985"][data-mode="light"] {
+  --color-bg-canvas: #fdf0e8;
+  --color-bg-surface: #fff5ee;
+  --color-bg-brand: #ff6b9d;
+  --color-fg-default: #4a2040;
+  --color-fg-strong: #2d0a2e;
+  --color-border-default: #e8a0b8;
+  --color-border-muted: #fcd5e0;
+  --color-border-focus: #ff1493;
+  --color-link-default: #ff69b4;
+  --color-link-visited: #ba55d3;
+  --color-code-bg: #fce4ec;
+  --color-code-fg: #e91e63;
+  --color-state-success: #00e676;
+  --color-state-warning: #ffab40;
+  --color-state-error: #ff1744;
+  --color-state-info: #40c4ff;
+  --color-selection-bg: #f8bbd9;
+  --color-debug-marker: #e040fb;
+  --color-agent-1: #ff1744;
+  --color-agent-2: #d500f9;
+  --color-agent-3: #00e5ff;
+  --color-agent-4: #ffab40;
+  --color-agent-5: #00e676;
+}
+
+[data-theme="neonvice-1985"][data-mode="dark"] {
+  --color-bg-canvas: #1a0a2e;
+  --color-bg-surface: #2d1048;
+  --color-bg-brand: #ff1493;
+  --color-fg-default: #e8b4d8;
+  --color-fg-strong: #fce4ec;
+  --color-border-default: #6a1b6a;
+  --color-border-muted: #3d1260;
+  --color-border-focus: #ff69b4;
+  --color-link-default: #ff69b4;
+  --color-link-visited: #ba55d3;
+  --color-code-bg: #120828;
+  --color-code-fg: #ff80ab;
+  --color-state-success: #69f0ae;
+  --color-state-warning: #ffd740;
+  --color-state-error: #ff5252;
+  --color-state-info: #80d8ff;
+  --color-selection-bg: #880e4f;
+  --color-debug-marker: #ea80fc;
+  --color-agent-1: #ff5252;
+  --color-agent-2: #ea80fc;
+  --color-agent-3: #80d8ff;
+  --color-agent-4: #ffd740;
+  --color-agent-5: #69f0ae;
+}
+
+/* ============================================================
+   THEME: neoncity-2085
+   Cyberpunk utopia/dystopia — chromium, electric neon
+   ============================================================ */
+[data-theme="neoncity-2085"][data-mode="light"] {
+  --color-bg-canvas: #e8edf2;
+  --color-bg-surface: #d0dae4;
+  --color-bg-brand: #00d4ff;
+  --color-fg-default: #0a1628;
+  --color-fg-strong: #000810;
+  --color-border-default: #7ec8e3;
+  --color-border-muted: #b8d8e8;
+  --color-border-focus: #00bcd4;
+  --color-link-default: #00bcd4;
+  --color-link-visited: #7c4dff;
+  --color-code-bg: #cfd8dc;
+  --color-code-fg: #00b8d4;
+  --color-state-success: #00e676;
+  --color-state-warning: #ffab00;
+  --color-state-error: #ff1744;
+  --color-state-info: #00b0ff;
+  --color-selection-bg: #b2ebf2;
+  --color-debug-marker: #e040fb;
+  --color-agent-1: #ff1744;
+  --color-agent-2: #7c4dff;
+  --color-agent-3: #00e5ff;
+  --color-agent-4: #ffab00;
+  --color-agent-5: #00e676;
+}
+
+[data-theme="neoncity-2085"][data-mode="dark"] {
+  --color-bg-canvas: #05080f;
+  --color-bg-surface: #0d1520;
+  --color-bg-brand: #00e5ff;
+  --color-fg-default: #b0bec5;
+  --color-fg-strong: #e0f7fa;
+  --color-border-default: #1a3a4a;
+  --color-border-muted: #0d2030;
+  --color-border-focus: #00e5ff;
+  --color-link-default: #18ffff;
+  --color-link-visited: #b388ff;
+  --color-code-bg: #0a1018;
+  --color-code-fg: #00e5ff;
+  --color-state-success: #69f0ae;
+  --color-state-warning: #ffd740;
+  --color-state-error: #ff5252;
+  --color-state-info: #40c4ff;
+  --color-selection-bg: #006064;
+  --color-debug-marker: #ea80fc;
+  --color-agent-1: #ff5252;
+  --color-agent-2: #b388ff;
+  --color-agent-3: #18ffff;
+  --color-agent-4: #ffd740;
+  --color-agent-5: #69f0ae;
+}
+
+/* ============================================================
+   THEME: coniforest
+   Evergreens, Mt. Rainier, mist, granite, pine
+   ============================================================ */
+[data-theme="coniforest"][data-mode="light"] {
+  --color-bg-canvas: #e8ede5;
+  --color-bg-surface: #f0f4ed;
+  --color-bg-brand: #2d5a3d;
+  --color-fg-default: #2c3e2d;
+  --color-fg-strong: #1a2e1a;
+  --color-border-default: #8faa8f;
+  --color-border-muted: #c5d5c0;
+  --color-border-focus: #3a7d44;
+  --color-link-default: #2e7d32;
+  --color-link-visited: #6a1b9a;
+  --color-code-bg: #dce5d8;
+  --color-code-fg: #558b2f;
+  --color-state-success: #43a047;
+  --color-state-warning: #ef6c00;
+  --color-state-error: #c62828;
+  --color-state-info: #0277bd;
+  --color-selection-bg: #a5d6a7;
+  --color-debug-marker: #ce93d8;
+  --color-agent-1: #c62828;
+  --color-agent-2: #6a1b9a;
+  --color-agent-3: #00838f;
+  --color-agent-4: #ef6c00;
+  --color-agent-5: #2e7d32;
+}
+
+[data-theme="coniforest"][data-mode="dark"] {
+  --color-bg-canvas: #0d1a12;
+  --color-bg-surface: #1a2e1e;
+  --color-bg-brand: #2e7d32;
+  --color-fg-default: #a5c4a5;
+  --color-fg-strong: #c8e6c9;
+  --color-border-default: #2e4a30;
+  --color-border-muted: #1a3420;
+  --color-border-focus: #66bb6a;
+  --color-link-default: #81c784;
+  --color-link-visited: #ce93d8;
+  --color-code-bg: #0a140e;
+  --color-code-fg: #81c784;
+  --color-state-success: #66bb6a;
+  --color-state-warning: #ffa726;
+  --color-state-error: #ef5350;
+  --color-state-info: #42a5f5;
+  --color-selection-bg: #1b5e20;
+  --color-debug-marker: #ab47bc;
+  --color-agent-1: #ef5350;
+  --color-agent-2: #ab47bc;
+  --color-agent-3: #26c6da;
+  --color-agent-4: #ffa726;
+  --color-agent-5: #66bb6a;
+}
+
+/* ============================================================
+   THEME: raneforest  (intentional misspelling per PRD)
+   Amazon rainforest — humid, parrot green, pith helmet beige
+   ============================================================ */
+[data-theme="raneforest"][data-mode="light"] {
+  --color-bg-canvas: #f5f0e1;
+  --color-bg-surface: #eae3d0;
+  --color-bg-brand: #228b22;
+  --color-fg-default: #2d1f0e;
+  --color-fg-strong: #1a0f00;
+  --color-border-default: #8b7355;
+  --color-border-muted: #c4b088;
+  --color-border-focus: #32cd32;
+  --color-link-default: #006400;
+  --color-link-visited: #8b008b;
+  --color-code-bg: #e8dfc8;
+  --color-code-fg: #228b22;
+  --color-state-success: #32cd32;
+  --color-state-warning: #ff8c00;
+  --color-state-error: #dc143c;
+  --color-state-info: #1e90ff;
+  --color-selection-bg: #90ee90;
+  --color-debug-marker: #ff69b4;
+  --color-agent-1: #dc143c;
+  --color-agent-2: #8b008b;
+  --color-agent-3: #20b2aa;
+  --color-agent-4: #ff8c00;
+  --color-agent-5: #32cd32;
+}
+
+[data-theme="raneforest"][data-mode="dark"] {
+  --color-bg-canvas: #0a1a0a;
+  --color-bg-surface: #152815;
+  --color-bg-brand: #00ff00;
+  --color-fg-default: #8fbc8f;
+  --color-fg-strong: #98fb98;
+  --color-border-default: #2a4a2a;
+  --color-border-muted: #1a3a1a;
+  --color-border-focus: #00ff7f;
+  --color-link-default: #7cfc00;
+  --color-link-visited: #da70d6;
+  --color-code-bg: #061006;
+  --color-code-fg: #00ff7f;
+  --color-state-success: #00ff7f;
+  --color-state-warning: #ffa500;
+  --color-state-error: #ff4500;
+  --color-state-info: #87ceeb;
+  --color-selection-bg: #006400;
+  --color-debug-marker: #ff1493;
+  --color-agent-1: #ff4500;
+  --color-agent-2: #da70d6;
+  --color-agent-3: #40e0d0;
+  --color-agent-4: #ffa500;
+  --color-agent-5: #00ff7f;
+}
+
+/* ============================================================
+   THEME: art-deco
+   Roaring Twenties — ivory, lacquer, champagne gold
+   ============================================================ */
+[data-theme="art-deco"][data-mode="light"] {
+  --color-bg-canvas: #faf8f0;
+  --color-bg-surface: #f0ece0;
+  --color-bg-brand: #c9a84c;
+  --color-fg-default: #1a1a18;
+  --color-fg-strong: #0d0d0c;
+  --color-border-default: #c9a84c;
+  --color-border-muted: #e0d5b0;
+  --color-border-focus: #b8860b;
+  --color-link-default: #b8860b;
+  --color-link-visited: #556b2f;
+  --color-code-bg: #f5f0e0;
+  --color-code-fg: #8b4513;
+  --color-state-success: #228b22;
+  --color-state-warning: #daa520;
+  --color-state-error: #8b0000;
+  --color-state-info: #2f4f4f;
+  --color-selection-bg: #faebd7;
+  --color-debug-marker: #da70d6;
+  --color-agent-1: #8b0000;
+  --color-agent-2: #556b2f;
+  --color-agent-3: #2f4f4f;
+  --color-agent-4: #daa520;
+  --color-agent-5: #228b22;
+}
+
+[data-theme="art-deco"][data-mode="dark"] {
+  --color-bg-canvas: #0a0a08;
+  --color-bg-surface: #1a1a14;
+  --color-bg-brand: #ffd700;
+  --color-fg-default: #d4c88a;
+  --color-fg-strong: #ffd700;
+  --color-border-default: #8b7536;
+  --color-border-muted: #3a3420;
+  --color-border-focus: #ffd700;
+  --color-link-default: #ffd700;
+  --color-link-visited: #9acd32;
+  --color-code-bg: #12120e;
+  --color-code-fg: #daa520;
+  --color-state-success: #50c878;
+  --color-state-warning: #ffd700;
+  --color-state-error: #ff2400;
+  --color-state-info: #4682b4;
+  --color-selection-bg: #4a3f1a;
+  --color-debug-marker: #ba55d3;
+  --color-agent-1: #ff2400;
+  --color-agent-2: #9acd32;
+  --color-agent-3: #4682b4;
+  --color-agent-4: #ffd700;
+  --color-agent-5: #50c878;
+}
+
+/* ============================================================
+   THEME: holographic
+   Iridescent pearl, spectral shimmer, prism noir
+   ============================================================ */
+[data-theme="holographic"][data-mode="light"] {
+  --color-bg-canvas: #f0f0f8;
+  --color-bg-surface: #e8e8f4;
+  --color-bg-brand: #7b68ee;
+  --color-fg-default: #2a2a3e;
+  --color-fg-strong: #14142a;
+  --color-border-default: #b0a8e8;
+  --color-border-muted: #d0ccf0;
+  --color-border-focus: #7b68ee;
+  --color-link-default: #6a5acd;
+  --color-link-visited: #9370db;
+  --color-code-bg: #e0e0f0;
+  --color-code-fg: #7b68ee;
+  --color-state-success: #00cec9;
+  --color-state-warning: #fdcb6e;
+  --color-state-error: #ff6b6b;
+  --color-state-info: #74b9ff;
+  --color-selection-bg: #dfe6e9;
+  --color-debug-marker: #fd79a8;
+  --color-agent-1: #ff6b6b;
+  --color-agent-2: #a29bfe;
+  --color-agent-3: #00cec9;
+  --color-agent-4: #fdcb6e;
+  --color-agent-5: #55efc4;
+}
+
+[data-theme="holographic"][data-mode="dark"] {
+  --color-bg-canvas: #0a0a14;
+  --color-bg-surface: #14142a;
+  --color-bg-brand: #a29bfe;
+  --color-fg-default: #b8b8d0;
+  --color-fg-strong: #dfe6e9;
+  --color-border-default: #2d2d5a;
+  --color-border-muted: #1a1a3a;
+  --color-border-focus: #a29bfe;
+  --color-link-default: #a29bfe;
+  --color-link-visited: #fd79a8;
+  --color-code-bg: #0e0e1e;
+  --color-code-fg: #a29bfe;
+  --color-state-success: #00cec9;
+  --color-state-warning: #ffeaa7;
+  --color-state-error: #ff7675;
+  --color-state-info: #74b9ff;
+  --color-selection-bg: #2d3436;
+  --color-debug-marker: #fd79a8;
+  --color-agent-1: #ff7675;
+  --color-agent-2: #a29bfe;
+  --color-agent-3: #00cec9;
+  --color-agent-4: #ffeaa7;
+  --color-agent-5: #55efc4;
+}
+
+/* ============================================================
+   Theme button preview classes
+   Each button shows its own theme colors regardless of active theme
+   ============================================================ */
+.theme-button-preview { font-size: 12px; padding: 6px 2px 4px 2px; font-weight: 700; text-align: center; cursor: pointer; border: 2px solid; border-radius: 4px; transition: all 0.15s ease; min-width: 100%; }
+.theme-button-preview:hover { filter: brightness(1.1); transform: scale(1.02); }
+.theme-button-preview:active { transform: scale(0.98); }
+.theme-button-preview.active { outline: 2px solid var(--color-border-focus); outline-offset: 1px; }
