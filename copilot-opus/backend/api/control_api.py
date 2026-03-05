@@ -86,6 +86,14 @@ class ErrorResponse(BaseModel):
     detail: str
 
 
+class ManualOrderRequest(BaseModel):
+    ticker: str = Field(..., min_length=1)
+    side: Literal["yes", "no"]
+    action: Literal["buy", "sell"] = "buy"
+    count_fp: str = "1.00"
+    price_dollars: str = Field(..., min_length=1)
+
+
 # ---------------------------------------------------------------------------
 # WebSocket broadcast hub
 # ---------------------------------------------------------------------------
@@ -192,12 +200,16 @@ def create_api(
         redoc_url=None,
     )
 
+    # CORS: The backend binds to 127.0.0.1 only, preventing external access.
+    # We allow broad origins so the frontend works from file://, Electron,
+    # GitHub Pages, and local dev servers.  Methods are restricted to the
+    # minimum needed (GET for reads, POST for writes).
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_credentials=False,
+        allow_methods=["GET", "POST"],
+        allow_headers=["Content-Type"],
     )
 
     broadcaster = _EventBroadcaster()
@@ -383,6 +395,47 @@ def create_api(
             circuit_breaker_open=risk_gateway.is_circuit_open(),
             daily_pnl=str(risk_gateway.get_daily_pnl()),
         )
+
+    @app.post("/api/trading/manual-order", tags=["trading"])
+    async def submit_manual_order(body: ManualOrderRequest) -> dict[str, Any]:
+        """Submit a manual order from the UI.
+
+        Creates a :class:`TradeIntent` as if from a ``user`` agent and
+        processes it through the standard execution pipeline (risk checks,
+        order submission).
+        """
+        from backend.models.schemas import TradeIntent
+
+        intent = TradeIntent(
+            agent_name="user",
+            ticker=body.ticker,
+            side=body.side,
+            action=body.action,
+            count_fp=body.count_fp,
+            price_dollars=body.price_dollars,
+            reasoning="Manual order from UI",
+        )
+
+        try:
+            result = await execution_service.process_intent(intent)
+        except RuntimeError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=str(exc),
+            )
+        except Exception as exc:
+            log.exception("manual_order_failed", ticker=body.ticker)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Order submission failed",
+            )
+
+        await broadcaster.broadcast("manual_order", {
+            "ticker": body.ticker,
+            "side": body.side,
+            "result": result,
+        })
+        return result
 
     # ==================================================================
     # Semi-Auto Approvals

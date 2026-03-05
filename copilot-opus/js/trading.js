@@ -50,6 +50,7 @@ const TradingStudio = (() => {
     bindShowMore();
     bindApprovalButtons();
     bindOverlayClose();
+    bindBuySellDelegation();
   }
 
   /* ---- Event Binding ---- */
@@ -152,11 +153,20 @@ const TradingStudio = (() => {
       setTimeout(() => iface.classList.remove('trading-init-animation'), 1500);
     }
     await fetchMarkets();
+    await fetchAccountSummary();
     connectWebSocket();
+
+    /* Poll account summary every 10 seconds */
+    if (onConnected._accountInterval) clearInterval(onConnected._accountInterval);
+    onConnected._accountInterval = setInterval(fetchAccountSummary, 10000);
   }
 
   function onDisconnected() {
     connected = false;
+    if (onConnected._accountInterval) {
+      clearInterval(onConnected._accountInterval);
+      onConnected._accountInterval = null;
+    }
     const preConnect = document.getElementById('trading-pre-connect');
     const iface = document.getElementById('trading-interface');
     if (preConnect) preConnect.style.display = 'flex';
@@ -325,7 +335,75 @@ const TradingStudio = (() => {
       expandCard(market);
     });
 
+    /* Render mini sparkline on the card canvas (simulated trend) */
+    const miniCanvas = card.querySelector('.series-card-canvas');
+    if (miniCanvas) {
+      drawMiniSparkline(miniCanvas, market);
+    }
+
     return card;
+  }
+
+  /* ---- Mini Sparkline for Series Cards ---- */
+
+  function drawMiniSparkline(canvas, market) {
+    const context = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+    context.clearRect(0, 0, width, height);
+
+    /* Generate a plausible price curve from the market's current price */
+    const currentPrice = parseFloat(market.last_price_dollars || market.yes_bid_dollars || '0.50');
+    const dataPoints = 30;
+    const prices = [];
+    let price = currentPrice * (0.85 + Math.random() * 0.15);
+
+    for (let i = 0; i < dataPoints; i++) {
+      const drift = (currentPrice - price) * 0.08;
+      const noise = (Math.random() - 0.5) * 0.04;
+      price = Math.max(0.01, Math.min(0.99, price + drift + noise));
+      prices.push(price);
+    }
+    /* Ensure last point matches current price */
+    prices[prices.length - 1] = currentPrice;
+
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
+    const priceRange = maxPrice - minPrice || 0.01;
+    const padding = 4;
+
+    const computedStyle = getComputedStyle(document.body);
+    const successColor = computedStyle.getPropertyValue('--color-state-success').trim() || '#22c55e';
+    const dangerColor = computedStyle.getPropertyValue('--color-state-danger').trim() || '#ef4444';
+    const isUpTrend = prices[prices.length - 1] >= prices[0];
+    const lineColor = isUpTrend ? successColor : dangerColor;
+
+    /* Draw line */
+    context.beginPath();
+    context.lineWidth = 1.5;
+    context.lineJoin = 'round';
+    context.lineCap = 'round';
+    context.strokeStyle = lineColor;
+
+    prices.forEach((pricePoint, index) => {
+      const x = padding + (index / (dataPoints - 1)) * (width - padding * 2);
+      const y = padding + (1 - (pricePoint - minPrice) / priceRange) * (height - padding * 2);
+      if (index === 0) context.moveTo(x, y);
+      else context.lineTo(x, y);
+    });
+    context.stroke();
+
+    /* Draw gradient fill */
+    const lastX = padding + (width - padding * 2);
+    const gradient = context.createLinearGradient(0, padding, 0, height - padding);
+    gradient.addColorStop(0, lineColor + '30');
+    gradient.addColorStop(1, lineColor + '05');
+
+    context.lineTo(lastX, height - padding);
+    context.lineTo(padding, height - padding);
+    context.closePath();
+    context.fillStyle = gradient;
+    context.fill();
   }
 
   /* ---- Expand Card Overlay ---- */
@@ -395,6 +473,16 @@ const TradingStudio = (() => {
     if (event.type === 'approval_request' && event.data) {
       showApprovalOverlay(event.data);
     }
+    if (event.type === 'fill' && event.data) {
+      showToast(`Fill: ${event.data.data?.ticker || 'unknown'} — ${event.data.data?.side || ''}`, 'success');
+      fetchAccountSummary();
+    }
+    if (event.type === 'manual_order' && event.data) {
+      fetchAccountSummary();
+    }
+    if (event.type === 'trading_enabled' || event.type === 'trading_disabled') {
+      fetchAccountSummary();
+    }
   }
 
   /* ---- Approval Overlay ---- */
@@ -411,18 +499,175 @@ const TradingStudio = (() => {
   }
 
   async function postApprovalDecision(orderId, approved) {
+    const action = approved ? 'approve' : 'deny';
     try {
-      await fetch(`${BACKEND_URL}/api/approval`, {
+      const response = await fetch(`${BACKEND_URL}/api/approvals/${encodeURIComponent(orderId)}/${action}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ client_order_id: orderId, approved })
       });
+      if (!response.ok) {
+        showToast(`Approval ${action} failed (${response.status})`, 'error');
+        return;
+      }
+      showToast(`Trade ${approved ? 'approved' : 'denied'}: ${orderId}`, approved ? 'success' : 'info');
     } catch (e) {
-      console.warn('Approval post failed:', e);
+      showToast('Approval post failed — backend not reachable', 'error');
     }
   }
 
-  /* ---- Helpers ---- */
+  /* ---- Buy/Sell Button Delegation ---- */
+
+  function bindBuySellDelegation() {
+    /* Delegate clicks on .yes-button / .no-button anywhere in the trading studio */
+    const tradingSection = document.getElementById('studio-trading');
+    if (!tradingSection) return;
+    tradingSection.addEventListener('click', (e) => {
+      const button = e.target.closest('.yes-button[data-ticker], .no-button[data-ticker]');
+      if (!button) return;
+      e.stopPropagation();
+      const ticker = button.dataset.ticker;
+      const side = button.dataset.side;
+      if (ticker && side) {
+        handleManualOrder(ticker, side);
+      }
+    });
+  }
+
+  async function handleManualOrder(ticker, side) {
+    const market = markets.find(m => m.ticker === ticker);
+    if (!market) {
+      showToast('Market not found', 'error');
+      return;
+    }
+    const priceDollars = side === 'yes'
+      ? (market.yes_ask_dollars || market.yes_bid_dollars || '')
+      : (market.no_ask_dollars || market.no_bid_dollars || '');
+
+    if (!priceDollars) {
+      showToast('Price data unavailable — cannot place order', 'error');
+      return;
+    }
+
+    showToast(`Submitting ${side.toUpperCase()} order for ${ticker}…`, 'info');
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/trading/manual-order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ticker: ticker,
+          side: side,
+          action: 'buy',
+          count_fp: '1.00',
+          price_dollars: priceDollars,
+        }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        showToast(errorData.detail || `Order failed (${response.status})`, 'error');
+        return;
+      }
+      const result = await response.json();
+      showToast(`✓ Order submitted: ${side.toUpperCase()} on ${ticker}`, 'success');
+    } catch (networkError) {
+      showToast('Backend not reachable — cannot place orders', 'error');
+    }
+  }
+
+  /* ---- Account Summary ---- */
+
+  async function fetchAccountSummary() {
+    try {
+      const [balanceResponse, tradingResponse] = await Promise.all([
+        fetch(`${BACKEND_URL}/api/state/balance`).catch(() => null),
+        fetch(`${BACKEND_URL}/api/trading/status`).catch(() => null),
+      ]);
+
+      if (balanceResponse && balanceResponse.ok) {
+        const balanceData = await balanceResponse.json();
+        const balanceElement = document.getElementById('account-balance-display');
+        const portfolioElement = document.getElementById('portfolio-value-display');
+        if (balanceElement && balanceData.balance !== undefined) {
+          const balanceValue = parseFloat(balanceData.balance);
+          balanceElement.textContent = isNaN(balanceValue) ? '—' : '$' + balanceValue.toFixed(2);
+        }
+        if (portfolioElement && balanceData.portfolio_value !== undefined) {
+          const portfolioValue = parseFloat(balanceData.portfolio_value);
+          portfolioElement.textContent = isNaN(portfolioValue) ? '—' : '$' + portfolioValue.toFixed(2);
+        }
+      }
+
+      if (tradingResponse && tradingResponse.ok) {
+        const tradingData = await tradingResponse.json();
+        const pnlElement = document.getElementById('daily-pnl-display');
+        if (pnlElement && tradingData.daily_pnl !== undefined) {
+          const pnl = parseFloat(tradingData.daily_pnl);
+          if (isNaN(pnl)) {
+            pnlElement.textContent = '—';
+          } else {
+            const sign = pnl >= 0 ? '+' : '';
+            pnlElement.textContent = sign + '$' + pnl.toFixed(2);
+            pnlElement.style.color = pnl >= 0
+              ? 'var(--color-state-success)'
+              : 'var(--color-state-danger)';
+          }
+        }
+      }
+    } catch (error) {
+      /* Silently fail — backend may not be reachable */
+    }
+  }
+
+  /* ---- Toast Notification System ---- */
+
+  function showToast(message, type) {
+    let container = document.getElementById('trading-toast-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'trading-toast-container';
+      container.style.cssText = 'position:fixed;top:12px;right:12px;z-index:9999;display:flex;flex-direction:column;gap:6px;pointer-events:none;';
+      document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    const colorMap = {
+      success: 'var(--color-state-success, #22c55e)',
+      error: 'var(--color-state-danger, #ef4444)',
+      info: 'var(--color-state-info, #3b82f6)',
+    };
+    const borderColor = colorMap[type] || colorMap.info;
+    toast.style.cssText = `
+      padding:8px 16px;
+      font-size:12px;
+      font-family:var(--font-family-mono, monospace);
+      background:var(--color-bg-surface, #1f2937);
+      color:var(--color-fg-default, #fff);
+      border:1px solid ${borderColor};
+      border-left:3px solid ${borderColor};
+      border-radius:6px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.3);
+      pointer-events:auto;
+      opacity:0;
+      transform:translateX(20px);
+      transition:opacity 0.3s ease, transform 0.3s ease;
+      max-width:360px;
+    `;
+    toast.textContent = message;
+    container.appendChild(toast);
+
+    /* Animate in */
+    requestAnimationFrame(() => {
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateX(0)';
+    });
+
+    /* Auto-remove after 4 seconds */
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(20px)';
+      setTimeout(() => toast.remove(), 300);
+    }, 4000);
+  }
 
   function formatTimeRemaining(closeTime) {
     const diff = closeTime - new Date();
