@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="webpage" data-mode="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920, initial-scale=1.0">
+  <meta name="description" content="Paulie's Prediction Partners — AI-Powered Prediction Trading cockpit">
+  <title>Paulie's Prediction Partners</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- App stylesheets -->
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="css/illumination.css">
+  <link rel="stylesheet" href="css/main.css">
+
+  <style>
+    /* Studio views: only the active one is visible */
+    .studio-view { display: none; }
+    .studio-view.is-active { display: block; }
+
+    /* Illumination slide-out panel */
+    #illumination-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: min(420px, 95vw);
+      height: 100vh;
+      background: var(--color-bg-surface-raised);
+      border-left: 2px solid var(--color-border-default);
+      box-shadow: -8px 0 32px var(--color-shadow);
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      z-index: 1100;
+      overflow-y: auto;
+      padding: var(--space-5);
+    }
+    #illumination-panel.is-open { transform: translateX(0); }
+
+    #illumination-backdrop {
+      position: fixed;
+      inset: 0;
+      background: var(--color-bg-overlay);
+      z-index: 1099;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    #illumination-backdrop.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Sidebar collapse */
+    .app-shell.left-collapsed  { grid-template-columns: 0px 1fr 320px; }
+    .app-shell.right-collapsed { grid-template-columns: 320px 1fr 0px; }
+    .app-shell.left-collapsed.right-collapsed { grid-template-columns: 0px 1fr 0px; }
+    .app-shell.left-collapsed .region-left,
+    .app-shell.right-collapsed .region-right { overflow: hidden; padding: 0; border: none; }
+
+    /* Palette viewer swatches */
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: var(--space-2);
+    }
+    .palette-swatch {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+      padding: var(--space-2);
+      border: 1px solid var(--color-border-muted);
+      border-radius: var(--border-radius-md);
+      background: var(--color-bg-surface);
+    }
+    .palette-swatch__color {
+      width: 100%;
+      height: 32px;
+      border-radius: var(--border-radius-sm);
+      border: 1px solid var(--color-border-muted);
+    }
+    .palette-swatch__label {
+      font-family: var(--font-family-mono);
+      font-size: 0.6rem;
+      color: var(--color-fg-muted);
+      word-break: break-all;
+    }
+    .palette-swatch__value {
+      font-family: var(--font-family-mono);
+      font-size: 0.6rem;
+      color: var(--color-fg-subtle);
+    }
+
+    /* Gauge placeholders */
+    .gauge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-1);
+    }
+    .gauge__bar {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: var(--color-border-muted);
+      overflow: hidden;
+    }
+    .gauge__fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+    .gauge__label {
+      font-family: var(--font-family-mono);
+      font-size: 0.6rem;
+      color: var(--color-fg-muted);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Skip link for accessibility -->
+  <a href="#main-region" class="skip-link">Skip to main content</a>
+
+  <div class="app-shell" role="application" aria-label="Paulie's Prediction Partners application shell">
+
+    <!-- ================================================================== -->
+    <!-- HEADER BAR                                                         -->
+    <!-- ================================================================== -->
+    <header id="header-bar" class="region region-header glow-bars-primary" role="banner">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl" role="img" aria-label="Target logo">🎯</span>
+        <div>
+          <h1 class="app-title">
+            <span class="app-title__accent">Paulie's</span> Prediction Partners
+          </h1>
+          <p class="text-xs text-muted m-0">AI-Powered Prediction Trading</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <!-- Theme selector (rendered by ThemeManager.createSelector) -->
+        <div id="theme-selector-mount" aria-label="Theme selection"></div>
+
+        <!-- Illumination toggle -->
+        <button
+          id="illumination-toggle"
+          class="btn btn-ghost btn-icon tooltip"
+          data-tooltip="Illumination Controls"
+          aria-label="Toggle illumination control panel"
+          aria-expanded="false"
+          aria-controls="illumination-panel"
+        >💡</button>
+      </div>
+    </header>
+
+    <!-- ================================================================== -->
+    <!-- NAV BAR                                                            -->
+    <!-- ================================================================== -->
+    <nav id="nav-bar" class="region region-nav glow-bars-secondary" role="navigation" aria-label="Studio navigation">
+      <ul class="nav-tabs" role="tablist">
+        <li role="presentation">
+          <button
+            class="nav-tab active glow-text-secondary"
+            role="tab"
+            id="tab-design"
+            aria-selected="true"
+            aria-controls="studio-design"
+            data-studio="design"
+          >🎨 Design Studio</button>
+        </li>
+        <li role="presentation">
+          <button
+            class="nav-tab glow-text-secondary"
+            role="tab"
+            id="tab-trading"
+            aria-selected="false"
+            aria-controls="studio-trading"
+            data-studio="trading"
+            tabindex="-1"
+          >📈 Trading Studio</button>
+        </li>
+        <li role="presentation">
+          <button
+            class="nav-tab glow-text-secondary"
+            role="tab"
+            id="tab-fly"
+            aria-selected="false"
+            aria-controls="studio-fly"
+            data-studio="fly"
+            tabindex="-1"
+          >✈️ Fly Studio</button>
+        </li>
+        <li role="presentation">
+          <button
+            class="nav-tab glow-text-secondary"
+            role="tab"
+            id="tab-converter"
+            aria-selected="false"
+            aria-controls="studio-converter"
+            data-studio="converter"
+            tabindex="-1"
+          >🔄 Converter Studio</button>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- ================================================================== -->
+    <!-- LEFT SIDEBAR                                                       -->
+    <!-- ================================================================== -->
+    <aside id="left-sidebar" class="region region-left glow-flood" role="complementary" aria-label="Left sidebar">
+      <div class="flex items-center justify-between">
+        <span class="region-title glow-text-primary">Left Panel</span>
+        <button
+          class="btn btn-ghost btn-sm btn-icon"
+          id="collapse-left"
+          aria-label="Collapse left sidebar"
+          data-tooltip="Collapse"
+        >◀</button>
+      </div>
+
+      <!-- Agent Status Panel -->
+      <div class="sidebar-panel" aria-label="Agent status">
+        <div class="sidebar-panel__header">
+          <span class="sidebar-panel__title glow-text-secondary">Agent Status</span>
+        </div>
+        <div class="sidebar-panel__body">
+          <div class="card card--compact">
+            <div class="card-header">
+              <span>🤖 Analysis Agent</span>
+              <span class="status-bar__dot status-bar__dot--live" aria-label="Online"></span>
+            </div>
+            <div class="card-body text-xs text-muted">Idle — awaiting tasks</div>
+          </div>
+          <div class="card card--compact">
+            <div class="card-header">
+              <span>📊 Data Agent</span>
+              <span class="status-bar__dot status-bar__dot--warning" aria-label="Busy"></span>
+            </div>
+            <div class="card-body text-xs text-muted">Processing market feed…</div>
+          </div>
+          <div class="card card--compact">
+            <div class="card-header">
+              <span>🧠 Prediction Agent</span>
+              <span class="status-bar__dot status-bar__dot--info" aria-label="Standby"></span>
+            </div>
+            <div class="card-body text-xs text-muted">Standby — model loaded</div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- System Monitor Panel -->
+      <div class="sidebar-panel" aria-label="System monitor">
+        <div class="sidebar-panel__header">
+          <span class="sidebar-panel__title glow-text-secondary">System Monitor</span>
+        </div>
+        <div class="sidebar-panel__body">
+          <div class="gauge">
+            <div class="flex w-full justify-between">
+              <span class="gauge__label">🔋 Battery</span>
+              <span class="gauge__label">87%</span>
+            </div>
+            <div class="gauge__bar">
+              <div class="gauge__fill" style="width:87%;background:var(--color-state-success)"></div>
+            </div>
+          </div>
+          <div class="gauge">
+            <div class="flex w-full justify-between">
+              <span class="gauge__label">📶 Network</span>
+              <span class="gauge__label">Strong</span>
+            </div>
+            <div class="gauge__bar">
+              <div class="gauge__fill" style="width:92%;background:var(--color-state-info)"></div>
+            </div>
+          </div>
+          <div class="gauge">
+            <div class="flex w-full justify-between">
+              <span class="gauge__label">⚙️ CPU</span>
+              <span class="gauge__label">34%</span>
+            </div>
+            <div class="gauge__bar">
+              <div class="gauge__fill" style="width:34%;background:var(--color-state-warning)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ================================================================== -->
+    <!-- MAIN REGION                                                        -->
+    <!-- ================================================================== -->
+    <main id="main-region" class="region region-main glow-flood" role="main" aria-label="Main content area">
+
+      <!-- Design Studio -->
+      <section
+        id="studio-design"
+        class="studio-view is-active"
+        role="tabpanel"
+        aria-labelledby="tab-design"
+      >
+        <h2 class="region-title glow-text-primary">Design Studio</h2>
+
+        <!-- Paint App -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <span>🖌️ Paint Application</span>
+          </div>
+          <div class="card-body p-1">
+            <div id="paint-container" aria-label="Paint application canvas"></div>
+          </div>
+        </div>
+
+        <!-- Palette Viewer -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <span>🎨 Theme Palette Viewer</span>
+            <span id="palette-theme-name" class="text-xs text-accent"></span>
+          </div>
+          <div class="card-body">
+            <div id="palette-viewer" class="palette-grid" aria-label="Current theme color swatches"></div>
+          </div>
+        </div>
+
+        <!-- Web Elements Showcase -->
+        <div class="card">
+          <div class="card-header">
+            <span>🧩 Web Elements Showcase</span>
+          </div>
+          <div class="card-body flex flex-col gap-4">
+            <!-- Buttons -->
+            <div>
+              <p class="text-sm font-semibold mb-2 text-muted">Buttons</p>
+              <div class="flex flex-wrap gap-2">
+                <button class="btn btn-primary">Primary</button>
+                <button class="btn btn-secondary">Secondary</button>
+                <button class="btn btn-danger">Danger</button>
+                <button class="btn btn-ghost">Ghost</button>
+                <button class="btn" disabled>Disabled</button>
+              </div>
+            </div>
+            <!-- Inputs -->
+            <div>
+              <p class="text-sm font-semibold mb-2 text-muted">Form Inputs</p>
+              <div class="flex flex-wrap gap-2 items-end">
+                <div class="form-group" style="min-width:180px">
+                  <label class="form-label" for="demo-input">Text Input</label>
+                  <input id="demo-input" class="input" type="text" placeholder="Type something…">
+                </div>
+                <div class="form-group" style="min-width:180px">
+                  <label class="form-label" for="demo-select">Select</label>
+                  <select id="demo-select" class="select">
+                    <option>Option A</option>
+                    <option>Option B</option>
+                    <option>Option C</option>
+                  </select>
+                </div>
+                <label class="checkbox">
+                  <input type="checkbox" checked>
+                  Checkbox
+                </label>
+                <label class="radio">
+                  <input type="radio" name="demo-radio" checked>
+                  Radio
+                </label>
+              </div>
+            </div>
+            <!-- Alerts -->
+            <div>
+              <p class="text-sm font-semibold mb-2 text-muted">Alerts</p>
+              <div class="flex flex-col gap-2">
+                <div class="alert alert-success" role="alert"><span class="alert__content">Success — operation completed.</span></div>
+                <div class="alert alert-warning" role="alert"><span class="alert__content">Warning — check your settings.</span></div>
+                <div class="alert alert-info" role="alert"><span class="alert__content">Info — new update available.</span></div>
+              </div>
+            </div>
+            <!-- Loading -->
+            <div>
+              <p class="text-sm font-semibold mb-2 text-muted">Loading States</p>
+              <div class="flex gap-3 items-center">
+                <div class="spinner spinner--sm"></div>
+                <div class="spinner"></div>
+                <div class="spinner spinner--lg"></div>
+                <div class="flex flex-col gap-1 flex-1">
+                  <div class="skeleton skeleton--heading"></div>
+                  <div class="skeleton skeleton--text"></div>
+                  <div class="skeleton skeleton--text" style="width:60%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Trading Studio -->
+      <section
+        id="studio-trading"
+        class="studio-view"
+        role="tabpanel"
+        aria-labelledby="tab-trading"
+        hidden
+      >
+        <div class="empty-state">
+          <span class="empty-state__icon">📈</span>
+          <h2 class="empty-state__title">Trading Studio</h2>
+          <p class="empty-state__description">Coming Soon — Real-time prediction market trading interface.</p>
+        </div>
+      </section>
+
+      <!-- Fly Studio -->
+      <section
+        id="studio-fly"
+        class="studio-view"
+        role="tabpanel"
+        aria-labelledby="tab-fly"
+        hidden
+      >
+        <div class="empty-state">
+          <span class="empty-state__icon">✈️</span>
+          <h2 class="empty-state__title">Fly Studio</h2>
+          <p class="empty-state__description">Coming Soon — Flight simulation and navigation dashboard.</p>
+        </div>
+      </section>
+
+      <!-- Converter Studio -->
+      <section
+        id="studio-converter"
+        class="studio-view"
+        role="tabpanel"
+        aria-labelledby="tab-converter"
+        hidden
+      >
+        <div class="empty-state">
+          <span class="empty-state__icon">🔄</span>
+          <h2 class="empty-state__title">Converter Studio</h2>
+          <p class="empty-state__description">Coming Soon — Data format and unit conversion tools.</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- ================================================================== -->
+    <!-- RIGHT SIDEBAR                                                      -->
+    <!-- ================================================================== -->
+    <aside id="right-sidebar" class="region region-right glow-flood" role="complementary" aria-label="Right sidebar">
+      <div class="flex items-center justify-between">
+        <span class="region-title glow-text-primary">Notes</span>
+        <button
+          class="btn btn-ghost btn-sm btn-icon"
+          id="collapse-right"
+          aria-label="Collapse right sidebar"
+          data-tooltip="Collapse"
+        >▶</button>
+      </div>
+
+      <!-- To-Do / Notes App -->
+      <div id="todo-container" class="flex-1 overflow-auto" aria-label="Notes and to-do application"></div>
+    </aside>
+
+    <!-- ================================================================== -->
+    <!-- ACTION BAR (below left sidebar)                                    -->
+    <!-- ================================================================== -->
+    <div class="region region-action glow-bars-secondary" role="toolbar" aria-label="Quick actions">
+      <span class="region-title glow-text-secondary">Quick Actions</span>
+      <div class="flex flex-col gap-1">
+        <button class="btn btn-sm btn-ghost w-full" aria-label="New prediction">➕ New Prediction</button>
+        <button class="btn btn-sm btn-ghost w-full" aria-label="Export data">📤 Export Data</button>
+        <button class="btn btn-sm btn-ghost w-full" aria-label="Settings">⚙️ Settings</button>
+      </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- BOTTOM BAR                                                         -->
+    <!-- ================================================================== -->
+    <footer id="bottom-bar" class="region region-bottom glow-bars-primary" role="contentinfo" aria-label="Status bar">
+      <div class="status-bar flex-1">
+        <!-- Left: status text -->
+        <span class="status-bar__item" id="status-text">
+          <span class="status-bar__dot status-bar__dot--live" aria-hidden="true"></span>
+          Ready
+        </span>
+
+        <!-- Center: connection status -->
+        <span class="status-bar__item flex-1 justify-center">
+          <span class="status-bar__dot status-bar__dot--live" aria-hidden="true"></span>
+          Connected
+        </span>
+
+        <!-- Right: clock + theme name -->
+        <span class="status-bar__item">
+          🕐 <time id="status-clock" datetime="">--:--:--</time>
+        </span>
+        <span class="status-bar__item">
+          🎨 <span id="status-theme-name">webpage</span>
+        </span>
+      </div>
+    </footer>
+
+  </div><!-- /.app-shell -->
+
+  <!-- ================================================================== -->
+  <!-- ILLUMINATION CONTROL PANEL (slide-out)                             -->
+  <!-- ================================================================== -->
+  <div id="illumination-backdrop" aria-hidden="true"></div>
+  <aside
+    id="illumination-panel"
+    role="dialog"
+    aria-label="Illumination control panel"
+    aria-hidden="true"
+  >
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-bold" style="color:var(--color-fg-default)">💡 Illumination Controls</h2>
+      <button
+        id="illumination-close"
+        class="btn btn-ghost btn-icon btn-sm"
+        aria-label="Close illumination panel"
+      >✕</button>
+    </div>
+    <div id="illumination-controls" aria-label="Illumination channel controls">
+      <!-- Rendered by IlluminationController.createControlPanel() -->
+    </div>
+  </aside>
+
+  <!-- ================================================================== -->
+  <!-- SCRIPTS                                                            -->
+  <!-- ================================================================== -->
+  <script src="js/themes.js"></script>
+  <script src="js/illumination.js"></script>
+  <script src="js/paint.js"></script>
+  <script src="js/todo.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      /* ---- Initialize core systems ---- */
+      ThemeManager.init();
+      IlluminationController.init();
+      PaintApp.init(document.getElementById('paint-container'));
+      TodoApp.init(document.getElementById('todo-container'));
+
+      /* ---- Theme selector (header) ---- */
+      ThemeManager.createSelector({
+        type: 'dropdown',
+        showModeToggle: true,
+        container: document.getElementById('theme-selector-mount')
+      });
+
+      /* ---- Tab switching logic ---- */
+      const tabs = document.querySelectorAll('.nav-tab[role="tab"]');
+      const studios = document.querySelectorAll('.studio-view');
+
+      function switchStudio(studioId) {
+        tabs.forEach(t => {
+          const isActive = t.dataset.studio === studioId;
+          t.classList.toggle('active', isActive);
+          t.setAttribute('aria-selected', String(isActive));
+          t.tabIndex = isActive ? 0 : -1;
+        });
+        studios.forEach(s => {
+          const isActive = s.id === `studio-${studioId}`;
+          s.classList.toggle('is-active', isActive);
+          s.hidden = !isActive;
+        });
+      }
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => switchStudio(tab.dataset.studio));
+        tab.addEventListener('keydown', (e) => {
+          const tabArr = Array.from(tabs);
+          const idx = tabArr.indexOf(tab);
+          let next = -1;
+          if (e.key === 'ArrowRight') next = (idx + 1) % tabArr.length;
+          if (e.key === 'ArrowLeft') next = (idx - 1 + tabArr.length) % tabArr.length;
+          if (next >= 0) {
+            e.preventDefault();
+            tabArr[next].focus();
+            switchStudio(tabArr[next].dataset.studio);
+          }
+        });
+      });
+
+      /* ---- Clock update ---- */
+      const clockEl = document.getElementById('status-clock');
+      function updateClock() {
+        const now = new Date();
+        const ts = now.toLocaleTimeString('en-US', { hour12: false });
+        clockEl.textContent = ts;
+        clockEl.setAttribute('datetime', now.toISOString());
+      }
+      updateClock();
+      setInterval(updateClock, 1000);
+
+      /* ---- Sidebar collapse toggles ---- */
+      const shell = document.querySelector('.app-shell');
+
+      document.getElementById('collapse-left').addEventListener('click', () => {
+        shell.classList.toggle('left-collapsed');
+        const collapsed = shell.classList.contains('left-collapsed');
+        document.getElementById('collapse-left').setAttribute('aria-label',
+          collapsed ? 'Expand left sidebar' : 'Collapse left sidebar');
+        document.getElementById('collapse-left').textContent = collapsed ? '▶' : '◀';
+      });
+
+      document.getElementById('collapse-right').addEventListener('click', () => {
+        shell.classList.toggle('right-collapsed');
+        const collapsed = shell.classList.contains('right-collapsed');
+        document.getElementById('collapse-right').setAttribute('aria-label',
+          collapsed ? 'Expand right sidebar' : 'Collapse right sidebar');
+        document.getElementById('collapse-right').textContent = collapsed ? '◀' : '▶';
+      });
+
+      /* ---- Illumination panel toggle ---- */
+      const illumToggle = document.getElementById('illumination-toggle');
+      const illumPanel = document.getElementById('illumination-panel');
+      const illumBackdrop = document.getElementById('illumination-backdrop');
+      const illumClose = document.getElementById('illumination-close');
+      const illumControls = document.getElementById('illumination-controls');
+
+      IlluminationController.createControlPanel(illumControls);
+
+      function toggleIlluminationPanel(open) {
+        const isOpen = typeof open === 'boolean' ? open : !illumPanel.classList.contains('is-open');
+        illumPanel.classList.toggle('is-open', isOpen);
+        illumBackdrop.classList.toggle('is-open', isOpen);
+        illumPanel.setAttribute('aria-hidden', String(!isOpen));
+        illumBackdrop.setAttribute('aria-hidden', String(!isOpen));
+        illumToggle.setAttribute('aria-expanded', String(isOpen));
+        if (isOpen) illumPanel.focus();
+      }
+
+      illumToggle.addEventListener('click', () => toggleIlluminationPanel());
+      illumClose.addEventListener('click', () => toggleIlluminationPanel(false));
+      illumBackdrop.addEventListener('click', () => toggleIlluminationPanel(false));
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && illumPanel.classList.contains('is-open')) {
+          toggleIlluminationPanel(false);
+          illumToggle.focus();
+        }
+      });
+
+      /* ---- Palette viewer ---- */
+      const paletteProps = [
+        'color-bg-canvas', 'color-bg-surface', 'color-bg-surface-raised', 'color-bg-overlay',
+        'color-fg-default', 'color-fg-muted', 'color-fg-subtle', 'color-fg-on-accent',
+        'color-border-default', 'color-border-muted',
+        'color-accent-primary', 'color-accent-secondary',
+        'color-link-default',
+        'color-state-success', 'color-state-warning', 'color-state-error', 'color-state-info',
+        'color-shadow'
+      ];
+
+      function renderPalette() {
+        const viewer = document.getElementById('palette-viewer');
+        const themeLabel = document.getElementById('palette-theme-name');
+        const styles = getComputedStyle(document.documentElement);
+
+        themeLabel.textContent =
+          document.documentElement.dataset.theme + ' / ' + document.documentElement.dataset.mode;
+
+        viewer.innerHTML = '';
+        paletteProps.forEach(prop => {
+          const val = styles.getPropertyValue('--' + prop).trim();
+          const swatch = document.createElement('div');
+          swatch.className = 'palette-swatch';
+          swatch.innerHTML =
+            `<div class="palette-swatch__color" style="background:var(--${prop})" aria-label="${prop}: ${val}"></div>` +
+            `<span class="palette-swatch__label">--${prop}</span>` +
+            `<span class="palette-swatch__value">${val}</span>`;
+          viewer.appendChild(swatch);
+        });
+      }
+
+      renderPalette();
+
+      /* ---- Update palette & status on theme/mode change ---- */
+      const statusThemeName = document.getElementById('status-theme-name');
+
+      document.addEventListener('themechange', () => {
+        renderPalette();
+        statusThemeName.textContent = ThemeManager.getCurrentTheme();
+      });
+      document.addEventListener('modechange', () => {
+        renderPalette();
+      });
+    });
+  </script>
+</body>
+</html>
