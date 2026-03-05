@@ -14,6 +14,20 @@ const ThemeEngine = (() => {
     { id: 'raneforest', label: 'Rane', lightBackground: '#f5f0e1', lightColor: '#2d1f0e', darkBackground: '#0a1a0a', darkColor: '#8fbc8f' },
     { id: 'art-deco', label: 'Deco', lightBackground: '#faf8f0', lightColor: '#1a1a18', darkBackground: '#0a0a08', darkColor: '#d4c88a' },
     { id: 'holographic', label: 'Holo', lightBackground: '#f0f0f8', lightColor: '#2a2a3e', darkBackground: '#0a0a14', darkColor: '#b8b8d0' },
+    { id: 'vapor', label: 'Vapor', lightBackground: '#f0fdf9', lightColor: '#4a3f6b', darkBackground: '#0c0a2a', darkColor: '#c4b5fd' },
+    { id: 'paper', label: 'Paper', lightBackground: '#f9f9f7', lightColor: '#1c1c1c', darkBackground: '#0e0e1c', darkColor: '#7888b8' },
+    { id: 'ledger-1920', label: 'Ledger', lightBackground: '#f5e6c8', lightColor: '#3d3229', darkBackground: '#0d0d0d', darkColor: '#c9a96e' },
+    { id: 'blueprint', label: 'Blueprint', lightBackground: '#e8edf4', lightColor: '#1e3a6e', darkBackground: '#040a18', darkColor: '#5599ff' },
+    { id: 'chalkboard', label: 'Chalk', lightBackground: '#3a5a40', lightColor: '#f0e8d0', darkBackground: '#1a1a1e', darkColor: '#c8c0a8' },
+    { id: 'phosphor', label: 'Phosphor', lightBackground: '#1a1005', lightColor: '#ffb347', darkBackground: '#020a02', darkColor: '#33cc33' },
+    { id: 'volcano', label: 'Volcano', lightBackground: '#e8e0d4', lightColor: '#3a2e28', darkBackground: '#0e0806', darkColor: '#c8a088' },
+    { id: 'oceanic', label: 'Oceanic', lightBackground: '#f0f6fa', lightColor: '#1a3a5c', darkBackground: '#020810', darkColor: '#6e9cbc' },
+    { id: 'steampunk', label: 'Steam', lightBackground: '#f2e8d5', lightColor: '#4a3520', darkBackground: '#121010', darkColor: '#a89078' },
+    { id: 'dieselpunk', label: 'Diesel', lightBackground: '#d8d0b8', lightColor: '#3a3828', darkBackground: '#0e0e0c', darkColor: '#8a887a' },
+    { id: 'solarpunk', label: 'Solar', lightBackground: '#f8f5ec', lightColor: '#2a3a20', darkBackground: '#060e10', darkColor: '#70a898' },
+    { id: 'stonepunk', label: 'Stone', lightBackground: '#ddd0bb', lightColor: '#3e3228', darkBackground: '#0e0a06', darkColor: '#a89880' },
+    { id: 'dreamcore', label: 'Dream', lightBackground: '#fef8ff', lightColor: '#6a4a7a', darkBackground: '#06020a', darkColor: '#888098' },
+    { id: 'frutiger-aero', label: 'Frutiger', lightBackground: '#e8f4fc', lightColor: '#1a3a50', darkBackground: '#040810', darkColor: '#6898b8' },
   ];
 
   const PALETTE_TOKENS = [
