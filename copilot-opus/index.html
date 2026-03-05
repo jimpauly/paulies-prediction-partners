@@ -1076,14 +1076,19 @@
                 private_key_pem: rsaKeyValue,
               }),
             });
-          } catch (e) { /* Backend not running */ }
+          } catch (e) {
+            console.warn('Backend not reachable, proceeding in offline mode:', e.message);
+          }
 
           /* Clear credentials from DOM immediately */
           if (apiKeyInput) apiKeyInput.value = '';
           if (rsaKeyInput) rsaKeyInput.value = '';
 
-          if (connectionLight) connectionLight.style.background = selectedMode === 'live' ? 'var(--color-state-success)' : 'var(--color-state-warning)';
-          if (connectionLight) connectionLight.style.boxShadow = `0 0 8px ${selectedMode === 'live' ? 'var(--color-state-success)' : 'var(--color-state-warning)'}`;
+          const modeColor = selectedMode === 'live' ? 'var(--color-state-success)' : 'var(--color-state-warning)';
+          if (connectionLight) {
+            connectionLight.style.background = modeColor;
+            connectionLight.style.boxShadow = `0 0 8px ${modeColor}`;
+          }
           if (connectionStatus) connectionStatus.textContent = selectedMode === 'live' ? 'LIVE' : 'DEMO';
 
           /* Hide input elements */
