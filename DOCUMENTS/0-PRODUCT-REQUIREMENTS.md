@@ -1,4 +1,4 @@
-﻿# **Paulie's** - Product Requirements Document
+﻿# **Paulie's Prediction Partners** - Product Requirements Document
 
 https://github.com/jimpauly/paulies
 
@@ -146,6 +146,7 @@ Last update: 03-02-26
 
 1. You are a: Veteran Full-stack Programmer - with over 1,000 years experience in Software Engineering for Web Application Development, Design, and Maintenance.
 2. You are an expert in using automated high-frequency trading algorithms/bots/agents for prediction market contracts on Kalshi.
+3. You are an out-of-the-box artist, apprectiative master of past and present arts. 
 
 #### Tasks:
 
@@ -202,7 +203,89 @@ Last update: 03-02-26
 
 - JavaScript Vanilla
 - Tailwind CSS
-- HTML/HTMX
+- HTML5
+- Native desktop app: **Electron** for cross-platform distribution (Windows, macOS, Linux)
+
+**NOT used:**
+- HTMX (removed; pure JavaScript state management instead)
+
+### Desktop App Architecture:
+
+#### Installation & Distribution
+
+- **Installer Format:**
+  - **Windows:** `.exe` installer with setup wizard
+  - **macOS:** `.dmg` or `.pkg` installer
+  - **Linux:** `.deb` or `.rpm` packages (optional for initial release)
+- **Setup Wizard:** First-run experience, minimal (~2-3 minutes)
+  - Option to auto-start on system boot
+  - Environment selection (Live/Demo)
+  - Opt-in for anonymous telemetry
+
+#### File System & Data Storage
+
+- **App Root Directory:**
+  - **Windows:** `%APPDATA%/Paulies/` (e.g., `C:\Users\username\AppData\Roaming\Paulies\`)
+  - **macOS:** `~/Library/Application Support/Paulies/`
+  - **Linux:** `~/.config/paulies/`
+
+- **Subdirectories:**
+  - `config/` — environment variables, theme preferences, illumination state
+  - `keys/` — encrypted API keys (never stored as plain text)
+  - `logs/` — application logs and audit trails
+  - `data/` — local database or cache (if applicable)
+  - `docs/` — user-facing documentation
+
+- **State Persistence:**
+  - Theme, illumination, and UI state stored in `config/system-design.json` (resets on app restart)
+  - Trading state, agent decisions, and performance metrics stored in backend persistence layer (survives app restart)
+  - API keys:
+    - **Option A (Recommended):** Use OS credential vault (Windows Credential Manager, macOS Keychain, Linux Secret Service)
+    - **Option B:** Encrypt keys with local machine-dependent cipher and store in `keys/encrypted-credentials.json`
+    - Never display keys after successful connection; only show `●●●●●●●●` masking
+
+#### API Key Management
+
+- **Input:** Bottom Bar text inputs appear only before successful connection
+- **After Connection:** Inputs disappear; only live/demo indicator remains visible
+- **Secure Handling:**
+  - Keys cleared from memory on disconnect or app close
+  - Page refresh clears all keys from session
+  - No keys logged in console, analytics, or debug traces
+  - Auto-fill from `.env` file (optional, for dev/testing only)
+
+#### Background Service
+
+- **Backend Process:**
+  - Runs continuously as a hidden background process (asyncio Python daemon)
+  - Persists even if UI window is closed (minimize/maximize button behavior only)
+  - Auto-restart if it crashes (via app supervisor or systemd)
+  - Accessible only via local IPC (127.0.0.1, no external network binding)
+
+- **UI-Backend Communication:**
+  - Local HTTP (`http://127.0.0.1:8000/api/...`) or WebSocket for real-time updates
+  - No cross-origin concerns (same machine)
+  - Full control API access: start/stop agents, switch environment, trigger reconciliation, read state
+
+#### Updates & Versioning
+
+- **Update Check:** On startup, contact `https://api.paulies.ai/release/check` (stubs if offline)
+- **Delta Updates:** Use DEB/PKG native update mechanisms or Electron's built-in auto-updater
+- **Graceful Degradation:** If update check fails, app launches normally with cached version info
+
+#### Multi-Instance Prevention
+
+- **Singleton Pattern:** Only one instance of the app may run at a time
+  - Mutex lock file created at `~/.paulies/paulies.lock` on startup
+  - If lock exists, prompt user and optionally reuse existing window
+  - Prevents duplicate agent executions or data races
+
+#### Security Considerations
+
+- **Local-Only Binding:** Backend listens only on `127.0.0.1`, never `0.0.0.0`
+- **Window Handling:** No DevTools in production build (disable with `nodeIntegration: false`)
+- **Code Signing:** Production builds signed with developer certificate
+- **Logs:** Redact all secrets from logs automatically
 
 ### WebPage:
 
@@ -230,10 +313,10 @@ Last update: 03-02-26
 +-------------------------------------------------------------+
 ```
 
-- **Viewport:** `1920px` wide × `944px` tall
-    - Height accounts for taskbar, browser bars, etc. (not full `1080px`)
-    - Region size, gutter size, and card size should remain fixed
-    - Content within cards should shrink/expand on zoom
+- **Viewport:** `1920px` wide × `1080px` tall
+    - Full desktop window (titlebar + minimize/maximize/close buttons only; no browser bars)
+    - Region proportions remain fixed; content within cards shrinks/expands on zoom
+    - All measurements are device pixels, not CSS pixels
 - **Bezel Logic**
     - Regions: `6px` inner wrapper, `12px` outer wrapper
     - Cards or special components: `6px` inner wrapper, `6px` outer wrapper
@@ -437,6 +520,7 @@ Last update: 03-02-26
 - Develop one theme at a time, slowly.
 - Create diverse, unique spectrums with complex color palettes.
 - Light and dark modes can share many colors (borders, illumination, state colors, etc.).
+- Pause developing themes at holographic during stage 1; finish remaining themes in stage 2.
 
 | Theme Name           | Name Explanation                                                           |
 | :------------------- | :------------------------------------------------------------------------- |
@@ -517,6 +601,7 @@ Last update: 03-02-26
 - `raneforest`
 - `art-deco`
 - `holographic`
+    - Pause developing themes at holographic during stage 1; finish remaining themes in stage 2.
 - `vapor`
 - `paper`
 - `ledger-1920`
@@ -563,10 +648,11 @@ Last update: 03-02-26
 ### Illumination:
 
 - Objective: simulate cockpit lighting physics for the web interface.
-    - Illumination does not change when changing studio, mode, theme, or palette.
+    - Illumination does not change when changing studio, theme, or palette.
+    - DAY/Light mode reduces illumination intensity to 60%; NVG/Dark mode runs at 100% intensity.
     - Other names: Overhead Control Panel. Lighting Control Panel. Lighting Panel. Lighting Interface.
     - **Physics model:** glow that spreads follows an inverse-square approximation.
-    - **Intensity Hierarchy:** Light/Dark mode sets base illumination intensity first: dark mode = 100% intensity, light mode = 60% intensity. Dimmer dials then secondarily modulate intensity within the range of 0.25 to 1.00 on top of the mode-based intensity value. Always apply mode rules first, then dimmer dial rules.
+    - **Intensity Hierarchy:** DAY/Light mode sets base illumination intensity to 60%; NVG/Dark mode sets base to 100%. Dimmer dials then secondarily modulate intensity within the range of 0.25 to 1.00 on top of the mode-based intensity value. Always apply mode rules first, then dimmer dial rules.
 
 #### Controls:
 
@@ -1232,11 +1318,28 @@ Lightweight API call on startup to check for new releases and collect user count
 
 #### Semi-Auto Approval Flow
 
--  Semi-Auto approval flow could surface the relevant series card at the top of Trading Studio
-    -  Card could include approve and deny buttons
-    -  Card could show the agent's reasoning for wanting to execute the trade
--  Agents could request approval before buying Yes or No contracts
--  Agents could sell Yes or No contracts without requiring approval
+- **User Interface:**
+  - When an agent (Semi-Auto mode) requests approval, an approval overlay appears **within the relevant series card** in the Trading Studio.
+  - Overlay includes:
+    - **APPROVE** button (green, prominent)
+    - **DENY** button (red, secondary)
+    - **Agent Reasoning:** Display decision logic from agent logs (e.g., "Bullish Engulfing pattern detected + volume confirmation").
+    - **Order Details:** Contract type (YES/NO), requested notional, current best bid/ask prices on card.
+
+- **Approval Timing:**
+  - If user does not act within **60 seconds**, the approval request expires and the card refreshes with new orderbook data.
+  - No countdown timer (reduces stress); approval UI silently disappears after 60s.
+  - Agent generates a new approval request if it re-evaluates the same market within the next cycle.
+
+- **Agent Behavior:**
+  - **Agents request approval before BUYING** YES or NO contracts.
+  - **Agents execute SELLS without approval** (reduce capital at risk quickly if needed).
+  - Semi-Auto mode acts as a "supervisor" gate: user controls entry, but not exits.
+
+- **Execution:**
+  - When user clicks APPROVE, order is submitted immediately using current orderbook snapshot.
+  - When user clicks DENY, request is logged (for training data) and agent moves to next market.
+  - Order execution respects all risk checks (max notional, exposure caps, position limits, daily loss cap).
 
 ### Trading Strategy
 
