@@ -389,7 +389,7 @@
       /* ---- Header ---- */
       var header = document.createElement("div");
       header.className = "illumination-panel__channel";
-      header.style.gridColumn = "1 / -1";
+      header.style.justifyContent = "center";
 
       var title = document.createElement("span");
       title.className = "illumination-panel__label";

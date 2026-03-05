@@ -78,8 +78,8 @@ body {
   display: grid;
   width: 100vw;
   height: 100vh;
-  grid-template-columns: 320px 1fr 320px;
-  grid-template-rows: 90px 45px 1fr 180px;
+  grid-template-columns: minmax(44px, 320px) 1fr minmax(44px, 320px);
+  grid-template-rows: auto 45px 1fr auto;
   grid-template-areas:
     "header   header   header"
     "nav      nav      nav"
@@ -1366,6 +1366,121 @@ textarea.input {
 
 /* ==========================================================================
    26. VISIBILITY HELPERS
+   ========================================================================== */
+/* ==========================================================================
+   26a. PALETTE VIEWER
+   ========================================================================== */
+.palette-swatch {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+}
+
+.palette-swatch__color {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--color-border-default);
+  flex-shrink: 0;
+}
+
+.palette-swatch__label {
+  font-family: var(--font-family-mono);
+  font-size: 0.65rem;
+  color: var(--color-fg-muted);
+  min-width: 160px;
+}
+
+.palette-swatch__value {
+  font-family: var(--font-family-mono);
+  font-size: 0.65rem;
+  color: var(--color-fg-subtle);
+}
+
+/* ==========================================================================
+   26b. THEME SELECTOR
+   ========================================================================== */
+.theme-selector {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.theme-selector__dropdown {
+  min-height: 36px;
+  padding: var(--space-1) var(--space-6) var(--space-1) var(--space-3);
+  font-family: var(--font-family-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-fg-default);
+  background: var(--color-bg-surface-raised);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%239191a8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+.theme-selector__dropdown:hover {
+  border-color: var(--color-accent-primary);
+}
+
+.theme-selector__dropdown:focus {
+  outline: none;
+  border-color: var(--color-accent-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent-primary) 25%, transparent);
+}
+
+.theme-selector__mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: var(--space-1) var(--space-3);
+  font-family: var(--font-family-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-fg-default);
+  background: var(--color-bg-surface-raised);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: background var(--transition-speed), border-color var(--transition-speed);
+}
+
+.theme-selector__mode-toggle:hover {
+  background: color-mix(in srgb, var(--color-bg-surface-raised) 85%, var(--color-accent-primary));
+  border-color: var(--color-accent-primary);
+}
+
+/* ==========================================================================
+   26c. COLLAPSED SIDEBARS
+   ========================================================================== */
+.region-left.is-collapsed,
+.region-right.is-collapsed {
+  width: 44px;
+  min-width: 44px;
+  padding: var(--space-2);
+  overflow: hidden;
+}
+
+.region-left.is-collapsed > *:not(.sidebar-panel__header),
+.region-right.is-collapsed > *:not(.sidebar-panel__header) {
+  display: none;
+}
+
+.region-left.is-collapsed .sidebar-panel__header,
+.region-right.is-collapsed .sidebar-panel__header {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* ==========================================================================
+   27. VISIBILITY HELPERS
    ========================================================================== */
 .hidden       { display: none !important; }
 .invisible    { visibility: hidden; }
