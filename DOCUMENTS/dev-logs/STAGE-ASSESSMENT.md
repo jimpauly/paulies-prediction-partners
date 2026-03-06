@@ -10,14 +10,15 @@
 
 ### **Stage 2.92 out of 3.0** — ~92% through Stage 2 → 3
 
-| Stage | Status | Confidence |
-|-------|--------|------------|
-| **Stage 1** (Design Studio) | ✅ 100% Complete | Verified — all 14 phases done |
-| **Stage 2** (Trading Agent Studio) | ✅ ~95% Complete | Trading UI overhauled, series headers, returns display |
-| **Stage 2.5** (Shippable Quality) | 🟡 ~80% Complete | Setup wizard done, auto-updater wired, tests pending |
-| **Stage 3** (Profitability + New Apps) | ❌ 0% Started | Blocked until Stage 2.5 is 110% |
+| Stage                                  | Status           | Confidence                                             |
+| -------------------------------------- | ---------------- | ------------------------------------------------------ |
+| **Stage 1** (Design Studio)            | ✅ 100% Complete | Verified — all 14 phases done                          |
+| **Stage 2** (Trading Agent Studio)     | ✅ ~95% Complete | Trading UI overhauled, series headers, returns display |
+| **Stage 2.5** (Shippable Quality)      | 🟡 ~80% Complete | Setup wizard done, auto-updater wired, tests pending   |
+| **Stage 3** (Profitability + New Apps) | ❌ 0% Started    | Blocked until Stage 2.5 is 110%                        |
 
 **What changed in this sprint (March 6, 2026):**
+
 - ✅ Trading Studio UI major overhaul — Kalshi-style series section headers
 - ✅ Series grouping by category (BTC 15-min, Sports, Economics, etc.)
 - ✅ Potential returns display ("$100 → +$63 if YES") on every card
@@ -60,24 +61,25 @@
 
 All 14 phases verified complete:
 
-| Phase | Feature | Status |
-|-------|---------|--------|
-| 1 | Project scaffolding (HTML, Tailwind, viewport) | ✅ |
-| 2 | 10 theme palettes × 2 modes (20 total) | ✅ |
-| 3 | Header bar + illumination control panel | ✅ |
-| 4 | Nav bar + studio selector + telemetry | ✅ |
-| 5 | Left sidebar (theme selector, toggles) | ✅ |
-| 6 | Right sidebar (todo app, send-an-idea) | ✅ |
-| 7 | Bottom bar (API keys, agent cards) | ✅ |
-| 8 | Action bar (throttle, P/L graph) | ✅ |
-| 9 | Main region (Design Studio: hero, gauges, logs, Paint, palette, web showcase) | ✅ |
-| 10 | Illumination system (7-channel physics-based glow) | ✅ |
-| 11 | Precision tools (rulers, grid, dynamic tracking) | ✅ |
-| 12 | Studio switching (Design/Trade/Fly/Convert) | ✅ |
-| 13 | UI/UX polish & accessibility | ✅ |
-| 14 | PRD verification | ✅ |
+| Phase | Feature                                                                       | Status |
+| ----- | ----------------------------------------------------------------------------- | ------ |
+| 1     | Project scaffolding (HTML, Tailwind, viewport)                                | ✅     |
+| 2     | 10 theme palettes × 2 modes (20 total)                                        | ✅     |
+| 3     | Header bar + illumination control panel                                       | ✅     |
+| 4     | Nav bar + studio selector + telemetry                                         | ✅     |
+| 5     | Left sidebar (theme selector, toggles)                                        | ✅     |
+| 6     | Right sidebar (todo app, send-an-idea)                                        | ✅     |
+| 7     | Bottom bar (API keys, agent cards)                                            | ✅     |
+| 8     | Action bar (throttle, P/L graph)                                              | ✅     |
+| 9     | Main region (Design Studio: hero, gauges, logs, Paint, palette, web showcase) | ✅     |
+| 10    | Illumination system (7-channel physics-based glow)                            | ✅     |
+| 11    | Precision tools (rulers, grid, dynamic tracking)                              | ✅     |
+| 12    | Studio switching (Design/Trade/Fly/Convert)                                   | ✅     |
+| 13    | UI/UX polish & accessibility                                                  | ✅     |
+| 14    | PRD verification                                                              | ✅     |
 
 **Standout implementations:**
+
 - MS Paint 1998 clone (1,141 lines) — 16 tools, undo/redo, export
 - Todo/Notes app (847 lines) — 50 pages, rich text, auto-save
 - Illumination system (881 lines CSS+JS) — inverse-square physics, 7 channels
@@ -91,7 +93,8 @@ All 14 phases verified complete:
 
 **Phase 1 — Theme System Expansion:** ✅ All 14 additional themes added (24 total, 48 palettes)
 
-**Phase 2 — Agent Peritia (Candlestick Patterns):** ✅ 
+**Phase 2 — Agent Peritia (Candlestick Patterns):** ✅
+
 - 27 candlestick pattern detectors (1,040 lines)
 - Per-pattern performance tracking
 - Auto-disable below 45% accuracy after 50 trades
@@ -99,6 +102,7 @@ All 14 phases verified complete:
 - SMA crossover baseline fallback
 
 **Phase 3 — Kalshi Integration:** ✅
+
 - REST client with retry logic for 429/5xx errors (467 lines)
 - WebSocket client with reconnection + orderbook sequence tracking (443 lines)
 - State cache with thread-safe async locks (312 lines)
@@ -114,6 +118,7 @@ All 14 phases verified complete:
 - RSA-PSS authentication for Kalshi API (119 lines)
 
 **All 3 AI Agents — Implemented:**
+
 - Agent Prime: majority-signal follower (256 lines)
 - Agent Praxis: sports momentum specialist (320 lines)
 - Agent Peritia: candlestick pattern trader for BTC (1,040 lines)
@@ -145,6 +150,7 @@ All 14 phases verified complete:
 #### ❌ What's Not Started (Stage 2 Plan Phase 5)
 
 **Phase 5 — Shippable Quality** is partially done but was supposed to be in Stage 2.5:
+
 - Electron wrapper exists ✅ but no setup wizard ❌
 - package.json with build configs ✅ but untested actual builds ❓
 - No auto-updater ❌
@@ -155,22 +161,23 @@ All 14 phases verified complete:
 
 ### Stage 2.5 — Shippable Quality 🟡 ~45% COMPLETE
 
-| Requirement (from PRD) | Status | Details |
-|------------------------|--------|---------|
-| Windows desktop app with setup wizard | 🟡 40% | Electron main.js exists + NSIS config, but no actual setup wizard UI, no tested installer |
-| Mac desktop app with setup wizard | 🟡 40% | DMG config exists, but no tested installer |
-| 5-minute install for non-technical users | 🟡 50% | README has clear instructions, but no one-click installer tested end-to-end |
-| Open-source, free, no ads | ✅ 100% | MIT license, no tracking, no ads |
-| Close security holes | 🟡 70% | CSP headers, localhost binding, sandbox mode, API key clearing. Missing: HTTPS, code signing, encrypted key storage in OS vault |
-| Close data leak possibilities | 🟡 65% | Keys never persisted, logs redacted. Missing: memory zeroing guarantees, encrypted local storage |
-| Hundreds of tweaks/fixes/polishings | 🟡 30% | UI is clean but many rough edges remain (see gaps below) |
-| Published GitHub Page | ✅ 90% | Landing page exists, deploy workflow configured |
-| 24-hour trading even when device off | 🟡 35% | Backend can run as daemon, systemd docs exist. But: no cloud deployment, no managed hosting, no auto-restart supervisor built in |
-| Exceed industry-standard quality | 🔴 25% | No tests, no CI testing, no accessibility audit, no performance benchmarks |
+| Requirement (from PRD)                   | Status  | Details                                                                                                                          |
+| ---------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Windows desktop app with setup wizard    | 🟡 40%  | Electron main.js exists + NSIS config, but no actual setup wizard UI, no tested installer                                        |
+| Mac desktop app with setup wizard        | 🟡 40%  | DMG config exists, but no tested installer                                                                                       |
+| 5-minute install for non-technical users | 🟡 50%  | README has clear instructions, but no one-click installer tested end-to-end                                                      |
+| Open-source, free, no ads                | ✅ 100% | MIT license, no tracking, no ads                                                                                                 |
+| Close security holes                     | 🟡 70%  | CSP headers, localhost binding, sandbox mode, API key clearing. Missing: HTTPS, code signing, encrypted key storage in OS vault  |
+| Close data leak possibilities            | 🟡 65%  | Keys never persisted, logs redacted. Missing: memory zeroing guarantees, encrypted local storage                                 |
+| Hundreds of tweaks/fixes/polishings      | 🟡 30%  | UI is clean but many rough edges remain (see gaps below)                                                                         |
+| Published GitHub Page                    | ✅ 90%  | Landing page exists, deploy workflow configured                                                                                  |
+| 24-hour trading even when device off     | 🟡 35%  | Backend can run as daemon, systemd docs exist. But: no cloud deployment, no managed hosting, no auto-restart supervisor built in |
+| Exceed industry-standard quality         | 🔴 25%  | No tests, no CI testing, no accessibility audit, no performance benchmarks                                                       |
 
 #### Specific Gaps to "Shippable"
 
 **Must-Fix for Ship:**
+
 1. **No test suite** — Zero unit tests, integration tests, or E2E tests
 2. **No actual build verification** — Electron installers never tested
 3. **No setup wizard** — PRD requires first-run experience with environment selection
@@ -183,6 +190,7 @@ All 14 phases verified complete:
 10. **Hardcoded localhost URL** — Should be configurable
 
 **Nice-to-Have for Ship:**
+
 1. Loading states / skeleton UI
 2. Keyboard shortcuts for trading
 3. Notification sounds for approvals
@@ -249,28 +257,29 @@ Legend: ✅ Done  🟡 Partial  ❌ Not Done  — N/A
 
 ## 📈 Codebase Statistics
 
-| Metric | Count |
-|--------|-------|
-| **Total lines of code** | ~17,000 |
-| **Python backend** | 6,957 lines across 24 files |
-| **JavaScript frontend** | 4,099 lines across 10 files |
-| **CSS stylesheets** | 5,191 lines across 4 files |
-| **HTML** | 751 lines (main app) + 128 lines (landing page) |
-| **Electron** | 313 lines |
-| **Documentation** | 796 lines across 6 docs |
-| **CI/CD** | 96 lines across 3 workflows |
-| **TODO/FIXME/HACK comments** | 0 (clean codebase) |
-| **Test files** | 0 ❌ |
-| **Themes** | 24 × 2 modes = 48 palettes |
-| **Candlestick patterns** | 27 |
-| **API endpoints** | 20+ |
-| **Agent count** | 3 (Prime, Praxis, Peritia) |
+| Metric                       | Count                                           |
+| ---------------------------- | ----------------------------------------------- |
+| **Total lines of code**      | ~17,000                                         |
+| **Python backend**           | 6,957 lines across 24 files                     |
+| **JavaScript frontend**      | 4,099 lines across 10 files                     |
+| **CSS stylesheets**          | 5,191 lines across 4 files                      |
+| **HTML**                     | 751 lines (main app) + 128 lines (landing page) |
+| **Electron**                 | 313 lines                                       |
+| **Documentation**            | 796 lines across 6 docs                         |
+| **CI/CD**                    | 96 lines across 3 workflows                     |
+| **TODO/FIXME/HACK comments** | 0 (clean codebase)                              |
+| **Test files**               | 0 ❌                                            |
+| **Themes**                   | 24 × 2 modes = 48 palettes                      |
+| **Candlestick patterns**     | 27                                              |
+| **API endpoints**            | 20+                                             |
+| **Agent count**              | 3 (Prime, Praxis, Peritia)                      |
 
 ---
 
 ## 🗺️ Roadmap to Stage 3
 
 ### Priority 1 — Critical Path (Stage 2 completion)
+
 These block full trading functionality:
 
 1. ~~**Wire Buy/Sell buttons to execution**~~ ✅ Done — Connected to `/api/trading/manual-order`
@@ -281,6 +290,7 @@ These block full trading functionality:
 6. **Display agent reasoning** — Show decision logic from agent intents in approval overlay
 
 ### Priority 2 — Shippable Quality (Stage 2.5)
+
 These make it installable and safe:
 
 7. **Add test suite** — At minimum: backend unit tests for agents, risk gateway, execution service
@@ -295,6 +305,7 @@ These make it installable and safe:
 16. **Memory leak fixes** — Clean up intervals/observers on module teardown
 
 ### Priority 3 — Polish (Stage 2.5 refinement)
+
 These exceed industry standard:
 
 17. **Loading skeletons** for market cards during fetch
@@ -309,9 +320,11 @@ These exceed industry standard:
 26. **Performance benchmarks** (Lighthouse score, load time)
 
 ### Stage 3 Gate
+
 > "Ask if main user has successfully gained efficient profits. If not, stay in Stage 2.5"
 
 **Requirements to enter Stage 3:**
+
 - ✅ Stage 1 at 110% — **Yes, exceeded**
 - ✅ Stage 2 at 110% — **Not yet, ~75%**
 - ✅ Stage 2.5 at 110% — **Not yet, ~45%**
@@ -326,6 +339,7 @@ These exceed industry standard:
 **The gap is in the last mile:** connecting the beautiful frontend switches to the powerful backend engine. Buy/Sell doesn't execute. Positions don't display. Errors are silent. The Electron app exists but has never been test-built.
 
 **Estimated effort to Stage 3 gate:**
+
 - Priority 1 (trading works): ~2-3 focused sessions
 - Priority 2 (shippable): ~3-5 sessions
 - Priority 3 (polish): ~5-10 sessions of incremental refinement

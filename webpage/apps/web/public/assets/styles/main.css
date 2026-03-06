@@ -49,9 +49,9 @@ body {
    1. SPACING SCALE
    ========================================================================== */
 :root {
-  --space-1:  4px;
-  --space-2:  6px;
-  --space-3:  8px;
+  --space-1: 4px;
+  --space-2: 6px;
+  --space-3: 8px;
   --space-4: 10px;
   --space-5: 12px;
   --space-6: 16px;
@@ -100,8 +100,12 @@ body {
   width: 100vw;
   height: 100vh;
   padding: var(--layout-shell-padding);
-  grid-template-columns: var(--layout-sidebar-width) minmax(0, 1fr) var(--layout-sidebar-width);
-  grid-template-rows: auto var(--layout-nav-height) minmax(0, 1fr) var(--layout-foot-height);
+  grid-template-columns: var(--layout-sidebar-width) minmax(0, 1fr) var(
+      --layout-sidebar-width
+    );
+  grid-template-rows: auto var(--layout-nav-height) minmax(0, 1fr) var(
+      --layout-foot-height
+    );
   grid-template-areas:
     "header  header  header"
     "left    nav     right"
@@ -122,11 +126,21 @@ body {
     border-color var(--transition-speed);
 }
 
-.region-header   { grid-area: header; }
-.region-nav      { grid-area: nav; }
-.region-left     { grid-area: left; }
-.region-main     { grid-area: main; }
-.region-right    { grid-area: right; }
+.region-header {
+  grid-area: header;
+}
+.region-nav {
+  grid-area: nav;
+}
+.region-left {
+  grid-area: left;
+}
+.region-main {
+  grid-area: main;
+}
+.region-right {
+  grid-area: right;
+}
 .region-foot {
   grid-area: foot;
   display: flex;
@@ -140,12 +154,11 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: var(--space-2) var(--space-4);
-  background:
-    linear-gradient(
-      180deg,
-      var(--color-bg-surface-raised) 0%,
-      var(--color-bg-surface) 100%
-    );
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-surface-raised) 0%,
+    var(--color-bg-surface) 100%
+  );
   z-index: 10;
 }
 
@@ -253,7 +266,9 @@ body {
   cursor: pointer;
   font-family: var(--font-family-mono);
   white-space: nowrap;
-  transition: border-color var(--transition-speed), background var(--transition-speed);
+  transition:
+    border-color var(--transition-speed),
+    background var(--transition-speed);
 }
 
 .axis-btn:hover {
@@ -336,9 +351,15 @@ body {
 }
 
 /* Compact variant */
-.card--compact .card-header { padding: var(--space-2) var(--space-3); }
-.card--compact .card-body   { padding: var(--space-3); }
-.card--compact .card-footer { padding: var(--space-2) var(--space-3); }
+.card--compact .card-header {
+  padding: var(--space-2) var(--space-3);
+}
+.card--compact .card-body {
+  padding: var(--space-3);
+}
+.card--compact .card-footer {
+  padding: var(--space-2) var(--space-3);
+}
 
 /* ==========================================================================
    4. BUTTONS
@@ -371,7 +392,11 @@ body {
 }
 
 .btn:hover {
-  background: color-mix(in srgb, var(--color-bg-surface-raised) 85%, var(--color-accent-primary));
+  background: color-mix(
+    in srgb,
+    var(--color-bg-surface-raised) 85%,
+    var(--color-accent-primary)
+  );
   border-color: var(--color-accent-primary);
 }
 
@@ -399,7 +424,11 @@ body {
 }
 
 .btn-secondary:hover {
-  background: color-mix(in srgb, var(--color-accent-secondary) 12%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--color-accent-secondary) 12%,
+    transparent
+  );
 }
 
 /* --- Danger ------------------------------------------------------------- */
@@ -493,8 +522,8 @@ textarea.input {
 .select:focus {
   outline: none;
   border-color: var(--color-accent-primary);
-  box-shadow:
-    0 0 0 3px color-mix(in srgb, var(--color-accent-primary) 25%, transparent);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--color-accent-primary) 25%, transparent);
 }
 
 .input::placeholder {
@@ -506,8 +535,8 @@ textarea.input {
 }
 
 .input--error:focus {
-  box-shadow:
-    0 0 0 3px color-mix(in srgb, var(--color-state-error) 25%, transparent);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--color-state-error) 25%, transparent);
 }
 
 /* Select dropdown arrow */
@@ -547,8 +576,12 @@ textarea.input {
   cursor: pointer;
 }
 
-.checkbox input { border-radius: var(--border-radius-sm); }
-.radio input    { border-radius: 50%; }
+.checkbox input {
+  border-radius: var(--border-radius-sm);
+}
+.radio input {
+  border-radius: 50%;
+}
 
 .checkbox input:checked,
 .radio input:checked {
@@ -700,10 +733,18 @@ textarea.input {
   flex-shrink: 0;
 }
 
-.status-bar__dot--live    { background: var(--color-state-success); }
-.status-bar__dot--warning { background: var(--color-state-warning); }
-.status-bar__dot--error   { background: var(--color-state-error); }
-.status-bar__dot--info    { background: var(--color-state-info); }
+.status-bar__dot--live {
+  background: var(--color-state-success);
+}
+.status-bar__dot--warning {
+  background: var(--color-state-warning);
+}
+.status-bar__dot--error {
+  background: var(--color-state-error);
+}
+.status-bar__dot--info {
+  background: var(--color-state-info);
+}
 
 /* ==========================================================================
    9. SCROLLBAR STYLING
@@ -887,30 +928,43 @@ textarea.input {
   animation: spin 0.8s linear infinite;
 }
 
-.spinner--sm { width: 16px; height: 16px; border-width: 2px; }
-.spinner--lg { width: 40px; height: 40px; border-width: 4px; }
+.spinner--sm {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+.spinner--lg {
+  width: 40px;
+  height: 40px;
+  border-width: 4px;
+}
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Skeleton loading placeholder */
 .skeleton {
-  background:
-    linear-gradient(
-      90deg,
-      var(--color-border-muted) 25%,
-      color-mix(in srgb, var(--color-border-muted) 60%, transparent) 50%,
-      var(--color-border-muted) 75%
-    );
+  background: linear-gradient(
+    90deg,
+    var(--color-border-muted) 25%,
+    color-mix(in srgb, var(--color-border-muted) 60%, transparent) 50%,
+    var(--color-border-muted) 75%
+  );
   background-size: 200% 100%;
   border-radius: var(--border-radius-sm);
   animation: shimmer 1.5s ease infinite;
 }
 
 @keyframes shimmer {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .skeleton--text {
@@ -978,25 +1032,41 @@ textarea.input {
 
 .alert-success {
   color: var(--color-state-success);
-  background: color-mix(in srgb, var(--color-state-success) 8%, var(--color-bg-surface));
+  background: color-mix(
+    in srgb,
+    var(--color-state-success) 8%,
+    var(--color-bg-surface)
+  );
   border-color: color-mix(in srgb, var(--color-state-success) 30%, transparent);
 }
 
 .alert-warning {
   color: var(--color-state-warning);
-  background: color-mix(in srgb, var(--color-state-warning) 8%, var(--color-bg-surface));
+  background: color-mix(
+    in srgb,
+    var(--color-state-warning) 8%,
+    var(--color-bg-surface)
+  );
   border-color: color-mix(in srgb, var(--color-state-warning) 30%, transparent);
 }
 
 .alert-error {
   color: var(--color-state-error);
-  background: color-mix(in srgb, var(--color-state-error) 8%, var(--color-bg-surface));
+  background: color-mix(
+    in srgb,
+    var(--color-state-error) 8%,
+    var(--color-bg-surface)
+  );
   border-color: color-mix(in srgb, var(--color-state-error) 30%, transparent);
 }
 
 .alert-info {
   color: var(--color-state-info);
-  background: color-mix(in srgb, var(--color-state-info) 8%, var(--color-bg-surface));
+  background: color-mix(
+    in srgb,
+    var(--color-state-info) 8%,
+    var(--color-bg-surface)
+  );
   border-color: color-mix(in srgb, var(--color-state-info) 30%, transparent);
 }
 
@@ -1042,41 +1112,86 @@ textarea.input {
    15. ANIMATION UTILITIES
    ========================================================================== */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideInUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideInDown {
-  from { opacity: 0; transform: translateY(-12px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideInLeft {
-  from { opacity: 0; transform: translateX(-12px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes slideInRight {
-  from { opacity: 0; transform: translateX(12px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50%      { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
-.anim-fade-in       { animation: fadeIn      var(--transition-speed) ease both; }
-.anim-slide-in-up   { animation: slideInUp   var(--transition-speed) ease both; }
-.anim-slide-in-down { animation: slideInDown var(--transition-speed) ease both; }
-.anim-slide-in-left { animation: slideInLeft var(--transition-speed) ease both; }
-.anim-slide-in-right{ animation: slideInRight var(--transition-speed) ease both; }
-.anim-pulse         { animation: pulse 2s ease-in-out infinite; }
+.anim-fade-in {
+  animation: fadeIn var(--transition-speed) ease both;
+}
+.anim-slide-in-up {
+  animation: slideInUp var(--transition-speed) ease both;
+}
+.anim-slide-in-down {
+  animation: slideInDown var(--transition-speed) ease both;
+}
+.anim-slide-in-left {
+  animation: slideInLeft var(--transition-speed) ease both;
+}
+.anim-slide-in-right {
+  animation: slideInRight var(--transition-speed) ease both;
+}
+.anim-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
 
 /* Respect user preference */
 @media (prefers-reduced-motion: reduce) {
@@ -1137,26 +1252,58 @@ textarea.input {
 /* ==========================================================================
    17. TYPOGRAPHY UTILITIES
    ========================================================================== */
-.text-xs    { font-size: clamp(0.76rem, 0.12vw + 0.72rem, 0.86rem); }
-.text-sm    { font-size: clamp(0.84rem, 0.14vw + 0.78rem, 0.94rem); }
-.text-base  { font-size: clamp(0.92rem, 0.16vw + 0.84rem, 1.03rem); }
-.text-lg    { font-size: clamp(1rem, 0.2vw + 0.9rem, 1.14rem); }
-.text-xl    { font-size: clamp(1.16rem, 0.28vw + 0.98rem, 1.38rem); }
-.text-2xl   { font-size: clamp(1.32rem, 0.44vw + 1.05rem, 1.72rem); }
+.text-xs {
+  font-size: clamp(0.76rem, 0.12vw + 0.72rem, 0.86rem);
+}
+.text-sm {
+  font-size: clamp(0.84rem, 0.14vw + 0.78rem, 0.94rem);
+}
+.text-base {
+  font-size: clamp(0.92rem, 0.16vw + 0.84rem, 1.03rem);
+}
+.text-lg {
+  font-size: clamp(1rem, 0.2vw + 0.9rem, 1.14rem);
+}
+.text-xl {
+  font-size: clamp(1.16rem, 0.28vw + 0.98rem, 1.38rem);
+}
+.text-2xl {
+  font-size: clamp(1.32rem, 0.44vw + 1.05rem, 1.72rem);
+}
 
-.text-mono  { font-family: var(--font-family-mono); }
+.text-mono {
+  font-family: var(--font-family-mono);
+}
 
-.text-muted  { color: var(--color-fg-muted); }
-.text-subtle { color: var(--color-fg-subtle); }
-.text-accent { color: var(--color-accent-primary); }
+.text-muted {
+  color: var(--color-fg-muted);
+}
+.text-subtle {
+  color: var(--color-fg-subtle);
+}
+.text-accent {
+  color: var(--color-accent-primary);
+}
 
-.text-success { color: var(--color-state-success); }
-.text-warning { color: var(--color-state-warning); }
-.text-error   { color: var(--color-state-error); }
-.text-info    { color: var(--color-state-info); }
+.text-success {
+  color: var(--color-state-success);
+}
+.text-warning {
+  color: var(--color-state-warning);
+}
+.text-error {
+  color: var(--color-state-error);
+}
+.text-info {
+  color: var(--color-state-info);
+}
 
-.font-bold    { font-weight: 700; }
-.font-semibold{ font-weight: 600; }
+.font-bold {
+  font-weight: 700;
+}
+.font-semibold {
+  font-weight: 600;
+}
 
 .truncate {
   overflow: hidden;
@@ -1167,61 +1314,157 @@ textarea.input {
 /* ==========================================================================
    18. LAYOUT UTILITIES
    ========================================================================== */
-.flex        { display: flex; }
-.flex-col    { flex-direction: column; }
-.flex-row    { flex-direction: row; }
-.flex-wrap   { flex-wrap: wrap; }
-.flex-1      { flex: 1; }
-.flex-shrink-0 { flex-shrink: 0; }
+.flex {
+  display: flex;
+}
+.flex-col {
+  flex-direction: column;
+}
+.flex-row {
+  flex-direction: row;
+}
+.flex-wrap {
+  flex-wrap: wrap;
+}
+.flex-1 {
+  flex: 1;
+}
+.flex-shrink-0 {
+  flex-shrink: 0;
+}
 
-.items-center   { align-items: center; }
-.items-start    { align-items: flex-start; }
-.items-end      { align-items: flex-end; }
-.items-stretch  { align-items: stretch; }
+.items-center {
+  align-items: center;
+}
+.items-start {
+  align-items: flex-start;
+}
+.items-end {
+  align-items: flex-end;
+}
+.items-stretch {
+  align-items: stretch;
+}
 
-.justify-center  { justify-content: center; }
-.justify-between { justify-content: space-between; }
-.justify-end     { justify-content: flex-end; }
+.justify-center {
+  justify-content: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.justify-end {
+  justify-content: flex-end;
+}
 
-.gap-1 { gap: var(--space-1); }
-.gap-2 { gap: var(--space-2); }
-.gap-3 { gap: var(--space-3); }
-.gap-4 { gap: var(--space-4); }
-.gap-5 { gap: var(--space-5); }
-.gap-6 { gap: var(--space-6); }
+.gap-1 {
+  gap: var(--space-1);
+}
+.gap-2 {
+  gap: var(--space-2);
+}
+.gap-3 {
+  gap: var(--space-3);
+}
+.gap-4 {
+  gap: var(--space-4);
+}
+.gap-5 {
+  gap: var(--space-5);
+}
+.gap-6 {
+  gap: var(--space-6);
+}
 
 /* Spacing utilities */
-.p-1  { padding: var(--space-1); }
-.p-2  { padding: var(--space-2); }
-.p-3  { padding: var(--space-3); }
-.p-4  { padding: var(--space-4); }
-.p-5  { padding: var(--space-5); }
-.p-6  { padding: var(--space-6); }
+.p-1 {
+  padding: var(--space-1);
+}
+.p-2 {
+  padding: var(--space-2);
+}
+.p-3 {
+  padding: var(--space-3);
+}
+.p-4 {
+  padding: var(--space-4);
+}
+.p-5 {
+  padding: var(--space-5);
+}
+.p-6 {
+  padding: var(--space-6);
+}
 
-.px-2 { padding-left: var(--space-2); padding-right: var(--space-2); }
-.px-3 { padding-left: var(--space-3); padding-right: var(--space-3); }
-.px-4 { padding-left: var(--space-4); padding-right: var(--space-4); }
-.py-2 { padding-top: var(--space-2); padding-bottom: var(--space-2); }
-.py-3 { padding-top: var(--space-3); padding-bottom: var(--space-3); }
-.py-4 { padding-top: var(--space-4); padding-bottom: var(--space-4); }
+.px-2 {
+  padding-left: var(--space-2);
+  padding-right: var(--space-2);
+}
+.px-3 {
+  padding-left: var(--space-3);
+  padding-right: var(--space-3);
+}
+.px-4 {
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+}
+.py-2 {
+  padding-top: var(--space-2);
+  padding-bottom: var(--space-2);
+}
+.py-3 {
+  padding-top: var(--space-3);
+  padding-bottom: var(--space-3);
+}
+.py-4 {
+  padding-top: var(--space-4);
+  padding-bottom: var(--space-4);
+}
 
-.m-0 { margin: 0; }
-.mt-1 { margin-top: var(--space-1); }
-.mt-2 { margin-top: var(--space-2); }
-.mt-3 { margin-top: var(--space-3); }
-.mt-4 { margin-top: var(--space-4); }
-.mb-2 { margin-bottom: var(--space-2); }
-.mb-3 { margin-bottom: var(--space-3); }
-.mb-4 { margin-bottom: var(--space-4); }
+.m-0 {
+  margin: 0;
+}
+.mt-1 {
+  margin-top: var(--space-1);
+}
+.mt-2 {
+  margin-top: var(--space-2);
+}
+.mt-3 {
+  margin-top: var(--space-3);
+}
+.mt-4 {
+  margin-top: var(--space-4);
+}
+.mb-2 {
+  margin-bottom: var(--space-2);
+}
+.mb-3 {
+  margin-bottom: var(--space-3);
+}
+.mb-4 {
+  margin-bottom: var(--space-4);
+}
 
-.w-full  { width: 100%; }
-.h-full  { height: 100%; }
+.w-full {
+  width: 100%;
+}
+.h-full {
+  height: 100%;
+}
 
-.overflow-hidden { overflow: hidden; }
-.overflow-auto   { overflow: auto; }
+.overflow-hidden {
+  overflow: hidden;
+}
+.overflow-auto {
+  overflow: auto;
+}
 
-.relative { position: relative; }
-.absolute { position: absolute; }
+.relative {
+  position: relative;
+}
+.absolute {
+  position: absolute;
+}
 
 /* ==========================================================================
    19. DIVIDERS
@@ -1234,14 +1477,13 @@ textarea.input {
 
 .divider--strong {
   height: 2px;
-  background:
-    linear-gradient(
-      to right,
-      transparent,
-      var(--color-border-default) 15%,
-      var(--color-border-default) 85%,
-      transparent
-    );
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-border-default) 15%,
+    var(--color-border-default) 85%,
+    transparent
+  );
 }
 
 /* ==========================================================================
@@ -1263,11 +1505,21 @@ textarea.input {
   border-radius: 10px;
 }
 
-.badge--success { background: var(--color-state-success); }
-.badge--warning { background: var(--color-state-warning); }
-.badge--error   { background: var(--color-state-error); }
-.badge--info    { background: var(--color-state-info); }
-.badge--muted   { background: var(--color-fg-subtle); }
+.badge--success {
+  background: var(--color-state-success);
+}
+.badge--warning {
+  background: var(--color-state-warning);
+}
+.badge--error {
+  background: var(--color-state-error);
+}
+.badge--info {
+  background: var(--color-state-info);
+}
+.badge--muted {
+  background: var(--color-fg-subtle);
+}
 
 /* ==========================================================================
    21. AGENT CARDS  (Bottom-bar agent access slots)
@@ -1429,9 +1681,15 @@ textarea.input {
 }
 
 /* Semantic gauge colours */
-.gauge--success .gauge__bar-fill { background: var(--color-state-success); }
-.gauge--warning .gauge__bar-fill { background: var(--color-state-warning); }
-.gauge--error   .gauge__bar-fill { background: var(--color-state-error); }
+.gauge--success .gauge__bar-fill {
+  background: var(--color-state-success);
+}
+.gauge--warning .gauge__bar-fill {
+  background: var(--color-state-warning);
+}
+.gauge--error .gauge__bar-fill {
+  background: var(--color-state-error);
+}
 
 /* ==========================================================================
    25. LIVE LOG TERMINAL
@@ -1454,10 +1712,18 @@ textarea.input {
   word-break: break-all;
 }
 
-.terminal__line--info    { color: var(--color-state-info); }
-.terminal__line--success { color: var(--color-state-success); }
-.terminal__line--warning { color: var(--color-state-warning); }
-.terminal__line--error   { color: var(--color-state-error); }
+.terminal__line--info {
+  color: var(--color-state-info);
+}
+.terminal__line--success {
+  color: var(--color-state-success);
+}
+.terminal__line--warning {
+  color: var(--color-state-warning);
+}
+.terminal__line--error {
+  color: var(--color-state-error);
+}
 
 /* ==========================================================================
    26. VISIBILITY HELPERS
@@ -1517,7 +1783,9 @@ textarea.input {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%239191a8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 8px center;
-  transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+  transition:
+    border-color var(--transition-speed),
+    box-shadow var(--transition-speed);
 }
 
 .theme-selector__dropdown:hover {
@@ -1527,7 +1795,8 @@ textarea.input {
 .theme-selector__dropdown:focus {
   outline: none;
   border-color: var(--color-accent-primary);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent-primary) 25%, transparent);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--color-accent-primary) 25%, transparent);
 }
 
 .theme-selector__mode-toggle {
@@ -1544,11 +1813,17 @@ textarea.input {
   border: 1px solid var(--color-border-default);
   border-radius: var(--border-radius-md);
   cursor: pointer;
-  transition: background var(--transition-speed), border-color var(--transition-speed);
+  transition:
+    background var(--transition-speed),
+    border-color var(--transition-speed);
 }
 
 .theme-selector__mode-toggle:hover {
-  background: color-mix(in srgb, var(--color-bg-surface-raised) 85%, var(--color-accent-primary));
+  background: color-mix(
+    in srgb,
+    var(--color-bg-surface-raised) 85%,
+    var(--color-accent-primary)
+  );
   border-color: var(--color-accent-primary);
 }
 
@@ -1570,7 +1845,10 @@ textarea.input {
   background: var(--color-bg-surface-raised);
   color: var(--color-fg-default);
   cursor: pointer;
-  transition: border-color var(--transition-speed), box-shadow var(--transition-speed), transform var(--transition-speed);
+  transition:
+    border-color var(--transition-speed),
+    box-shadow var(--transition-speed),
+    transform var(--transition-speed);
   font-family: var(--font-family-mono);
   letter-spacing: 0.02em;
   overflow: hidden;
@@ -1586,7 +1864,9 @@ textarea.input {
 
 .theme-selector__swatch--active {
   border-color: var(--color-accent-primary);
-  box-shadow: 0 0 0 2px var(--color-accent-primary), 0 2px 8px var(--color-shadow);
+  box-shadow:
+    0 0 0 2px var(--color-accent-primary),
+    0 2px 8px var(--color-shadow);
 }
 
 /* ==========================================================================
@@ -1614,17 +1894,35 @@ textarea.input {
 /* ==========================================================================
    27. VISIBILITY HELPERS
    ========================================================================== */
-.hidden       { display: none !important; }
-.invisible    { visibility: hidden; }
-.opacity-0    { opacity: 0; }
-.opacity-50   { opacity: 0.5; }
-.opacity-100  { opacity: 1; }
+.hidden {
+  display: none !important;
+}
+.invisible {
+  visibility: hidden;
+}
+.opacity-0 {
+  opacity: 0;
+}
+.opacity-50 {
+  opacity: 0.5;
+}
+.opacity-100 {
+  opacity: 1;
+}
 
-.pointer-events-none { pointer-events: none; }
-.pointer-events-auto { pointer-events: auto; }
+.pointer-events-none {
+  pointer-events: none;
+}
+.pointer-events-auto {
+  pointer-events: auto;
+}
 
-.cursor-pointer { cursor: pointer; }
-.select-none    { user-select: none; }
+.cursor-pointer {
+  cursor: pointer;
+}
+.select-none {
+  user-select: none;
+}
 
 /* ==========================================================================
    28. LIVE LOGS
@@ -1638,15 +1936,23 @@ textarea.input {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.log-info  { color: var(--color-fg-muted); }
-.log-warn  { color: var(--color-state-warning); }
-.log-error { color: var(--color-state-error); }
+.log-info {
+  color: var(--color-fg-muted);
+}
+.log-warn {
+  color: var(--color-state-warning);
+}
+.log-error {
+  color: var(--color-state-error);
+}
 
 /* ==========================================================================
    29. INDICATOR LIGHT (connection status)
    ========================================================================== */
 .indicator-light {
-  transition: background 0.3s, box-shadow 0.3s;
+  transition:
+    background 0.3s,
+    box-shadow 0.3s;
 }
 .indicator-light.live {
   background: var(--color-state-success);
@@ -1659,8 +1965,13 @@ textarea.input {
   animation: pulse-glow 2s ease-in-out infinite;
 }
 @keyframes pulse-glow {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 
 /* ==========================================================================
@@ -1784,7 +2095,9 @@ textarea.input {
 @media (max-width: 1240px) {
   .app-shell {
     grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
-    grid-template-rows: auto var(--layout-nav-height) minmax(0, 1fr) var(--layout-foot-height);
+    grid-template-rows: auto var(--layout-nav-height) minmax(0, 1fr) var(
+        --layout-foot-height
+      );
     grid-template-areas:
       "header header"
       "nav nav"
@@ -1837,8 +2150,15 @@ textarea.input {
 }
 
 @keyframes live-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(1.1); }
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
 }
 
 /* Inspector panel height fix — let it fill the sidebar */
@@ -1859,19 +2179,24 @@ textarea.input {
   position: relative;
 }
 .fly-locked__progress-fill::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   right: 0;
   width: 4px;
   height: 100%;
-  background: rgba(255,255,255,0.6);
+  background: rgba(255, 255, 255, 0.6);
   border-radius: 3px;
   animation: progress-glow 1.5s ease-in-out infinite;
 }
 @keyframes progress-glow {
-  0%, 100% { opacity: 0; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 /* Converter Studio layout fix */

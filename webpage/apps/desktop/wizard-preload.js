@@ -5,14 +5,14 @@
  * communicate with the main process to signal completion.
  */
 
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer } = require("electron");
 
-contextBridge.exposeInMainWorld('wizardBridge', {
+contextBridge.exposeInMainWorld("wizardBridge", {
   /**
    * Signal wizard completion with user preferences.
    * @param {object} preferences - User-selected preferences from wizard.
    */
   complete(preferences) {
-    ipcRenderer.send('wizard-complete', preferences);
+    ipcRenderer.send("wizard-complete", preferences);
   },
 });

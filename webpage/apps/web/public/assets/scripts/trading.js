@@ -5,54 +5,90 @@
    ============================================================ */
 
 const TradingStudio = (() => {
-  'use strict';
+  "use strict";
 
-  const BACKEND_URL = 'http://127.0.0.1:8000';
+  const BACKEND_URL = "http://127.0.0.1:8000";
   const CARDS_PER_PAGE = 24;
 
   let markets = [];
   let displayedCount = 0;
-  let currentCategory = 'all';
-  let currentSubcategory = 'all';
+  let currentCategory = "all";
+  let currentSubcategory = "all";
   let connected = false;
   let websocket = null;
-  let approvalExpiryTimeout = null;   /* stores approval overlay auto-close timer */
+  let approvalExpiryTimeout =
+    null; /* stores approval overlay auto-close timer */
 
   const SUBCATEGORY_MAP = {
-    all: ['All'],
-    crypto: ['All', 'BTC', 'ETH', 'SOL', 'Other'],
-    sports: ['All', 'NFL', 'NBA', 'MLB', 'NHL', 'Soccer'],
-    politics: ['All', 'US', 'Global'],
-    economics: ['All', 'Fed', 'CPI', 'Jobs'],
-    weather: ['All', 'Temperature', 'Storms'],
-    entertainment: ['All', 'Awards', 'Box Office'],
-    tech: ['All', 'AI', 'Space', 'EVs'],
-    science: ['All', 'Space', 'Climate']
+    all: ["All"],
+    crypto: ["All", "BTC", "ETH", "SOL", "Other"],
+    sports: ["All", "NFL", "NBA", "MLB", "NHL", "Soccer"],
+    politics: ["All", "US", "Global"],
+    economics: ["All", "Fed", "CPI", "Jobs"],
+    weather: ["All", "Temperature", "Storms"],
+    entertainment: ["All", "Awards", "Box Office"],
+    tech: ["All", "AI", "Space", "EVs"],
+    science: ["All", "Space", "Climate"],
   };
 
   const CATEGORY_KEYWORDS = {
-    crypto: ['btc', 'bitcoin', 'eth', 'ethereum', 'sol', 'crypto', 'kxbtc', 'kxeth', 'kxsol'],
-    sports: ['nfl', 'nba', 'mlb', 'nhl', 'soccer', 'football', 'basketball', 'baseball', 'sports'],
-    politics: ['president', 'election', 'congress', 'senate', 'governor', 'political'],
-    economics: ['fed', 'cpi', 'gdp', 'unemployment', 'inflation', 'interest', 'jobs'],
-    weather: ['weather', 'temperature', 'hurricane', 'snow', 'rain'],
-    entertainment: ['oscar', 'grammy', 'emmy', 'movie', 'tv', 'music'],
-    tech: ['tech', 'ai', 'apple', 'google', 'tesla', 'spacex'],
-    science: ['space', 'nasa', 'climate', 'vaccine']
+    crypto: [
+      "btc",
+      "bitcoin",
+      "eth",
+      "ethereum",
+      "sol",
+      "crypto",
+      "kxbtc",
+      "kxeth",
+      "kxsol",
+    ],
+    sports: [
+      "nfl",
+      "nba",
+      "mlb",
+      "nhl",
+      "soccer",
+      "football",
+      "basketball",
+      "baseball",
+      "sports",
+    ],
+    politics: [
+      "president",
+      "election",
+      "congress",
+      "senate",
+      "governor",
+      "political",
+    ],
+    economics: [
+      "fed",
+      "cpi",
+      "gdp",
+      "unemployment",
+      "inflation",
+      "interest",
+      "jobs",
+    ],
+    weather: ["weather", "temperature", "hurricane", "snow", "rain"],
+    entertainment: ["oscar", "grammy", "emmy", "movie", "tv", "music"],
+    tech: ["tech", "ai", "apple", "google", "tesla", "spacex"],
+    science: ["space", "nasa", "climate", "vaccine"],
   };
 
   /* Series display names and icons for section headers */
   const SERIES_DISPLAY = {
-    kxbtc: { label: 'Bitcoin (BTC)', icon: '₿', priority: 1 },
-    kxeth: { label: 'Ethereum (ETH)', icon: '⬡', priority: 2 },
-    kxsol: { label: 'Solana (SOL)', icon: '◎', priority: 3 },
-    nfl: { label: 'NFL Football', icon: '🏈', priority: 10 },
-    nba: { label: 'NBA Basketball', icon: '🏀', priority: 11 },
-    mlb: { label: 'MLB Baseball', icon: '⚾', priority: 12 },
-    nhl: { label: 'NHL Hockey', icon: '🏒', priority: 13 },
-    fed: { label: 'Federal Reserve', icon: '🏦', priority: 20 },
-    cpi: { label: 'CPI Inflation', icon: '📈', priority: 21 },
-    gdp: { label: 'GDP', icon: '📊', priority: 22 },
+    kxbtc: { label: "Bitcoin (BTC)", icon: "₿", priority: 1 },
+    kxeth: { label: "Ethereum (ETH)", icon: "⬡", priority: 2 },
+    kxsol: { label: "Solana (SOL)", icon: "◎", priority: 3 },
+    nfl: { label: "NFL Football", icon: "🏈", priority: 10 },
+    nba: { label: "NBA Basketball", icon: "🏀", priority: 11 },
+    mlb: { label: "MLB Baseball", icon: "⚾", priority: 12 },
+    nhl: { label: "NHL Hockey", icon: "🏒", priority: 13 },
+    fed: { label: "Federal Reserve", icon: "🏦", priority: 20 },
+    cpi: { label: "CPI Inflation", icon: "📈", priority: 21 },
+    gdp: { label: "GDP", icon: "📊", priority: 22 },
   };
 
   /* ---- Initialization ---- */
@@ -71,15 +107,17 @@ const TradingStudio = (() => {
   /* ---- Event Binding ---- */
 
   function bindCategoryTabs() {
-    const nav = document.getElementById('trading-category-nav');
+    const nav = document.getElementById("trading-category-nav");
     if (!nav) return;
-    nav.addEventListener('click', (e) => {
-      const tab = e.target.closest('.category-tab');
+    nav.addEventListener("click", (e) => {
+      const tab = e.target.closest(".category-tab");
       if (!tab) return;
-      nav.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
+      nav
+        .querySelectorAll(".category-tab")
+        .forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
       currentCategory = tab.dataset.category;
-      currentSubcategory = 'all';
+      currentSubcategory = "all";
       displayedCount = 0;
       updateSubcategories();
       renderCards();
@@ -87,13 +125,15 @@ const TradingStudio = (() => {
   }
 
   function bindSubcategoryTabs() {
-    const nav = document.getElementById('trading-subcategory-nav');
+    const nav = document.getElementById("trading-subcategory-nav");
     if (!nav) return;
-    nav.addEventListener('click', (e) => {
-      const tab = e.target.closest('.subcategory-tab');
+    nav.addEventListener("click", (e) => {
+      const tab = e.target.closest(".subcategory-tab");
       if (!tab) return;
-      nav.querySelectorAll('.subcategory-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
+      nav
+        .querySelectorAll(".subcategory-tab")
+        .forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
       currentSubcategory = tab.dataset.subcategory;
       displayedCount = 0;
       renderCards();
@@ -101,57 +141,66 @@ const TradingStudio = (() => {
   }
 
   function bindFilters() {
-    ['filter-volume', 'filter-frequency', 'filter-time-to-close', 'filter-status'].forEach(id => {
+    [
+      "filter-volume",
+      "filter-frequency",
+      "filter-time-to-close",
+      "filter-status",
+    ].forEach((id) => {
       const el = document.getElementById(id);
-      if (el) el.addEventListener('change', () => { displayedCount = 0; renderCards(); });
+      if (el)
+        el.addEventListener("change", () => {
+          displayedCount = 0;
+          renderCards();
+        });
     });
   }
 
   function bindRefreshButton() {
-    const btn = document.getElementById('market-refresh-button');
+    const btn = document.getElementById("market-refresh-button");
     if (!btn) return;
-    btn.addEventListener('click', async () => {
-      btn.classList.add('spin');
+    btn.addEventListener("click", async () => {
+      btn.classList.add("spin");
       await fetchMarkets();
-      setTimeout(() => btn.classList.remove('spin'), 600);
+      setTimeout(() => btn.classList.remove("spin"), 600);
     });
   }
 
   function bindShowMore() {
-    const btn = document.getElementById('show-more-markets');
+    const btn = document.getElementById("show-more-markets");
     if (!btn) return;
-    btn.addEventListener('click', () => {
+    btn.addEventListener("click", () => {
       displayedCount += CARDS_PER_PAGE;
       renderCards();
     });
   }
 
   function bindApprovalButtons() {
-    const approveBtn = document.getElementById('approve-button');
-    const denyBtn = document.getElementById('deny-button');
-    const overlay = document.getElementById('approval-overlay');
+    const approveBtn = document.getElementById("approve-button");
+    const denyBtn = document.getElementById("deny-button");
+    const overlay = document.getElementById("approval-overlay");
 
     if (approveBtn) {
-      approveBtn.addEventListener('click', () => {
+      approveBtn.addEventListener("click", () => {
         const orderId = overlay?.dataset.clientOrderId;
         if (orderId) postApprovalDecision(orderId, true);
-        if (overlay) overlay.style.display = 'none';
+        if (overlay) overlay.style.display = "none";
       });
     }
     if (denyBtn) {
-      denyBtn.addEventListener('click', () => {
+      denyBtn.addEventListener("click", () => {
         const orderId = overlay?.dataset.clientOrderId;
         if (orderId) postApprovalDecision(orderId, false);
-        if (overlay) overlay.style.display = 'none';
+        if (overlay) overlay.style.display = "none";
       });
     }
   }
 
   function bindOverlayClose() {
-    const overlay = document.getElementById('expanded-card-overlay');
+    const overlay = document.getElementById("expanded-card-overlay");
     if (!overlay) return;
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) overlay.style.display = 'none';
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) overlay.style.display = "none";
     });
   }
 
@@ -159,24 +208,25 @@ const TradingStudio = (() => {
 
   async function onConnected(environment) {
     connected = true;
-    const preConnect = document.getElementById('trading-pre-connect');
-    const iface = document.getElementById('trading-interface');
-    if (preConnect) preConnect.style.display = 'none';
+    const preConnect = document.getElementById("trading-pre-connect");
+    const iface = document.getElementById("trading-interface");
+    if (preConnect) preConnect.style.display = "none";
     if (iface) {
-      iface.style.display = 'flex';
-      iface.classList.add('trading-init-animation');
-      setTimeout(() => iface.classList.remove('trading-init-animation'), 1500);
+      iface.style.display = "flex";
+      iface.classList.add("trading-init-animation");
+      setTimeout(() => iface.classList.remove("trading-init-animation"), 1500);
     }
     await fetchMarkets();
     await fetchAccountSummary();
     connectWebSocket();
 
     /* Notify sub-modules */
-    if (typeof PositionsPanel !== 'undefined') PositionsPanel.onConnected();
-    if (typeof AgentDashboard !== 'undefined') AgentDashboard.onConnected();
+    if (typeof PositionsPanel !== "undefined") PositionsPanel.onConnected();
+    if (typeof AgentDashboard !== "undefined") AgentDashboard.onConnected();
 
     /* Poll account summary every 10 seconds */
-    if (onConnected._accountInterval) clearInterval(onConnected._accountInterval);
+    if (onConnected._accountInterval)
+      clearInterval(onConnected._accountInterval);
     onConnected._accountInterval = setInterval(fetchAccountSummary, 10000);
   }
 
@@ -186,17 +236,20 @@ const TradingStudio = (() => {
       clearInterval(onConnected._accountInterval);
       onConnected._accountInterval = null;
     }
-    const preConnect = document.getElementById('trading-pre-connect');
-    const iface = document.getElementById('trading-interface');
-    if (preConnect) preConnect.style.display = 'flex';
-    if (iface) iface.style.display = 'none';
+    const preConnect = document.getElementById("trading-pre-connect");
+    const iface = document.getElementById("trading-interface");
+    if (preConnect) preConnect.style.display = "flex";
+    if (iface) iface.style.display = "none";
     markets = [];
     displayedCount = 0;
     renderCards();
-    if (websocket) { websocket.close(); websocket = null; }
+    if (websocket) {
+      websocket.close();
+      websocket = null;
+    }
 
-    if (typeof PositionsPanel !== 'undefined') PositionsPanel.onDisconnected();
-    if (typeof AgentDashboard !== 'undefined') AgentDashboard.onDisconnected();
+    if (typeof PositionsPanel !== "undefined") PositionsPanel.onDisconnected();
+    if (typeof AgentDashboard !== "undefined") AgentDashboard.onDisconnected();
   }
 
   /* ---- Data Fetching ---- */
@@ -210,93 +263,130 @@ const TradingStudio = (() => {
       displayedCount = 0;
       renderCards();
     } catch (e) {
-      console.warn('Failed to fetch markets:', e);
+      console.warn("Failed to fetch markets:", e);
     }
   }
 
   /* ---- Filtering ---- */
 
   function matchesCategory(market, category) {
-    const ticker = (market.ticker || '').toLowerCase();
-    const event = (market.event_ticker || '').toLowerCase();
+    const ticker = (market.ticker || "").toLowerCase();
+    const event = (market.event_ticker || "").toLowerCase();
     const keywords = CATEGORY_KEYWORDS[category] || [];
-    return keywords.some(k => ticker.includes(k) || event.includes(k));
+    return keywords.some((k) => ticker.includes(k) || event.includes(k));
   }
 
   function detectFrequency(market) {
-    const ticker = (market.ticker || '').toLowerCase();
-    const title = (market.yes_sub_title || '').toLowerCase();
-    const series = (market.series_ticker || market.event_ticker || '').toLowerCase();
-    const combined = ticker + ' ' + title + ' ' + series;
+    const ticker = (market.ticker || "").toLowerCase();
+    const title = (market.yes_sub_title || "").toLowerCase();
+    const series = (
+      market.series_ticker ||
+      market.event_ticker ||
+      ""
+    ).toLowerCase();
+    const combined = ticker + " " + title + " " + series;
 
-    if (combined.includes('15min') || combined.includes('15m') || combined.includes('15-min')) return '15min';
-    if (combined.includes('1hr') || combined.includes('1h') || combined.includes('hourly') || combined.includes('1-hour')) return '1h';
-    if (combined.includes('6hr') || combined.includes('6h') || combined.includes('6-hour')) return '6h';
-    if (combined.includes('24hr') || combined.includes('24h') || combined.includes('daily') || combined.includes('1-day')) return '24h';
-    if (combined.includes('weekly') || combined.includes('1-week') || combined.includes('7-day')) return '7d';
-    return 'other';
+    if (
+      combined.includes("15min") ||
+      combined.includes("15m") ||
+      combined.includes("15-min")
+    )
+      return "15min";
+    if (
+      combined.includes("1hr") ||
+      combined.includes("1h") ||
+      combined.includes("hourly") ||
+      combined.includes("1-hour")
+    )
+      return "1h";
+    if (
+      combined.includes("6hr") ||
+      combined.includes("6h") ||
+      combined.includes("6-hour")
+    )
+      return "6h";
+    if (
+      combined.includes("24hr") ||
+      combined.includes("24h") ||
+      combined.includes("daily") ||
+      combined.includes("1-day")
+    )
+      return "24h";
+    if (
+      combined.includes("weekly") ||
+      combined.includes("1-week") ||
+      combined.includes("7-day")
+    )
+      return "7d";
+    return "other";
   }
 
   function filterMarkets() {
     let filtered = [...markets];
 
     /* Category filter */
-    if (currentCategory !== 'all') {
-      filtered = filtered.filter(m => matchesCategory(m, currentCategory));
+    if (currentCategory !== "all") {
+      filtered = filtered.filter((m) => matchesCategory(m, currentCategory));
     }
 
     /* Subcategory filter */
-    if (currentSubcategory !== 'all') {
+    if (currentSubcategory !== "all") {
       const sub = currentSubcategory.toLowerCase();
-      filtered = filtered.filter(m => {
-        const ticker = (m.ticker || '').toLowerCase();
-        const event = (m.event_ticker || '').toLowerCase();
+      filtered = filtered.filter((m) => {
+        const ticker = (m.ticker || "").toLowerCase();
+        const event = (m.event_ticker || "").toLowerCase();
         return ticker.includes(sub) || event.includes(sub);
       });
     }
 
     /* Volume filter */
-    const volumeFilter = document.getElementById('filter-volume')?.value;
-    if (volumeFilter && volumeFilter !== 'all') {
-      filtered = filtered.filter(m => {
+    const volumeFilter = document.getElementById("filter-volume")?.value;
+    if (volumeFilter && volumeFilter !== "all") {
+      filtered = filtered.filter((m) => {
         const vol = parseFloat(m.volume_24h_fp) || 0;
-        if (volumeFilter === 'high') return vol >= 10000;
-        if (volumeFilter === 'medium') return vol >= 1000 && vol < 10000;
-        if (volumeFilter === 'low') return vol < 1000;
+        if (volumeFilter === "high") return vol >= 10000;
+        if (volumeFilter === "medium") return vol >= 1000 && vol < 10000;
+        if (volumeFilter === "low") return vol < 1000;
         return true;
       });
     }
 
     /* Frequency filter */
-    const freqFilter = document.getElementById('filter-frequency')?.value;
-    if (freqFilter && freqFilter !== 'all') {
-      filtered = filtered.filter(m => detectFrequency(m) === freqFilter);
+    const freqFilter = document.getElementById("filter-frequency")?.value;
+    if (freqFilter && freqFilter !== "all") {
+      filtered = filtered.filter((m) => detectFrequency(m) === freqFilter);
     }
 
     /* Time-to-close filter */
-    const timeFilter = document.getElementById('filter-time-to-close')?.value;
-    if (timeFilter && timeFilter !== 'all') {
+    const timeFilter = document.getElementById("filter-time-to-close")?.value;
+    if (timeFilter && timeFilter !== "all") {
       const now = Date.now();
-      filtered = filtered.filter(m => {
+      filtered = filtered.filter((m) => {
         if (!m.close_time) return false;
         const diff = new Date(m.close_time).getTime() - now;
-        if (diff <= 0) return timeFilter === 'closed';
+        if (diff <= 0) return timeFilter === "closed";
         const hours = diff / 3600000;
-        if (timeFilter === '1h') return hours < 1;
-        if (timeFilter === '24h') return hours < 24;
-        if (timeFilter === '7d') return hours < 168;
-        if (timeFilter === '30d') return hours < 720;
+        if (timeFilter === "1h") return hours < 1;
+        if (timeFilter === "24h") return hours < 24;
+        if (timeFilter === "7d") return hours < 168;
+        if (timeFilter === "30d") return hours < 720;
         return true;
       });
     }
 
     /* Status filter */
-    const statusFilter = document.getElementById('filter-status')?.value;
-    if (statusFilter && statusFilter !== 'all') {
-      filtered = filtered.filter(m => {
-        const status = (m.status || '').toLowerCase();
-        if (statusFilter === 'active') return status === 'active' || status === 'open';
-        if (statusFilter === 'closed') return status === 'closed' || status === 'finalized' || status === 'settled';
+    const statusFilter = document.getElementById("filter-status")?.value;
+    if (statusFilter && statusFilter !== "all") {
+      filtered = filtered.filter((m) => {
+        const status = (m.status || "").toLowerCase();
+        if (statusFilter === "active")
+          return status === "active" || status === "open";
+        if (statusFilter === "closed")
+          return (
+            status === "closed" ||
+            status === "finalized" ||
+            status === "settled"
+          );
         return true;
       });
     }
@@ -308,8 +398,8 @@ const TradingStudio = (() => {
 
   function groupBySeries(marketList) {
     const groups = new Map();
-    marketList.forEach(market => {
-      const seriesKey = market.series_ticker || market.event_ticker || 'other';
+    marketList.forEach((market) => {
+      const seriesKey = market.series_ticker || market.event_ticker || "other";
       if (!groups.has(seriesKey)) groups.set(seriesKey, []);
       groups.get(seriesKey).push(market);
     });
@@ -340,32 +430,36 @@ const TradingStudio = (() => {
     for (const [key, info] of Object.entries(SERIES_DISPLAY)) {
       if (lower.includes(key)) return info;
     }
-    return { label: seriesKey, icon: '📋', priority: 99 };
+    return { label: seriesKey, icon: "📋", priority: 99 };
   }
 
   /* ---- Subcategory Nav ---- */
 
   function updateSubcategories() {
-    const nav = document.getElementById('trading-subcategory-nav');
+    const nav = document.getElementById("trading-subcategory-nav");
     if (!nav) return;
-    const subs = SUBCATEGORY_MAP[currentCategory] || ['All'];
-    nav.innerHTML = subs.map((s, i) =>
-      `<button class="subcategory-tab${i === 0 ? ' active' : ''}" data-subcategory="${s.toLowerCase()}">${s}</button>`
-    ).join('');
+    const subs = SUBCATEGORY_MAP[currentCategory] || ["All"];
+    nav.innerHTML = subs
+      .map(
+        (s, i) =>
+          `<button class="subcategory-tab${i === 0 ? " active" : ""}" data-subcategory="${s.toLowerCase()}">${s}</button>`,
+      )
+      .join("");
   }
 
   /* ---- Rendering ---- */
 
   function renderCards() {
-    const grid = document.getElementById('series-cards-grid');
+    const grid = document.getElementById("series-cards-grid");
     if (!grid) return;
 
     const filtered = filterMarkets();
 
     if (filtered.length === 0 && connected) {
-      grid.innerHTML = '<div class="no-markets-message" style="grid-column:1/-1;">No markets match your current filters</div>';
-      const showMoreContainer = document.getElementById('show-more-container');
-      if (showMoreContainer) showMoreContainer.style.display = 'none';
+      grid.innerHTML =
+        '<div class="no-markets-message" style="grid-column:1/-1;">No markets match your current filters</div>';
+      const showMoreContainer = document.getElementById("show-more-container");
+      if (showMoreContainer) showMoreContainer.style.display = "none";
       return;
     }
 
@@ -377,32 +471,35 @@ const TradingStudio = (() => {
     let cardsRendered = 0;
     let totalMarkets = 0;
 
-    grid.innerHTML = '';
+    grid.innerHTML = "";
 
     groups.forEach(([seriesKey, seriesMarkets]) => {
-      const marketsToShow = seriesMarkets.slice(0, Math.max(0, limit - cardsRendered));
+      const marketsToShow = seriesMarkets.slice(
+        0,
+        Math.max(0, limit - cardsRendered),
+      );
       if (marketsToShow.length === 0) return;
 
       totalMarkets += seriesMarkets.length;
 
       /* Series section header */
       const seriesDisplay = getSeriesDisplay(seriesKey);
-      const header = document.createElement('div');
-      header.className = 'series-section-header';
+      const header = document.createElement("div");
+      header.className = "series-section-header";
       header.innerHTML = `
         <span class="series-section-icon">${seriesDisplay.icon}</span>
         <span class="series-section-label">${escapeHtml(seriesDisplay.label)}</span>
-        <span class="series-section-count">${seriesMarkets.length} market${seriesMarkets.length !== 1 ? 's' : ''}</span>
+        <span class="series-section-count">${seriesMarkets.length} market${seriesMarkets.length !== 1 ? "s" : ""}</span>
         <div class="series-section-line"></div>
       `;
       grid.appendChild(header);
 
       /* Market cards for this series */
-      const cardsRow = document.createElement('div');
-      cardsRow.className = 'series-cards-row';
+      const cardsRow = document.createElement("div");
+      cardsRow.className = "series-cards-row";
       marketsToShow.forEach((market, idx) => {
         const card = createSeriesCard(market);
-        card.style.animationDelay = (idx * 25) + 'ms';
+        card.style.animationDelay = idx * 25 + "ms";
         cardsRow.appendChild(card);
       });
       grid.appendChild(cardsRow);
@@ -411,9 +508,10 @@ const TradingStudio = (() => {
 
     displayedCount = cardsRendered;
 
-    const showMoreContainer = document.getElementById('show-more-container');
+    const showMoreContainer = document.getElementById("show-more-container");
     if (showMoreContainer) {
-      showMoreContainer.style.display = cardsRendered < filtered.length ? 'flex' : 'none';
+      showMoreContainer.style.display =
+        cardsRendered < filtered.length ? "flex" : "none";
     }
   }
 
@@ -437,10 +535,10 @@ const TradingStudio = (() => {
       ? calcPotentialReturn(market.no_ask_dollars, notional)
       : null;
 
-    if (!yesReturn && !noReturn) return '';
+    if (!yesReturn && !noReturn) return "";
 
-    const yesStr = yesReturn ? `+$${yesReturn.profit}` : '—';
-    const noStr = noReturn ? `+$${noReturn.profit}` : '—';
+    const yesStr = yesReturn ? `+$${yesReturn.profit}` : "—";
+    const noStr = noReturn ? `+$${noReturn.profit}` : "—";
 
     return `
       <div class="series-card-returns">
@@ -456,40 +554,60 @@ const TradingStudio = (() => {
 
   function renderFrequencyBadge(market) {
     const freq = detectFrequency(market);
-    if (freq === 'other') return '';
-    const labels = { '15min': '15m', '1h': '1hr', '6h': '6hr', '24h': '24hr', '7d': '7d' };
+    if (freq === "other") return "";
+    const labels = {
+      "15min": "15m",
+      "1h": "1hr",
+      "6h": "6hr",
+      "24h": "24hr",
+      "7d": "7d",
+    };
     return `<span class="series-card-freq-badge">${escapeHtml(labels[freq] || freq)}</span>`;
   }
 
   /* ---- Series Card Creation ---- */
 
   function createSeriesCard(market) {
-    const card = document.createElement('div');
+    const card = document.createElement("div");
     const isClosed = isMarketClosed(market);
-    card.className = `series-card card-enter${isClosed ? ' series-card--closed' : ''}`;
+    card.className = `series-card card-enter${isClosed ? " series-card--closed" : ""}`;
     card.dataset.ticker = market.ticker;
 
     const yesPrice = market.yes_bid_dollars || null;
     const noPrice = market.no_bid_dollars || null;
     const lastPrice = market.last_price_dollars || null;
-    const volume = formatVolume(market.volume_24h_fp || '0');
-    const status = market.status || 'unknown';
-    const title = market.yes_sub_title || market.ticker || 'Untitled';
+    const volume = formatVolume(market.volume_24h_fp || "0");
+    const status = market.status || "unknown";
+    const title = market.yes_sub_title || market.ticker || "Untitled";
     const closeTime = market.close_time ? new Date(market.close_time) : null;
-    const timeRemaining = closeTime ? formatTimeRemaining(closeTime) : '—';
-    const isClosingSoon = closeTime && (closeTime - Date.now()) < 3600000 && !isClosed;
-    const chancePercent = yesPrice ? Math.round(parseFloat(yesPrice) * 100) : null;
-    const yesCents = yesPrice ? (parseFloat(yesPrice) * 100).toFixed(0) + '¢' : '—';
-    const noCents = noPrice ? (parseFloat(noPrice) * 100).toFixed(0) + '¢' : '—';
+    const timeRemaining = closeTime ? formatTimeRemaining(closeTime) : "—";
+    const isClosingSoon =
+      closeTime && closeTime - Date.now() < 3600000 && !isClosed;
+    const chancePercent = yesPrice
+      ? Math.round(parseFloat(yesPrice) * 100)
+      : null;
+    const yesCents = yesPrice
+      ? (parseFloat(yesPrice) * 100).toFixed(0) + "¢"
+      : "—";
+    const noCents = noPrice
+      ? (parseFloat(noPrice) * 100).toFixed(0) + "¢"
+      : "—";
 
-    const timerClass = isClosingSoon ? 'series-card-timer series-card-timer--urgent' : 'series-card-timer';
-    const chanceColor = chancePercent !== null
-      ? (chancePercent > 60 ? 'var(--color-state-success)' : chancePercent < 40 ? 'var(--color-state-error)' : 'var(--color-accent-primary)')
-      : '';
+    const timerClass = isClosingSoon
+      ? "series-card-timer series-card-timer--urgent"
+      : "series-card-timer";
+    const chanceColor =
+      chancePercent !== null
+        ? chancePercent > 60
+          ? "var(--color-state-success)"
+          : chancePercent < 40
+            ? "var(--color-state-error)"
+            : "var(--color-accent-primary)"
+        : "";
 
     card.innerHTML = `
       <div class="series-card-header">
-        <span class="series-card-category">${escapeHtml(market.event_ticker || '')}</span>
+        <span class="series-card-category">${escapeHtml(market.event_ticker || "")}</span>
         <div style="display:flex;align-items:center;gap:3px">
           ${renderFrequencyBadge(market)}
           <span class="${timerClass}">${escapeHtml(timeRemaining)}</span>
@@ -500,32 +618,32 @@ const TradingStudio = (() => {
         <canvas class="series-card-canvas" width="280" height="52"></canvas>
         <div class="series-card-price-row">
           <span class="series-card-volume">Vol: ${escapeHtml(String(volume))}</span>
-          <span class="series-card-oi">OI: ${escapeHtml(formatVolume(market.open_interest_fp || '0'))}</span>
+          <span class="series-card-oi">OI: ${escapeHtml(formatVolume(market.open_interest_fp || "0"))}</span>
         </div>
       </div>
       <div class="series-card-chance">
         <span class="chance-label">Chance</span>
-        <span class="chance-value" style="color:${chanceColor}">${chancePercent !== null ? chancePercent + '%' : '—'}</span>
+        <span class="chance-value" style="color:${chanceColor}">${chancePercent !== null ? chancePercent + "%" : "—"}</span>
         <div class="chance-bar">
-          <div class="chance-bar__fill" style="width:${chancePercent !== null ? chancePercent : 50}%;background:${chanceColor || 'var(--color-accent-primary)'}"></div>
+          <div class="chance-bar__fill" style="width:${chancePercent !== null ? chancePercent : 50}%;background:${chanceColor || "var(--color-accent-primary)"}"></div>
         </div>
       </div>
       ${renderPotentialReturns(market)}
       <div class="series-card-buttons">
-        <button class="yes-button${isClosed ? ' disabled' : ''}" data-ticker="${escapeAttr(market.ticker)}" data-side="yes" ${isClosed ? 'disabled' : ''}>Yes ${escapeHtml(yesCents)}</button>
-        <button class="no-button${isClosed ? ' disabled' : ''}" data-ticker="${escapeAttr(market.ticker)}" data-side="no" ${isClosed ? 'disabled' : ''}>No ${escapeHtml(noCents)}</button>
+        <button class="yes-button${isClosed ? " disabled" : ""}" data-ticker="${escapeAttr(market.ticker)}" data-side="yes" ${isClosed ? "disabled" : ""}>Yes ${escapeHtml(yesCents)}</button>
+        <button class="no-button${isClosed ? " disabled" : ""}" data-ticker="${escapeAttr(market.ticker)}" data-side="no" ${isClosed ? "disabled" : ""}>No ${escapeHtml(noCents)}</button>
       </div>
-      ${isClosed ? '<div class="series-card-closed-overlay"><span>CLOSED</span></div>' : ''}
+      ${isClosed ? '<div class="series-card-closed-overlay"><span>CLOSED</span></div>' : ""}
       <button class="expand-button" data-ticker="${escapeAttr(market.ticker)}" title="Expand card">⤢</button>
     `;
 
-    card.querySelector('.expand-button').addEventListener('click', (e) => {
+    card.querySelector(".expand-button").addEventListener("click", (e) => {
       e.stopPropagation();
       expandCard(market);
     });
 
     /* Render mini sparkline on the card canvas */
-    const miniCanvas = card.querySelector('.series-card-canvas');
+    const miniCanvas = card.querySelector(".series-card-canvas");
     if (miniCanvas) {
       drawMiniSparkline(miniCanvas, market);
     }
@@ -534,8 +652,9 @@ const TradingStudio = (() => {
   }
 
   function isMarketClosed(market) {
-    const status = (market.status || '').toLowerCase();
-    if (status === 'closed' || status === 'finalized' || status === 'settled') return true;
+    const status = (market.status || "").toLowerCase();
+    if (status === "closed" || status === "finalized" || status === "settled")
+      return true;
     if (market.close_time) {
       return new Date(market.close_time).getTime() < Date.now();
     }
@@ -544,21 +663,23 @@ const TradingStudio = (() => {
 
   function formatVolume(value) {
     const num = parseFloat(value) || 0;
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
+    if (num >= 1000) return (num / 1000).toFixed(1) + "K";
     return String(Math.round(num));
   }
 
   /* ---- Mini Sparkline for Series Cards ---- */
 
   function drawMiniSparkline(canvas, market) {
-    const context = canvas.getContext('2d');
+    const context = canvas.getContext("2d");
     const width = canvas.width;
     const height = canvas.height;
     context.clearRect(0, 0, width, height);
 
     /* Generate a plausible price curve from the market's current price */
-    const currentPrice = parseFloat(market.last_price_dollars || market.yes_bid_dollars || '0.50');
+    const currentPrice = parseFloat(
+      market.last_price_dollars || market.yes_bid_dollars || "0.50",
+    );
     const dataPoints = 30;
     const prices = [];
     let price = currentPrice * (0.85 + Math.random() * 0.15);
@@ -578,22 +699,28 @@ const TradingStudio = (() => {
     const padding = 4;
 
     const computedStyle = getComputedStyle(document.documentElement);
-    const successColor = computedStyle.getPropertyValue('--color-state-success').trim() || '#22c55e';
-    const errorColor = computedStyle.getPropertyValue('--color-state-error').trim() ||
-      computedStyle.getPropertyValue('--color-state-danger').trim() || '#ef4444';
+    const successColor =
+      computedStyle.getPropertyValue("--color-state-success").trim() ||
+      "#22c55e";
+    const errorColor =
+      computedStyle.getPropertyValue("--color-state-error").trim() ||
+      computedStyle.getPropertyValue("--color-state-danger").trim() ||
+      "#ef4444";
     const isUpTrend = prices[prices.length - 1] >= prices[0];
     const lineColor = isUpTrend ? successColor : errorColor;
 
     /* Draw line */
     context.beginPath();
     context.lineWidth = 1.5;
-    context.lineJoin = 'round';
-    context.lineCap = 'round';
+    context.lineJoin = "round";
+    context.lineCap = "round";
     context.strokeStyle = lineColor;
 
     prices.forEach((pricePoint, index) => {
       const x = padding + (index / (dataPoints - 1)) * (width - padding * 2);
-      const y = padding + (1 - (pricePoint - minPrice) / priceRange) * (height - padding * 2);
+      const y =
+        padding +
+        (1 - (pricePoint - minPrice) / priceRange) * (height - padding * 2);
       if (index === 0) context.moveTo(x, y);
       else context.lineTo(x, y);
     });
@@ -601,9 +728,14 @@ const TradingStudio = (() => {
 
     /* Draw gradient fill */
     const lastX = padding + (width - padding * 2);
-    const gradient = context.createLinearGradient(0, padding, 0, height - padding);
-    gradient.addColorStop(0, lineColor + '30');
-    gradient.addColorStop(1, lineColor + '05');
+    const gradient = context.createLinearGradient(
+      0,
+      padding,
+      0,
+      height - padding,
+    );
+    gradient.addColorStop(0, lineColor + "30");
+    gradient.addColorStop(1, lineColor + "05");
 
     context.lineTo(lastX, height - padding);
     context.lineTo(padding, height - padding);
@@ -615,23 +747,31 @@ const TradingStudio = (() => {
   /* ---- Expand Card Overlay ---- */
 
   function expandCard(market) {
-    const overlay = document.getElementById('expanded-card-overlay');
-    const content = document.getElementById('expanded-card-content');
+    const overlay = document.getElementById("expanded-card-overlay");
+    const content = document.getElementById("expanded-card-content");
     if (!overlay || !content) return;
 
-    const title = market.yes_sub_title || market.ticker || 'Untitled';
+    const title = market.yes_sub_title || market.ticker || "Untitled";
     const isClosed = isMarketClosed(market);
 
-    const yesAsk = market.yes_ask_dollars ? `${(parseFloat(market.yes_ask_dollars) * 100).toFixed(0)}¢` : '—';
-    const noBid = market.no_bid_dollars ? `${(parseFloat(market.no_bid_dollars) * 100).toFixed(0)}¢` : '—';
-    const yesReturn = market.yes_ask_dollars ? calcPotentialReturn(market.yes_ask_dollars, 100) : null;
-    const noReturn = market.no_ask_dollars ? calcPotentialReturn(market.no_ask_dollars, 100) : null;
+    const yesAsk = market.yes_ask_dollars
+      ? `${(parseFloat(market.yes_ask_dollars) * 100).toFixed(0)}¢`
+      : "—";
+    const noBid = market.no_bid_dollars
+      ? `${(parseFloat(market.no_bid_dollars) * 100).toFixed(0)}¢`
+      : "—";
+    const yesReturn = market.yes_ask_dollars
+      ? calcPotentialReturn(market.yes_ask_dollars, 100)
+      : null;
+    const noReturn = market.no_ask_dollars
+      ? calcPotentialReturn(market.no_ask_dollars, 100)
+      : null;
 
     content.innerHTML = `
       <div class="expanded-card-header">
         <div>
           <h3 style="margin:0;font-size:14px;line-height:1.3">${escapeHtml(title)}</h3>
-          <div style="font-size:10px;opacity:0.6;margin-top:2px">${escapeHtml(market.ticker || '')}</div>
+          <div style="font-size:10px;opacity:0.6;margin-top:2px">${escapeHtml(market.ticker || "")}</div>
         </div>
         <button class="close-expanded" id="close-expanded" aria-label="Close expanded card">✕</button>
       </div>
@@ -642,69 +782,79 @@ const TradingStudio = (() => {
         <div class="expanded-two-col">
           <div class="expanded-details">
             <div class="detail-section-title">Market Info</div>
-            <div class="detail-row"><span>Event</span><span>${escapeHtml(market.event_ticker || '—')}</span></div>
-            <div class="detail-row"><span>Series</span><span>${escapeHtml(market.series_ticker || '—')}</span></div>
-            <div class="detail-row"><span>Status</span><span class="${isMarketClosed(market) ? 'status-inactive' : 'status-active'}">${escapeHtml(market.status || '—')}</span></div>
-            <div class="detail-row"><span>Closes</span><span>${market.close_time ? new Date(market.close_time).toLocaleString() : '—'}</span></div>
-            <div class="detail-row"><span>Volume 24h</span><span>${escapeHtml(formatVolume(market.volume_24h_fp || '0'))}</span></div>
-            <div class="detail-row"><span>Open Interest</span><span>${escapeHtml(formatVolume(market.open_interest_fp || '0'))}</span></div>
+            <div class="detail-row"><span>Event</span><span>${escapeHtml(market.event_ticker || "—")}</span></div>
+            <div class="detail-row"><span>Series</span><span>${escapeHtml(market.series_ticker || "—")}</span></div>
+            <div class="detail-row"><span>Status</span><span class="${isMarketClosed(market) ? "status-inactive" : "status-active"}">${escapeHtml(market.status || "—")}</span></div>
+            <div class="detail-row"><span>Closes</span><span>${market.close_time ? new Date(market.close_time).toLocaleString() : "—"}</span></div>
+            <div class="detail-row"><span>Volume 24h</span><span>${escapeHtml(formatVolume(market.volume_24h_fp || "0"))}</span></div>
+            <div class="detail-row"><span>Open Interest</span><span>${escapeHtml(formatVolume(market.open_interest_fp || "0"))}</span></div>
           </div>
           <div class="expanded-orderbook">
             <div class="detail-section-title">Order Book</div>
             <div class="orderbook-row yes">
               <span class="ob-side">YES</span>
-              <span class="ob-bid">Bid: ${escapeHtml(market.yes_bid_dollars ? (parseFloat(market.yes_bid_dollars)*100).toFixed(0)+'¢' : '—')}</span>
+              <span class="ob-bid">Bid: ${escapeHtml(market.yes_bid_dollars ? (parseFloat(market.yes_bid_dollars) * 100).toFixed(0) + "¢" : "—")}</span>
               <span class="ob-ask">Ask: ${escapeHtml(yesAsk)}</span>
             </div>
             <div class="orderbook-row no">
               <span class="ob-side">NO</span>
               <span class="ob-bid">Bid: ${escapeHtml(noBid)}</span>
-              <span class="ob-ask">Ask: ${escapeHtml(market.no_ask_dollars ? (parseFloat(market.no_ask_dollars)*100).toFixed(0)+'¢' : '—')}</span>
+              <span class="ob-ask">Ask: ${escapeHtml(market.no_ask_dollars ? (parseFloat(market.no_ask_dollars) * 100).toFixed(0) + "¢" : "—")}</span>
             </div>
-            ${yesReturn || noReturn ? `
+            ${
+              yesReturn || noReturn
+                ? `
             <div class="detail-section-title" style="margin-top:8px">Potential Returns (per $100)</div>
-            ${yesReturn ? `<div class="detail-row"><span>YES wins</span><span class="text-success">+$${yesReturn.profit} ($${yesReturn.payout} total)</span></div>` : ''}
-            ${noReturn ? `<div class="detail-row"><span>NO wins</span><span class="text-success">+$${noReturn.profit} ($${noReturn.payout} total)</span></div>` : ''}
-            ` : ''}
-            <div class="detail-row"><span>Last Price</span><span>${escapeHtml(market.last_price_dollars ? '$'+parseFloat(market.last_price_dollars).toFixed(2) : '—')}</span></div>
+            ${yesReturn ? `<div class="detail-row"><span>YES wins</span><span class="text-success">+$${yesReturn.profit} ($${yesReturn.payout} total)</span></div>` : ""}
+            ${noReturn ? `<div class="detail-row"><span>NO wins</span><span class="text-success">+$${noReturn.profit} ($${noReturn.payout} total)</span></div>` : ""}
+            `
+                : ""
+            }
+            <div class="detail-row"><span>Last Price</span><span>${escapeHtml(market.last_price_dollars ? "$" + parseFloat(market.last_price_dollars).toFixed(2) : "—")}</span></div>
           </div>
         </div>
         <div class="expanded-actions">
-          <button class="yes-button large" data-ticker="${escapeAttr(market.ticker)}" data-side="yes" ${isClosed ? 'disabled' : ''}>
+          <button class="yes-button large" data-ticker="${escapeAttr(market.ticker)}" data-side="yes" ${isClosed ? "disabled" : ""}>
             Buy YES ${yesAsk}
           </button>
-          <button class="no-button large" data-ticker="${escapeAttr(market.ticker)}" data-side="no" ${isClosed ? 'disabled' : ''}>
+          <button class="no-button large" data-ticker="${escapeAttr(market.ticker)}" data-side="no" ${isClosed ? "disabled" : ""}>
             Buy NO ${noBid}
           </button>
         </div>
-        ${isClosed ? '<div class="expanded-closed-notice">⚠ This market is closed. Orders cannot be placed.</div>' : ''}
+        ${isClosed ? '<div class="expanded-closed-notice">⚠ This market is closed. Orders cannot be placed.</div>' : ""}
       </div>
     `;
 
-    overlay.style.display = 'flex';
-    document.getElementById('close-expanded').addEventListener('click', () => {
-      overlay.style.display = 'none';
+    overlay.style.display = "flex";
+    document.getElementById("close-expanded").addEventListener("click", () => {
+      overlay.style.display = "none";
     });
 
     /* Draw expanded sparkline */
     requestAnimationFrame(() => {
-      const expandedCanvas = document.getElementById('expanded-chart-canvas');
+      const expandedCanvas = document.getElementById("expanded-chart-canvas");
       if (expandedCanvas) drawExpandedChart(expandedCanvas, market);
     });
   }
 
   function drawExpandedChart(canvas, market) {
-    const context = canvas.getContext('2d');
+    const context = canvas.getContext("2d");
     const width = canvas.width;
     const height = canvas.height;
     context.clearRect(0, 0, width, height);
 
     const computedStyle = getComputedStyle(document.documentElement);
-    const bgColor = computedStyle.getPropertyValue('--color-bg-canvas').trim();
-    const gridColor = computedStyle.getPropertyValue('--color-border-muted').trim();
-    const successColor = computedStyle.getPropertyValue('--color-state-success').trim() || '#22c55e';
-    const errorColor = computedStyle.getPropertyValue('--color-state-error').trim() ||
-      computedStyle.getPropertyValue('--color-state-danger').trim() || '#ef4444';
+    const bgColor = computedStyle.getPropertyValue("--color-bg-canvas").trim();
+    const gridColor = computedStyle
+      .getPropertyValue("--color-border-muted")
+      .trim();
+    const successColor =
+      computedStyle.getPropertyValue("--color-state-success").trim() ||
+      "#22c55e";
+    const errorColor =
+      computedStyle.getPropertyValue("--color-state-error").trim() ||
+      computedStyle.getPropertyValue("--color-state-danger").trim() ||
+      "#ef4444";
 
     context.fillStyle = bgColor;
     context.fillRect(0, 0, width, height);
@@ -713,7 +863,7 @@ const TradingStudio = (() => {
     context.strokeStyle = gridColor;
     context.lineWidth = 0.5;
     context.setLineDash([3, 4]);
-    [0.25, 0.5, 0.75].forEach(fraction => {
+    [0.25, 0.5, 0.75].forEach((fraction) => {
       const y = fraction * height;
       context.beginPath();
       context.moveTo(0, y);
@@ -723,7 +873,9 @@ const TradingStudio = (() => {
     context.setLineDash([]);
 
     /* Generate price series */
-    const currentPrice = parseFloat(market.last_price_dollars || market.yes_bid_dollars || '0.50');
+    const currentPrice = parseFloat(
+      market.last_price_dollars || market.yes_bid_dollars || "0.50",
+    );
     const dataPoints = 60;
     const prices = [];
     let price = currentPrice * (0.8 + Math.random() * 0.2);
@@ -746,21 +898,28 @@ const TradingStudio = (() => {
     /* Draw line */
     context.beginPath();
     context.lineWidth = 2;
-    context.lineJoin = 'round';
+    context.lineJoin = "round";
     context.strokeStyle = lineColor;
 
     prices.forEach((pricePoint, index) => {
       const x = padding + (index / (dataPoints - 1)) * (width - padding * 2);
-      const y = padding + (1 - (pricePoint - minPrice) / priceRange) * (height - padding * 2);
+      const y =
+        padding +
+        (1 - (pricePoint - minPrice) / priceRange) * (height - padding * 2);
       if (index === 0) context.moveTo(x, y);
       else context.lineTo(x, y);
     });
     context.stroke();
 
     /* Fill */
-    const gradient = context.createLinearGradient(0, padding, 0, height - padding);
-    gradient.addColorStop(0, lineColor + '40');
-    gradient.addColorStop(1, lineColor + '05');
+    const gradient = context.createLinearGradient(
+      0,
+      padding,
+      0,
+      height - padding,
+    );
+    gradient.addColorStop(0, lineColor + "40");
+    gradient.addColorStop(1, lineColor + "05");
     context.lineTo(width - padding, height - padding);
     context.lineTo(padding, height - padding);
     context.closePath();
@@ -769,7 +928,7 @@ const TradingStudio = (() => {
 
     /* Current price label */
     context.fillStyle = lineColor;
-    context.font = 'bold 11px monospace';
+    context.font = "bold 11px monospace";
     context.fillText(`${(currentPrice * 100).toFixed(0)}¢`, width - 32, 14);
   }
 
@@ -777,85 +936,110 @@ const TradingStudio = (() => {
 
   function connectWebSocket() {
     try {
-      websocket = new WebSocket('ws://127.0.0.1:8000/api/events');
+      websocket = new WebSocket("ws://127.0.0.1:8000/api/events");
       websocket.onmessage = (event) => {
-        try { handleRealtimeEvent(JSON.parse(event.data)); } catch (_) { /* ignore parse errors */ }
+        try {
+          handleRealtimeEvent(JSON.parse(event.data));
+        } catch (_) {
+          /* ignore parse errors */
+        }
       };
       websocket.onclose = () => {
-        setTimeout(() => { if (connected) connectWebSocket(); }, 5000);
+        setTimeout(() => {
+          if (connected) connectWebSocket();
+        }, 5000);
       };
-      websocket.onerror = () => { /* silent */ };
-    } catch (_) { /* WebSocket not available */ }
+      websocket.onerror = () => {
+        /* silent */
+      };
+    } catch (_) {
+      /* WebSocket not available */
+    }
   }
 
   function handleRealtimeEvent(event) {
-    if (event.type === 'market_update' && event.data) {
-      const idx = markets.findIndex(m => m.ticker === event.data.ticker);
-      if (idx >= 0) { markets[idx] = { ...markets[idx], ...event.data }; }
-      else { markets.push(event.data); }
+    if (event.type === "market_update" && event.data) {
+      const idx = markets.findIndex((m) => m.ticker === event.data.ticker);
+      if (idx >= 0) {
+        markets[idx] = { ...markets[idx], ...event.data };
+      } else {
+        markets.push(event.data);
+      }
       renderCards();
     }
-    if (event.type === 'approval_request' && event.data) {
+    if (event.type === "approval_request" && event.data) {
       showApprovalOverlay(event.data);
     }
-    if (event.type === 'fill' && event.data) {
-      showToast(`Fill: ${event.data.data?.ticker || 'unknown'} — ${event.data.data?.side || ''}`, 'success');
+    if (event.type === "fill" && event.data) {
+      showToast(
+        `Fill: ${event.data.data?.ticker || "unknown"} — ${event.data.data?.side || ""}`,
+        "success",
+      );
       fetchAccountSummary();
-      if (typeof PositionsPanel !== 'undefined') PositionsPanel.onFill(event.data);
+      if (typeof PositionsPanel !== "undefined")
+        PositionsPanel.onFill(event.data);
     }
-    if (event.type === 'manual_order' && event.data) {
+    if (event.type === "manual_order" && event.data) {
       fetchAccountSummary();
     }
-    if (event.type === 'trading_enabled' || event.type === 'trading_disabled') {
+    if (event.type === "trading_enabled" || event.type === "trading_disabled") {
       fetchAccountSummary();
     }
-    if (typeof AgentDashboard !== 'undefined') AgentDashboard.onEvent(event);
+    if (typeof AgentDashboard !== "undefined") AgentDashboard.onEvent(event);
   }
 
   /* ---- Approval Overlay ---- */
 
   function showApprovalOverlay(data) {
-    const overlay = document.getElementById('approval-overlay');
+    const overlay = document.getElementById("approval-overlay");
     if (!overlay) return;
 
     /* Build richer approval display */
-    const agentName = data.agent_name || 'Agent';
-    const ticker = data.ticker || '—';
-    const side = (data.side || '?').toUpperCase();
-    const price = data.price_dollars ? `${(parseFloat(data.price_dollars) * 100).toFixed(0)}¢` : '?';
-    const reasoning = data.reasoning || 'No reasoning provided';
+    const agentName = data.agent_name || "Agent";
+    const ticker = data.ticker || "—";
+    const side = (data.side || "?").toUpperCase();
+    const price = data.price_dollars
+      ? `${(parseFloat(data.price_dollars) * 100).toFixed(0)}¢`
+      : "?";
+    const reasoning = data.reasoning || "No reasoning provided";
 
     /* Set a 60-second auto-expiry timer (no countdown shown per PRD) */
     if (approvalExpiryTimeout) clearTimeout(approvalExpiryTimeout);
     approvalExpiryTimeout = setTimeout(() => {
-      if (overlay.style.display !== 'none') {
-        overlay.style.display = 'none';
-        showToast(`Approval request for ${ticker} expired`, 'info');
+      if (overlay.style.display !== "none") {
+        overlay.style.display = "none";
+        showToast(`Approval request for ${ticker} expired`, "info");
       }
     }, 60000);
 
-    setText('approval-agent-name', agentName);
-    setText('approval-ticker', ticker);
-    setText('approval-reasoning', reasoning);
-    setText('approval-details', `${side} @ ${price}`);
-    overlay.style.display = 'flex';
-    overlay.dataset.clientOrderId = data.client_order_id || '';
+    setText("approval-agent-name", agentName);
+    setText("approval-ticker", ticker);
+    setText("approval-reasoning", reasoning);
+    setText("approval-details", `${side} @ ${price}`);
+    overlay.style.display = "flex";
+    overlay.dataset.clientOrderId = data.client_order_id || "";
   }
 
   async function postApprovalDecision(orderId, approved) {
-    const action = approved ? 'approve' : 'deny';
+    const action = approved ? "approve" : "deny";
     try {
-      const response = await fetch(`${BACKEND_URL}/api/approvals/${encodeURIComponent(orderId)}/${action}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
+      const response = await fetch(
+        `${BACKEND_URL}/api/approvals/${encodeURIComponent(orderId)}/${action}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        },
+      );
       if (!response.ok) {
-        showToast(`Approval ${action} failed (${response.status})`, 'error');
+        showToast(`Approval ${action} failed (${response.status})`, "error");
         return;
       }
-      showToast(`Trade ${approved ? 'approved ✓' : 'denied ✕'}: ${orderId}`, approved ? 'success' : 'info');
+      showToast(
+        `Trade ${approved ? "approved ✓" : "denied ✕"}: ${orderId}`,
+        approved ? "success" : "info",
+      );
     } catch (e) {
-      showToast('Approval post failed — backend not reachable', 'error');
+      showToast("Approval post failed — backend not reachable", "error");
     }
   }
 
@@ -863,10 +1047,12 @@ const TradingStudio = (() => {
 
   function bindBuySellDelegation() {
     /* Delegate clicks on .yes-button / .no-button anywhere in the trading studio */
-    const tradingSection = document.getElementById('studio-trading');
+    const tradingSection = document.getElementById("studio-trading");
     if (!tradingSection) return;
-    tradingSection.addEventListener('click', (e) => {
-      const button = e.target.closest('.yes-button[data-ticker], .no-button[data-ticker]');
+    tradingSection.addEventListener("click", (e) => {
+      const button = e.target.closest(
+        ".yes-button[data-ticker], .no-button[data-ticker]",
+      );
       if (!button || button.disabled) return;
       e.stopPropagation();
       const ticker = button.dataset.ticker;
@@ -878,42 +1064,49 @@ const TradingStudio = (() => {
   }
 
   async function handleManualOrder(ticker, side) {
-    const market = markets.find(m => m.ticker === ticker);
+    const market = markets.find((m) => m.ticker === ticker);
     if (!market) {
-      showToast('Market not found', 'error');
+      showToast("Market not found", "error");
       return;
     }
-    const priceDollars = side === 'yes'
-      ? (market.yes_ask_dollars || market.yes_bid_dollars || '')
-      : (market.no_ask_dollars || market.no_bid_dollars || '');
+    const priceDollars =
+      side === "yes"
+        ? market.yes_ask_dollars || market.yes_bid_dollars || ""
+        : market.no_ask_dollars || market.no_bid_dollars || "";
 
     if (!priceDollars) {
-      showToast('Price data unavailable — cannot place order', 'error');
+      showToast("Price data unavailable — cannot place order", "error");
       return;
     }
 
-    showToast(`Submitting ${side.toUpperCase()} order for ${ticker}…`, 'info');
+    showToast(`Submitting ${side.toUpperCase()} order for ${ticker}…`, "info");
 
     try {
       const response = await fetch(`${BACKEND_URL}/api/trading/manual-order`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ticker: ticker,
           side: side,
-          action: 'buy',
-          count_fp: '1.00',
+          action: "buy",
+          count_fp: "1.00",
           price_dollars: priceDollars,
         }),
       });
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        showToast(errorData.detail || `Order failed (${response.status})`, 'error');
+        showToast(
+          errorData.detail || `Order failed (${response.status})`,
+          "error",
+        );
         return;
       }
-      showToast(`✓ Order submitted: ${side.toUpperCase()} on ${ticker}`, 'success');
+      showToast(
+        `✓ Order submitted: ${side.toUpperCase()} on ${ticker}`,
+        "success",
+      );
     } catch (networkError) {
-      showToast('Backend not reachable — cannot place orders', 'error');
+      showToast("Backend not reachable — cannot place orders", "error");
     }
   }
 
@@ -928,39 +1121,52 @@ const TradingStudio = (() => {
 
       if (balanceResponse && balanceResponse.ok) {
         const balanceData = await balanceResponse.json();
-        const balanceElement = document.getElementById('account-balance-display');
-        const portfolioElement = document.getElementById('portfolio-value-display');
+        const balanceElement = document.getElementById(
+          "account-balance-display",
+        );
+        const portfolioElement = document.getElementById(
+          "portfolio-value-display",
+        );
         if (balanceElement && balanceData.balance !== undefined) {
           const balanceValue = parseFloat(balanceData.balance);
-          balanceElement.textContent = isNaN(balanceValue) ? '—' : '$' + balanceValue.toFixed(2);
+          balanceElement.textContent = isNaN(balanceValue)
+            ? "—"
+            : "$" + balanceValue.toFixed(2);
         }
         if (portfolioElement && balanceData.portfolio_value !== undefined) {
           const portfolioValue = parseFloat(balanceData.portfolio_value);
-          portfolioElement.textContent = isNaN(portfolioValue) ? '—' : '$' + portfolioValue.toFixed(2);
+          portfolioElement.textContent = isNaN(portfolioValue)
+            ? "—"
+            : "$" + portfolioValue.toFixed(2);
         }
       }
 
       if (tradingResponse && tradingResponse.ok) {
         const tradingData = await tradingResponse.json();
-        const pnlElement = document.getElementById('daily-pnl-display');
+        const pnlElement = document.getElementById("daily-pnl-display");
         if (pnlElement && tradingData.daily_pnl !== undefined) {
           const pnl = parseFloat(tradingData.daily_pnl);
           if (isNaN(pnl)) {
-            pnlElement.textContent = '—';
+            pnlElement.textContent = "—";
           } else {
-            const sign = pnl >= 0 ? '+' : '';
-            pnlElement.textContent = sign + '$' + pnl.toFixed(2);
-            pnlElement.style.color = pnl >= 0
-              ? 'var(--color-state-success)'
-              : 'var(--color-state-error, var(--color-state-danger))';
+            const sign = pnl >= 0 ? "+" : "";
+            pnlElement.textContent = sign + "$" + pnl.toFixed(2);
+            pnlElement.style.color =
+              pnl >= 0
+                ? "var(--color-state-success)"
+                : "var(--color-state-error, var(--color-state-danger))";
           }
         }
 
         /* Update circuit breaker indicator */
-        const cbEl = document.getElementById('circuit-breaker-status');
+        const cbEl = document.getElementById("circuit-breaker-status");
         if (cbEl) {
-          cbEl.textContent = tradingData.circuit_breaker_open ? '⚡ CIRCUIT OPEN' : '';
-          cbEl.style.color = tradingData.circuit_breaker_open ? 'var(--color-state-error)' : '';
+          cbEl.textContent = tradingData.circuit_breaker_open
+            ? "⚡ CIRCUIT OPEN"
+            : "";
+          cbEl.style.color = tradingData.circuit_breaker_open
+            ? "var(--color-state-error)"
+            : "";
         }
       }
     } catch (error) {
@@ -971,19 +1177,20 @@ const TradingStudio = (() => {
   /* ---- Toast Notification System ---- */
 
   function showToast(message, type) {
-    let container = document.getElementById('trading-toast-container');
+    let container = document.getElementById("trading-toast-container");
     if (!container) {
-      container = document.createElement('div');
-      container.id = 'trading-toast-container';
-      container.style.cssText = 'position:fixed;top:12px;right:12px;z-index:9999;display:flex;flex-direction:column;gap:6px;pointer-events:none;';
+      container = document.createElement("div");
+      container.id = "trading-toast-container";
+      container.style.cssText =
+        "position:fixed;top:12px;right:12px;z-index:9999;display:flex;flex-direction:column;gap:6px;pointer-events:none;";
       document.body.appendChild(container);
     }
 
-    const toast = document.createElement('div');
+    const toast = document.createElement("div");
     const colorMap = {
-      success: 'var(--color-state-success, #22c55e)',
-      error: 'var(--color-state-error, var(--color-state-danger, #ef4444))',
-      info: 'var(--color-state-info, #3b82f6)',
+      success: "var(--color-state-success, #22c55e)",
+      error: "var(--color-state-error, var(--color-state-danger, #ef4444))",
+      info: "var(--color-state-info, #3b82f6)",
     };
     const borderColor = colorMap[type] || colorMap.info;
     toast.style.cssText = `
@@ -1007,14 +1214,14 @@ const TradingStudio = (() => {
 
     /* Animate in */
     requestAnimationFrame(() => {
-      toast.style.opacity = '1';
-      toast.style.transform = 'translateX(0)';
+      toast.style.opacity = "1";
+      toast.style.transform = "translateX(0)";
     });
 
     /* Auto-remove after 4 seconds */
     setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateX(20px)';
+      toast.style.opacity = "0";
+      toast.style.transform = "translateX(20px)";
       setTimeout(() => toast.remove(), 300);
     }, 4000);
   }
@@ -1023,13 +1230,13 @@ const TradingStudio = (() => {
 
   function formatTimeRemaining(closeTime) {
     const diff = closeTime - new Date();
-    if (diff <= 0) return 'Closed';
+    if (diff <= 0) return "Closed";
     const hours = Math.floor(diff / 3600000);
     const minutes = Math.floor((diff % 3600000) / 60000);
-    if (hours > 24 * 7) return Math.floor(hours / 24) + 'd';
-    if (hours > 24) return Math.floor(hours / 24) + 'd ' + (hours % 24) + 'h';
-    if (hours > 0) return hours + 'h ' + minutes + 'm';
-    return minutes + 'm';
+    if (hours > 24 * 7) return Math.floor(hours / 24) + "d";
+    if (hours > 24) return Math.floor(hours / 24) + "d " + (hours % 24) + "h";
+    if (hours > 0) return hours + "h " + minutes + "m";
+    return minutes + "m";
   }
 
   function setText(id, text) {
@@ -1038,13 +1245,18 @@ const TradingStudio = (() => {
   }
 
   function escapeHtml(str) {
-    const div = document.createElement('div');
+    const div = document.createElement("div");
     div.appendChild(document.createTextNode(str));
     return div.innerHTML;
   }
 
   function escapeAttr(str) {
-    return (str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return (str || "")
+      .replace(/&/g, "&amp;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
   }
 
   return { initialize, onConnected, onDisconnected };

@@ -9,59 +9,66 @@ const LiveLogs = (() => {
   let logCount = 0;
 
   function initialize() {
-    addLog('info', 'System online — Paulie\'s Prediction Partners');
-    addLog('info', `Theme: ${document.documentElement.dataset.theme || '—'}`);
-    addLog('info', `Mode: ${document.documentElement.dataset.mode || '—'}`);
-    addLog('info', `User-Agent: ${navigator.userAgent.split(' ').pop()}`);
+    addLog("info", "System online — Paulie's Prediction Partners");
+    addLog("info", `Theme: ${document.documentElement.dataset.theme || "—"}`);
+    addLog("info", `Mode: ${document.documentElement.dataset.mode || "—"}`);
+    addLog("info", `User-Agent: ${navigator.userAgent.split(" ").pop()}`);
 
     /* Capture click events (throttled to avoid flooding) */
     let lastClickLog = 0;
-    document.addEventListener('click', (event) => {
+    document.addEventListener("click", (event) => {
       const now = Date.now();
       if (now - lastClickLog < 300) return;
       lastClickLog = now;
       const target = event.target;
       const tag = target.tagName.toLowerCase();
-      const id = target.id ? `#${target.id}` : '';
-      const cls = target.className && typeof target.className === 'string' && target.className.trim()
-        ? `.${target.className.trim().split(/\s+/)[0]}`
-        : '';
-      addLog('info', `CLICK ${tag}${id || cls}`);
+      const id = target.id ? `#${target.id}` : "";
+      const cls =
+        target.className &&
+        typeof target.className === "string" &&
+        target.className.trim()
+          ? `.${target.className.trim().split(/\s+/)[0]}`
+          : "";
+      addLog("info", `CLICK ${tag}${id || cls}`);
     });
 
     /* Capture resize events (throttled) */
     let resizeTimer;
-    window.addEventListener('resize', () => {
+    window.addEventListener("resize", () => {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
-        addLog('warn', `RESIZE → ${window.innerWidth}×${window.innerHeight}px`);
+        addLog("warn", `RESIZE → ${window.innerWidth}×${window.innerHeight}px`);
       }, 250);
     });
 
     /* Capture errors */
-    window.addEventListener('error', (event) => {
-      addLog('error', `ERROR: ${event.message || 'Unknown error'}`);
+    window.addEventListener("error", (event) => {
+      addLog("error", `ERROR: ${event.message || "Unknown error"}`);
     });
 
-    window.addEventListener('unhandledrejection', (event) => {
-      const msg = event.reason?.message || String(event.reason) || 'Unhandled rejection';
-      addLog('error', `REJECT: ${msg.substring(0, 60)}`);
+    window.addEventListener("unhandledrejection", (event) => {
+      const msg =
+        event.reason?.message || String(event.reason) || "Unhandled rejection";
+      addLog("error", `REJECT: ${msg.substring(0, 60)}`);
     });
 
     /* Listen for custom theme changes */
-    document.addEventListener('themechange', (event) => {
-      addLog('info', `THEME → ${document.documentElement.dataset.theme} / ${document.documentElement.dataset.mode}`);
+    document.addEventListener("themechange", (event) => {
+      addLog(
+        "info",
+        `THEME → ${document.documentElement.dataset.theme} / ${document.documentElement.dataset.mode}`,
+      );
     });
 
     /* Listen for illumination changes */
-    document.addEventListener('illuminationchange', () => {
-      addLog('info', 'ILLUMINATION updated');
+    document.addEventListener("illuminationchange", () => {
+      addLog("info", "ILLUMINATION updated");
     });
 
     /* Listen for tab switches (if tabs fire custom events) */
-    document.querySelectorAll('.nav-tab[role="tab"]').forEach(tab => {
-      tab.addEventListener('click', () => {
-        addLog('info', `TAB → ${tab.dataset.studio || tab.textContent.trim()}`);
+    document.querySelectorAll('.nav-tab[role="tab"]').forEach((tab) => {
+      tab.addEventListener("click", () => {
+        addLog("info", `TAB → ${tab.dataset.studio || tab.textContent.trim()}`);
       });
     });
 
@@ -73,34 +80,35 @@ const LiveLogs = (() => {
       const mem = performance.memory;
       if (mem) {
         const used = Math.round(mem.usedJSHeapSize / 1048576);
-        addLog('info', `MEM: ${used}MB used`);
+        addLog("info", `MEM: ${used}MB used`);
       }
     }, 60000);
   }
 
   function addLog(level, message) {
-    const terminal = document.getElementById('live-logs');
+    const terminal = document.getElementById("live-logs");
     if (!terminal) return;
 
     logCount++;
     const timestamp = new Date();
-    const hours = String(timestamp.getHours()).padStart(2, '0');
-    const minutes = String(timestamp.getMinutes()).padStart(2, '0');
-    const seconds = String(timestamp.getSeconds()).padStart(2, '0');
+    const hours = String(timestamp.getHours()).padStart(2, "0");
+    const minutes = String(timestamp.getMinutes()).padStart(2, "0");
+    const seconds = String(timestamp.getSeconds()).padStart(2, "0");
     const timeString = `${hours}:${minutes}:${seconds}`;
 
-    const entry = document.createElement('div');
+    const entry = document.createElement("div");
     entry.className = `log-entry log-${level}`;
 
     /* Color the level indicator */
     const levelColors = {
-      info: 'var(--color-fg-muted)',
-      warn: 'var(--color-state-warning, #f59e0b)',
-      error: 'var(--color-state-error, #ef4444)',
-      success: 'var(--color-state-success, #22c55e)',
+      info: "var(--color-fg-muted)",
+      warn: "var(--color-state-warning, #f59e0b)",
+      error: "var(--color-state-error, #ef4444)",
+      success: "var(--color-state-success, #22c55e)",
     };
     const levelColor = levelColors[level] || levelColors.info;
-    const levelIcon = { info: '·', warn: '⚠', error: '✗', success: '✓' }[level] || '·';
+    const levelIcon =
+      { info: "·", warn: "⚠", error: "✗", success: "✓" }[level] || "·";
 
     entry.style.cssText = `
       font-family: var(--font-family-mono);
@@ -130,7 +138,7 @@ const LiveLogs = (() => {
   }
 
   function escapeHtml(str) {
-    const div = document.createElement('div');
+    const div = document.createElement("div");
     div.appendChild(document.createTextNode(String(str)));
     return div.innerHTML;
   }

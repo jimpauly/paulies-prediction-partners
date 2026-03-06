@@ -5,14 +5,14 @@
    ============================================================ */
 
 const PositionsPanel = (() => {
-  'use strict';
+  "use strict";
 
-  const BACKEND_URL = 'http://127.0.0.1:8000';
+  const BACKEND_URL = "http://127.0.0.1:8000";
   const POLL_INTERVAL_MS = 10000;
 
   let pollIntervalId = null;
   let isConnected = false;
-  let activeTab = 'positions'; // 'positions' | 'history'
+  let activeTab = "positions"; // 'positions' | 'history'
 
   /* ---- Public API ---- */
 
@@ -35,26 +35,29 @@ const PositionsPanel = (() => {
   /* ---- Tab Binding ---- */
 
   function bindTabs() {
-    const tabsContainer = document.getElementById('inspector-tabs');
+    const tabsContainer = document.getElementById("inspector-tabs");
     if (!tabsContainer) return;
 
-    tabsContainer.addEventListener('click', (event) => {
-      const tab = event.target.closest('[data-inspector-tab]');
+    tabsContainer.addEventListener("click", (event) => {
+      const tab = event.target.closest("[data-inspector-tab]");
       if (!tab) return;
 
-      tabsContainer.querySelectorAll('[data-inspector-tab]').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
+      tabsContainer
+        .querySelectorAll("[data-inspector-tab]")
+        .forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
 
       const tabName = tab.dataset.inspectorTab;
       activeTab = tabName;
 
-      document.querySelectorAll('[data-inspector-panel]').forEach(panel => {
-        panel.style.display = panel.dataset.inspectorPanel === tabName ? '' : 'none';
+      document.querySelectorAll("[data-inspector-panel]").forEach((panel) => {
+        panel.style.display =
+          panel.dataset.inspectorPanel === tabName ? "" : "none";
       });
 
       if (isConnected) {
-        if (tabName === 'positions') fetchPositions();
-        if (tabName === 'history') fetchHistory();
+        if (tabName === "positions") fetchPositions();
+        if (tabName === "history") fetchHistory();
       }
     });
   }
@@ -62,8 +65,8 @@ const PositionsPanel = (() => {
   /* ---- Empty State ---- */
 
   function renderEmptyState() {
-    const posPanel = document.getElementById('inspector-positions-panel');
-    const histPanel = document.getElementById('inspector-history-panel');
+    const posPanel = document.getElementById("inspector-positions-panel");
+    const histPanel = document.getElementById("inspector-history-panel");
 
     if (posPanel) {
       posPanel.innerHTML = `
@@ -99,15 +102,15 @@ const PositionsPanel = (() => {
   }
 
   function fetchAll() {
-    if (activeTab === 'positions') fetchPositions();
-    else if (activeTab === 'history') fetchHistory();
+    if (activeTab === "positions") fetchPositions();
+    else if (activeTab === "history") fetchHistory();
     updatePositionsBadge();
   }
 
   /* ---- Positions ---- */
 
   async function fetchPositions() {
-    const panel = document.getElementById('inspector-positions-panel');
+    const panel = document.getElementById("inspector-positions-panel");
     if (!panel) return;
 
     try {
@@ -120,10 +123,12 @@ const PositionsPanel = (() => {
       /* Handle multiple response shapes: { positions: [...] } or [...] */
       const positions = Array.isArray(data)
         ? data
-        : (Array.isArray(data.positions) ? data.positions : []);
+        : Array.isArray(data.positions)
+          ? data.positions
+          : [];
       renderPositions(panel, positions);
     } catch (_error) {
-      renderPositionsError(panel, 'Backend offline');
+      renderPositionsError(panel, "Backend offline");
     }
   }
 
@@ -143,29 +148,34 @@ const PositionsPanel = (() => {
     updatePositionsBadge(positions.length);
 
     let html = `<div class="positions-list">`;
-    positions.forEach(position => {
-      const ticker = position.ticker || '—';
-      const side = position.market_side || '—';
-      const quantity = position.quantity_fp || position.quantity || '—';
-      const marketValue = position.market_value !== undefined
-        ? `$${parseFloat(position.market_value).toFixed(2)}`
-        : '—';
-      const costBasis = position.cost_basis !== undefined
-        ? `$${parseFloat(position.cost_basis).toFixed(2)}`
-        : '—';
-      const unrealizedPnl = position.unrealized_pnl !== undefined
-        ? parseFloat(position.unrealized_pnl)
-        : null;
+    positions.forEach((position) => {
+      const ticker = position.ticker || "—";
+      const side = position.market_side || "—";
+      const quantity = position.quantity_fp || position.quantity || "—";
+      const marketValue =
+        position.market_value !== undefined
+          ? `$${parseFloat(position.market_value).toFixed(2)}`
+          : "—";
+      const costBasis =
+        position.cost_basis !== undefined
+          ? `$${parseFloat(position.cost_basis).toFixed(2)}`
+          : "—";
+      const unrealizedPnl =
+        position.unrealized_pnl !== undefined
+          ? parseFloat(position.unrealized_pnl)
+          : null;
 
-      const pnlSign = unrealizedPnl !== null && unrealizedPnl >= 0 ? '+' : '';
-      const pnlColor = unrealizedPnl !== null
-        ? (unrealizedPnl >= 0 ? 'var(--color-state-success)' : 'var(--color-state-error)')
-        : 'var(--color-fg-muted)';
-      const pnlText = unrealizedPnl !== null
-        ? `${pnlSign}$${unrealizedPnl.toFixed(2)}`
-        : '—';
+      const pnlSign = unrealizedPnl !== null && unrealizedPnl >= 0 ? "+" : "";
+      const pnlColor =
+        unrealizedPnl !== null
+          ? unrealizedPnl >= 0
+            ? "var(--color-state-success)"
+            : "var(--color-state-error)"
+          : "var(--color-fg-muted)";
+      const pnlText =
+        unrealizedPnl !== null ? `${pnlSign}$${unrealizedPnl.toFixed(2)}` : "—";
 
-      const sideClass = side.toLowerCase() === 'yes' ? 'side-yes' : 'side-no';
+      const sideClass = side.toLowerCase() === "yes" ? "side-yes" : "side-no";
 
       html += `
         <div class="position-row">
@@ -191,9 +201,9 @@ const PositionsPanel = (() => {
 
     html += `
       <div class="positions-summary">
-        <span>Total: ${positions.length} position${positions.length !== 1 ? 's' : ''}</span>
+        <span>Total: ${positions.length} position${positions.length !== 1 ? "s" : ""}</span>
         <span>Value: $${totalValue.toFixed(2)}</span>
-        <span style="color:${totalPnl >= 0 ? 'var(--color-state-success)' : 'var(--color-state-error)'}">${totalPnl >= 0 ? '+' : ''}$${totalPnl.toFixed(2)} P&L</span>
+        <span style="color:${totalPnl >= 0 ? "var(--color-state-success)" : "var(--color-state-error)"}">${totalPnl >= 0 ? "+" : ""}$${totalPnl.toFixed(2)} P&L</span>
       </div>
     `;
 
@@ -210,20 +220,20 @@ const PositionsPanel = (() => {
   }
 
   function updatePositionsBadge(count) {
-    const badge = document.getElementById('positions-tab-badge');
+    const badge = document.getElementById("positions-tab-badge");
     if (!badge) return;
     if (count === undefined || count === 0) {
-      badge.style.display = 'none';
+      badge.style.display = "none";
     } else {
-      badge.textContent = count > 99 ? '99+' : String(count);
-      badge.style.display = 'inline-flex';
+      badge.textContent = count > 99 ? "99+" : String(count);
+      badge.style.display = "inline-flex";
     }
   }
 
   /* ---- Trade History ---- */
 
   async function fetchHistory() {
-    const panel = document.getElementById('inspector-history-panel');
+    const panel = document.getElementById("inspector-history-panel");
     if (!panel) return;
 
     try {
@@ -235,7 +245,7 @@ const PositionsPanel = (() => {
       const fills = await response.json();
       renderHistory(panel, Array.isArray(fills) ? fills : []);
     } catch (_error) {
-      renderHistoryError(panel, 'Backend offline');
+      renderHistoryError(panel, "Backend offline");
     }
   }
 
@@ -255,27 +265,29 @@ const PositionsPanel = (() => {
     const recentFills = [...fills].reverse().slice(0, 50);
 
     let html = `<div class="history-list">`;
-    recentFills.forEach(fill => {
-      const ticker = fill.ticker || '—';
+    recentFills.forEach((fill) => {
+      const ticker = fill.ticker || "—";
       let side;
       if (fill.yes_price !== undefined) {
-        side = 'YES';
+        side = "YES";
       } else if (fill.no_price !== undefined) {
-        side = 'NO';
+        side = "NO";
       } else {
-        side = (fill.side || '—').toUpperCase();
+        side = (fill.side || "—").toUpperCase();
       }
-      const price = fill.yes_price || fill.no_price || fill.price || '—';
-      const count = fill.count_fp || fill.count || '—';
-      const action = fill.action || 'buy';
-      const timestamp = fill.created_time || fill.timestamp || '';
-      const pnl = fill.realized_pnl !== undefined ? parseFloat(fill.realized_pnl) : null;
+      const price = fill.yes_price || fill.no_price || fill.price || "—";
+      const count = fill.count_fp || fill.count || "—";
+      const action = fill.action || "buy";
+      const timestamp = fill.created_time || fill.timestamp || "";
+      const pnl =
+        fill.realized_pnl !== undefined ? parseFloat(fill.realized_pnl) : null;
 
-      const timeStr = timestamp ? formatTimestamp(timestamp) : '—';
-      const sideClass = side === 'YES' ? 'side-yes' : 'side-no';
-      const actionClass = action === 'buy' ? 'action-buy' : 'action-sell';
+      const timeStr = timestamp ? formatTimestamp(timestamp) : "—";
+      const sideClass = side === "YES" ? "side-yes" : "side-no";
+      const actionClass = action === "buy" ? "action-buy" : "action-sell";
 
-      const priceDisplay = price !== '—' ? `${(parseFloat(price) * 100).toFixed(0)}¢` : '—';
+      const priceDisplay =
+        price !== "—" ? `${(parseFloat(price) * 100).toFixed(0)}¢` : "—";
 
       html += `
         <div class="history-row">
@@ -288,7 +300,7 @@ const PositionsPanel = (() => {
             <span class="history-row__side ${sideClass}">${escapeHtml(side)}</span>
             <span class="history-row__price">${escapeHtml(priceDisplay)}</span>
             <span class="history-row__qty">×${escapeHtml(String(count))}</span>
-            ${pnl !== null ? `<span class="history-row__pnl" style="color:${pnl >= 0 ? 'var(--color-state-success)' : 'var(--color-state-error)'}">${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}</span>` : ''}
+            ${pnl !== null ? `<span class="history-row__pnl" style="color:${pnl >= 0 ? "var(--color-state-success)" : "var(--color-state-error)"}">${pnl >= 0 ? "+" : ""}$${pnl.toFixed(2)}</span>` : ""}
           </div>
         </div>
       `;
@@ -321,17 +333,20 @@ const PositionsPanel = (() => {
       const diffMins = Math.floor(diffMs / 60000);
       const diffHours = Math.floor(diffMs / 3600000);
 
-      if (diffMins < 1) return 'just now';
+      if (diffMins < 1) return "just now";
       if (diffMins < 60) return `${diffMins}m ago`;
       if (diffHours < 24) return `${diffHours}h ago`;
-      return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      return date.toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+      });
     } catch (_) {
       return isoString;
     }
   }
 
   function escapeHtml(str) {
-    const div = document.createElement('div');
+    const div = document.createElement("div");
     div.appendChild(document.createTextNode(String(str)));
     return div.innerHTML;
   }
@@ -339,7 +354,7 @@ const PositionsPanel = (() => {
   /* ---- Real-time update hook ---- */
 
   function onFill(fillData) {
-    if (activeTab === 'history') fetchHistory();
+    if (activeTab === "history") fetchHistory();
     fetchPositions();
     updatePositionsBadge();
   }
