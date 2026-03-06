@@ -10,12 +10,12 @@
 
 ### **Stage 2.95 out of 3.0** — ~95% through Stage 2 → 3
 
-| Stage                                  | Status           | Confidence                                                   |
-| -------------------------------------- | ---------------- | ------------------------------------------------------------ |
-| **Stage 1** (Design Studio)            | ✅ 100% Complete | Verified — all 14 phases done                                |
-| **Stage 2** (Trading Agent Studio)     | ✅ ~95% Complete | Full trading UI, agents, backend, tests, input validation    |
-| **Stage 2.5** (Shippable Quality)      | 🟡 ~82% Complete | Tests added (91 unit tests), systemd service, auto-updater   |
-| **Stage 3** (Profitability + New Apps) | ❌ 0% Started    | Blocked until Stage 2.5 is 110%                              |
+| Stage                                  | Status           | Confidence                                                 |
+| -------------------------------------- | ---------------- | ---------------------------------------------------------- |
+| **Stage 1** (Design Studio)            | ✅ 100% Complete | Verified — all 14 phases done                              |
+| **Stage 2** (Trading Agent Studio)     | ✅ ~95% Complete | Full trading UI, agents, backend, tests, input validation  |
+| **Stage 2.5** (Shippable Quality)      | 🟡 ~82% Complete | Tests added (91 unit tests), systemd service, auto-updater |
+| **Stage 3** (Profitability + New Apps) | ❌ 0% Started    | Blocked until Stage 2.5 is 110%                            |
 
 **What changed in this sprint (March 6, 2026 — Stage 2 Completion):**
 

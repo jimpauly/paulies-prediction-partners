@@ -1110,7 +1110,10 @@ const TradingStudio = (() => {
       return;
     }
 
-    showToast(`Submitting ${side.toUpperCase()} ×${rawQty} order for ${ticker}…`, "info");
+    showToast(
+      `Submitting ${side.toUpperCase()} ×${rawQty} order for ${ticker}…`,
+      "info",
+    );
 
     try {
       const response = await fetch(`${BACKEND_URL}/api/trading/manual-order`, {

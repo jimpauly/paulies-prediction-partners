@@ -9,6 +9,7 @@
 ## Phase 1: Complete Theme System (Stage 2 themes)
 
 ### 1.1 Remaining 14 Themes
+
 - [x] `vapor` light/dark — Pastel arcade / late-night vaporwave
 - [x] `paper` light/dark — The Office copier / Carbon transfer
 - [x] `ledger-1920` light/dark — Wall St Ledger / Gatsby noir
@@ -25,6 +26,7 @@
 - [x] `frutiger-aero` light/dark — Windows Vista / Midnight aurora
 
 ### 1.2 Theme Button Integration
+
 - [x] All 24 theme buttons in sidebar
 - [x] Button previews react to light/dark mode
 - [x] Theme switching verified across all 48 palettes
@@ -34,6 +36,7 @@
 ## Phase 2: Agent Peritia — Full Candlestick Pattern Library
 
 ### 2.1 Complete Pattern Detection (27 total patterns)
+
 - [x] Hammer, Inverted Hammer, Shooting Star, Hanging Man
 - [x] Engulfing (bullish/bearish)
 - [x] Morning Star, Evening Star
@@ -51,6 +54,7 @@
 - [x] Upside Tasuki Gap, Downside Tasuki Gap
 
 ### 2.2 Pattern Performance Tracking
+
 - [x] Per-pattern win/loss tracking
 - [x] Auto-disable patterns below 45% accuracy after 50 trades
 - [x] Decision logging for training data
@@ -60,43 +64,51 @@
 ## Phase 3: Backend — Kalshi Integration (In Progress)
 
 ### 3.1 REST Client
+
 - [x] Full Kalshi REST API wrapper (markets, portfolio, orders, exchange)
 - [x] RSA-PSS request signing
 - [x] Retry logic (429/5xx with exponential backoff)
 
 ### 3.2 WebSocket Client
+
 - [x] Persistent connection with auto-reconnect
 - [x] All primary channels (ticker, orderbook, trade, lifecycle, fill, orders, positions)
 - [x] Sequence tracking and stale detection
 
 ### 3.3 State Cache
+
 - [x] Thread-safe in-memory cache
 - [x] Async-lock guarded mutations
 - [x] Snapshot export for UI
 
 ### 3.4 Risk Gateway
+
 - [x] Permission gates (global, environment, agent, kill switch)
 - [x] Pre-submit risk checks (7+ checks)
 - [x] Circuit breaker with rolling window
 - [x] Daily P&L tracking with auto-reset
 
 ### 3.5 Execution Service
+
 - [x] Route by agent mode (auto/semi-auto/safe)
 - [x] Semi-auto approval workflow with timeout
 - [x] Fill handling and PnL computation
 
 ### 3.6 Reconciliation Service
+
 - [x] Drift detection and repair
 - [x] Historical boundary handling
 - [x] Paginated data fetching
 
 ### 3.7 Control API
+
 - [x] State endpoints for UI
 - [x] Agent controls (mode, start, stop)
 - [x] Trading controls (enable, disable)
 - [x] WebSocket event streaming
 
 ### 3.8 Remaining Backend Work
+
 - [x] Database persistence (PostgreSQL/asyncpg)
 - [x] Rate limit budget enforcement (token bucket)
 - [x] Prometheus metrics integration

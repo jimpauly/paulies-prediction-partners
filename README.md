@@ -86,18 +86,18 @@ AI-assisted prediction market trading platform (web + desktop + API services).
 [████████████████░░░░] 82%
 ```
 
-|     | Feature                                                                                             | %    |
-| :-- | :-------------------------------------------------------------------------------------------------- | :--- |
-| ✅  | Windows `.exe` installer with setup wizard                                                          | 90%  |
-| ✅  | macOS `.dmg` / `.pkg` installer with setup wizard                                                   | 90%  |
-| ✅  | Published GitHub Page — for users who don't want to download an app                                 | 100% |
-| ✅  | Open-source, free-to-use, no-ads, all features available                                            | 100% |
-| ✅  | Close security holes / close data leak possibilities                                                | 80%  |
-| 🟡  | Hundreds of tweaks / fixes / upgrades / polishings / refinements / improvements                     | 70%  |
-| ✅  | Test suite — 91 backend unit tests (risk gateway, rate limiter, position sizer, schemas)            | 80%  |
-| ✅  | Auto-updater — GitHub Releases check at startup with download dialog                                | 100% |
-| ❌  | Code signing — macOS Gatekeeper + Windows SmartScreen                                               | 0%   |
-| ✅  | Capability for agents to continue trading for 24 hours — systemd service file provided              | 75%  |
+|     | Feature                                                                                  | %    |
+| :-- | :--------------------------------------------------------------------------------------- | :--- |
+| ✅  | Windows `.exe` installer with setup wizard                                               | 90%  |
+| ✅  | macOS `.dmg` / `.pkg` installer with setup wizard                                        | 90%  |
+| ✅  | Published GitHub Page — for users who don't want to download an app                      | 100% |
+| ✅  | Open-source, free-to-use, no-ads, all features available                                 | 100% |
+| ✅  | Close security holes / close data leak possibilities                                     | 80%  |
+| 🟡  | Hundreds of tweaks / fixes / upgrades / polishings / refinements / improvements          | 70%  |
+| ✅  | Test suite — 91 backend unit tests (risk gateway, rate limiter, position sizer, schemas) | 80%  |
+| ✅  | Auto-updater — GitHub Releases check at startup with download dialog                     | 100% |
+| ❌  | Code signing — macOS Gatekeeper + Windows SmartScreen                                    | 0%   |
+| ✅  | Capability for agents to continue trading for 24 hours — systemd service file provided   | 75%  |
 
 ---
 
