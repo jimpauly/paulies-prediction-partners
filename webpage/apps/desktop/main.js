@@ -2,11 +2,13 @@
  * Paulie's Prediction Partners — Electron Main Process
  *
  * Manages the application window, backend daemon lifecycle,
- * singleton lock, and secure credential storage.
+ * singleton lock, secure credential storage, setup wizard,
+ * and auto-update checks.
  */
 
-const { app, BrowserWindow, dialog, Menu, shell } = require('electron');
+const { app, BrowserWindow, dialog, Menu, shell, ipcMain } = require('electron');
 const path = require('path');
+const fs = require('fs');
 const { spawn } = require('child_process');
 const net = require('net');
 
@@ -269,6 +271,106 @@ function createApplicationMenu() {
 }
 
 /* ------------------------------------------------------------------ */
+/* Setup Wizard State                                                  */
+/* ------------------------------------------------------------------ */
+
+const WIZARD_STATE_FILE = 'wizard-state.json';
+
+function getWizardStatePath() {
+  return path.join(app.getPath('userData'), WIZARD_STATE_FILE);
+}
+
+function isWizardComplete() {
+  try {
+    const statePath = getWizardStatePath();
+    if (!fs.existsSync(statePath)) return false;
+    const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+    return state.wizardComplete === true;
+  } catch (_err) {
+    return false;
+  }
+}
+
+function saveWizardState(preferences) {
+  try {
+    const userDataDir = app.getPath('userData');
+    if (!fs.existsSync(userDataDir)) {
+      fs.mkdirSync(userDataDir, { recursive: true });
+    }
+    fs.writeFileSync(
+      getWizardStatePath(),
+      JSON.stringify(preferences, null, 2),
+      'utf8'
+    );
+  } catch (error) {
+    console.error('Failed to save wizard state:', error.message);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Setup Wizard Window                                                 */
+/* ------------------------------------------------------------------ */
+
+let wizardWindow = null;
+
+function createWizardWindow() {
+  return new Promise((resolve) => {
+    wizardWindow = new BrowserWindow({
+      width: 600,
+      height: 680,
+      resizable: false,
+      center: true,
+      title: `${APPLICATION_NAME} — Setup`,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true,
+        sandbox: false,     /* needs IPC bridge */
+        preload: path.join(__dirname, 'wizard-preload.js'),
+      },
+      show: false,
+      frame: true,
+      autoHideMenuBar: true,
+    });
+
+    const wizardPath = path.join(__dirname, 'wizard.html');
+    wizardWindow.loadFile(wizardPath);
+
+    wizardWindow.once('ready-to-show', () => {
+      wizardWindow.show();
+    });
+
+    /* Listen for wizard completion via IPC */
+    ipcMain.once('wizard-complete', (_event, preferences) => {
+      saveWizardState(preferences);
+      if (wizardWindow && !wizardWindow.isDestroyed()) {
+        wizardWindow.close();
+      }
+      wizardWindow = null;
+      resolve(preferences);
+    });
+
+    /* If wizard is closed without completing, save defaults */
+    wizardWindow.on('closed', () => {
+      wizardWindow = null;
+      if (!isWizardComplete()) {
+        saveWizardState({
+          environment: 'demo',
+          autoStart: false,
+          minimizeToTray: true,
+          telemetry: true,
+          wizardComplete: true,
+          wizardVersion: 1,
+          completedAt: new Date().toISOString(),
+        });
+      }
+      /* Remove listener if still attached */
+      ipcMain.removeAllListeners('wizard-complete');
+      resolve(null);
+    });
+  });
+}
+
+/* ------------------------------------------------------------------ */
 /* App lifecycle                                                       */
 /* ------------------------------------------------------------------ */
 
@@ -281,6 +383,11 @@ app.on('second-instance', () => {
 
 app.whenReady().then(async () => {
   createApplicationMenu();
+
+  /* Show setup wizard on first run */
+  if (!isWizardComplete()) {
+    await createWizardWindow();
+  }
 
   try {
     await startBackendDaemon();

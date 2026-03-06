@@ -592,17 +592,30 @@
           </nav>
 
           <!-- Filters -->
-          <div class="trading-filters" style="display:flex;gap:8px;align-items:center;padding:2px 0;flex-shrink:0">
-            <label style="color:var(--color-fg-muted)">Volume:
-              <select id="filter-volume" style="padding:2px 4px;background:var(--color-bg-surface);color:var(--color-fg-default);border:1px solid var(--color-border-muted);border-radius:4px">
+          <div class="trading-filters" style="display:flex;gap:8px;align-items:center;padding:2px 0;flex-shrink:0;flex-wrap:wrap">
+            <label class="filter-label-group">
+              <span style="color:var(--color-fg-muted);font-size:10px;font-weight:700;text-transform:uppercase">Volume:</span>
+              <select id="filter-volume" style="padding:2px 4px;background:var(--color-bg-surface);color:var(--color-fg-default);border:1px solid var(--color-border-muted);border-radius:4px;font-size:10px">
                 <option value="all">All</option>
                 <option value="high">High (10k+)</option>
                 <option value="medium">Medium (1k-10k)</option>
                 <option value="low">Low (&lt;1k)</option>
               </select>
             </label>
-            <label style="color:var(--color-fg-muted)">Closes in:
-              <select id="filter-time-to-close" style="padding:2px 4px;background:var(--color-bg-surface);color:var(--color-fg-default);border:1px solid var(--color-border-muted);border-radius:4px">
+            <label class="filter-label-group">
+              <span style="color:var(--color-fg-muted);font-size:10px;font-weight:700;text-transform:uppercase">Freq:</span>
+              <select id="filter-frequency" style="padding:2px 4px;background:var(--color-bg-surface);color:var(--color-fg-default);border:1px solid var(--color-border-muted);border-radius:4px;font-size:10px">
+                <option value="all">All</option>
+                <option value="15min">15 Min</option>
+                <option value="1h">Hourly</option>
+                <option value="6h">6 Hour</option>
+                <option value="24h">Daily</option>
+                <option value="7d">Weekly</option>
+              </select>
+            </label>
+            <label class="filter-label-group">
+              <span style="color:var(--color-fg-muted);font-size:10px;font-weight:700;text-transform:uppercase">Closes:</span>
+              <select id="filter-time-to-close" style="padding:2px 4px;background:var(--color-bg-surface);color:var(--color-fg-default);border:1px solid var(--color-border-muted);border-radius:4px;font-size:10px">
                 <option value="all">Any time</option>
                 <option value="1h">&lt; 1 hour</option>
                 <option value="24h">&lt; 24 hours</option>
@@ -610,6 +623,15 @@
                 <option value="30d">&lt; 30 days</option>
               </select>
             </label>
+            <label class="filter-label-group">
+              <span style="color:var(--color-fg-muted);font-size:10px;font-weight:700;text-transform:uppercase">Status:</span>
+              <select id="filter-status" style="padding:2px 4px;background:var(--color-bg-surface);color:var(--color-fg-default);border:1px solid var(--color-border-muted);border-radius:4px;font-size:10px">
+                <option value="all">All</option>
+                <option value="active">Open</option>
+                <option value="closed">Closed</option>
+              </select>
+            </label>
+            <span id="circuit-breaker-status" style="font-size:10px;font-weight:700;margin-left:auto"></span>
           </div>
 
           <!-- Market cards grid -->
@@ -691,20 +713,43 @@
         >▶</button>
       </div>
 
-      <!-- To-Do / Notes App -->
-      <div id="todo-container" class="flex-1 overflow-auto" aria-label="Notes and to-do application"></div>
+      <!-- Inspector Panel Tabs -->
+      <div id="inspector-tabs" class="inspector-tabs" role="tablist" aria-label="Inspector Panel tabs">
+        <button class="inspector-tab active" data-inspector-tab="notes" role="tab" aria-selected="true">📝 Notes</button>
+        <button class="inspector-tab" data-inspector-tab="positions" role="tab" aria-selected="false">
+          📊 Positions
+          <span id="positions-tab-badge" class="inspector-tab-badge" style="display:none"></span>
+        </button>
+        <button class="inspector-tab" data-inspector-tab="history" role="tab" aria-selected="false">📜 History</button>
+      </div>
 
-      <hr class="divider">
+      <!-- Notes Panel -->
+      <div data-inspector-panel="notes" style="flex:1;overflow:auto;display:flex;flex-direction:column">
+        <!-- To-Do / Notes App -->
+        <div id="todo-container" class="flex-1 overflow-auto" aria-label="Notes and to-do application"></div>
 
-      <!-- Send-an-Idea Card -->
-      <div class="sidebar-panel" aria-label="Send an idea">
-        <div class="sidebar-panel__header">
-          <span class="sidebar-panel__title glow-text-secondary">Send an Idea</span>
+        <hr class="divider">
+
+        <!-- Send-an-Idea Card -->
+        <div class="sidebar-panel" aria-label="Send an idea">
+          <div class="sidebar-panel__header">
+            <span class="sidebar-panel__title glow-text-secondary">Send an Idea</span>
+          </div>
+          <div class="sidebar-panel__body" style="text-align:center">
+            <p class="text-xs text-muted" style="margin-bottom:var(--space-2)">Have an idea for Paulie's? Send it our way!</p>
+            <button id="send-idea-button" class="btn btn-sm btn-primary" aria-label="Send an idea via email">💡 Send an Idea</button>
+          </div>
         </div>
-        <div class="sidebar-panel__body" style="text-align:center">
-          <p class="text-xs text-muted" style="margin-bottom:var(--space-2)">Have an idea for Paulie's? Send it our way!</p>
-          <button id="send-idea-button" class="btn btn-sm btn-primary" aria-label="Send an idea via email">💡 Send an Idea</button>
-        </div>
+      </div>
+
+      <!-- Positions Panel -->
+      <div data-inspector-panel="positions" style="display:none;flex:1;overflow:auto;padding:8px">
+        <div id="inspector-positions-panel" class="inspector-panel-content"></div>
+      </div>
+
+      <!-- History Panel -->
+      <div data-inspector-panel="history" style="display:none;flex:1;overflow:auto;padding:8px">
+        <div id="inspector-history-panel" class="inspector-panel-content"></div>
       </div>
     </aside>
 
@@ -721,59 +766,14 @@
           <div style="display:flex;gap:var(--space-3);align-items:flex-start;flex-wrap:nowrap;overflow-x:auto">
 
             <!-- Agent Access Card -->
-            <div class="card card--compact" style="min-width:200px;flex:1">
+            <div class="card card--compact" style="min-width:240px;flex:1.2">
               <div class="card-header" style="padding:4px 8px">
                 <span style="font-weight:700">🤖 Agent Access</span>
-                <span style="font-family:var(--font-family-mono);font-weight:700;color:var(--color-fg-subtle);margin-left:auto">+/- $</span>
+                <span style="font-family:var(--font-family-mono);font-size:10px;font-weight:700;color:var(--color-fg-subtle);margin-left:auto" title="A=Auto S=Semi-Auto ⛔=Safe">A / S / ⛔</span>
               </div>
               <div class="card-body" style="padding:4px 8px">
-                <div style="display:flex;gap:var(--space-2);flex-wrap:nowrap;align-items:flex-start">
-                  <!-- Agent 1 -->
-                  <div class="agent-card" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;border:1px solid var(--color-border-muted);border-radius:4px;min-width:55px">
-                    <span>🎯</span>
-                    <span style="font-weight:700">PERITIA</span>
-                    <span class="status-bar__dot status-bar__dot--live" style="width:6px;height:6px"></span>
-                    <div class="agent-dial-options" style="display:flex;gap:1px">
-                      <button class="agent-dial-option active" style="padding:1px 3px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-surface);cursor:pointer">A</button>
-                      <button class="agent-dial-option" style="padding:1px 3px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-surface);cursor:pointer">S</button>
-                      <button class="agent-dial-option" style="padding:1px 3px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-surface);cursor:pointer">⛔</button>
-                    </div>
-                  </div>
-                  <!-- Agent 2 -->
-                  <div class="agent-card" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;border:1px solid var(--color-border-muted);border-radius:4px;min-width:55px">
-                    <span>📊</span>
-                    <span style="font-weight:700">AUDAX</span>
-                    <span class="status-bar__dot status-bar__dot--warning" style="width:6px;height:6px"></span>
-                    <div class="agent-dial-options" style="display:flex;gap:1px">
-                      <button class="agent-dial-option" style="padding:1px 3px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-surface);cursor:pointer">A</button>
-                      <button class="agent-dial-option active" style="padding:1px 3px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-surface);cursor:pointer">S</button>
-                      <button class="agent-dial-option" style="padding:1px 3px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-surface);cursor:pointer">⛔</button>
-                    </div>
-                  </div>
-                  <!-- Agent 3 -->
-                  <div class="agent-card" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;border:1px solid var(--color-border-muted);border-radius:4px;min-width:55px">
-                    <span>🧠</span>
-                    <span style="font-weight:700">CAUTUS</span>
-                    <span class="status-bar__dot status-bar__dot--info" style="width:6px;height:6px"></span>
-                    <div class="agent-dial-options" style="display:flex;gap:1px">
-                      <button class="agent-dial-option" style="padding:1px 3px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-surface);cursor:pointer">A</button>
-                      <button class="agent-dial-option" style="padding:1px 3px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-surface);cursor:pointer">S</button>
-                      <button class="agent-dial-option active" style="padding:1px 3px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-surface);cursor:pointer">⛔</button>
-                    </div>
-                  </div>
-                  <!-- Agent 4 (grayed out, narrower) -->
-                  <div class="agent-card inactive" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;border:1px solid var(--color-border-muted);border-radius:4px;min-width:40px;max-width:45px;opacity:0.35">
-                    <span>🔮</span>
-                    <span style="font-weight:700">AGENT 4</span>
-                    <span class="status-bar__dot" style="width:6px;height:6px;background:var(--color-fg-subtle)"></span>
-                  </div>
-                  <!-- Agent 5 (grayed out, narrower) -->
-                  <div class="agent-card inactive" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;border:1px solid var(--color-border-muted);border-radius:4px;min-width:40px;max-width:45px;opacity:0.35">
-                    <span>⚡</span>
-                    <span style="font-weight:700">AGENT 5</span>
-                    <span class="status-bar__dot" style="width:6px;height:6px;background:var(--color-fg-subtle)"></span>
-                  </div>
-                </div>
+                <!-- Dynamic agent cards rendered by AgentDashboard module -->
+                <div id="agent-cards-container" style="display:flex;gap:var(--space-2);flex-wrap:nowrap;align-items:flex-start"></div>
               </div>
             </div>
 
@@ -857,11 +857,9 @@
             <div style="display:flex;flex-direction:column;align-items:center;gap:2px;min-width:40px">
               <span style="font-family:var(--font-family-mono);font-weight:700;color:var(--color-fg-muted);letter-spacing:0.08em;white-space:nowrap">AGENT HEAT</span>
               <div id="agent-heatmap" style="display:flex;flex-direction:column;gap:1px;flex:1;justify-content:center">
-                <div style="width:28px;height:8px;border-radius:2px;background:var(--color-state-success);opacity:0.8" title="PERITIA — Active"></div>
-                <div style="width:28px;height:8px;border-radius:2px;background:var(--color-state-warning);opacity:0.8" title="AUDAX — Semi"></div>
-                <div style="width:28px;height:8px;border-radius:2px;background:var(--color-state-error);opacity:0.8" title="CAUTUS — Safe"></div>
-                <div style="width:28px;height:8px;border-radius:2px;background:var(--color-fg-subtle);opacity:0.3" title="AGENT 4 — Inactive"></div>
-                <div style="width:28px;height:8px;border-radius:2px;background:var(--color-fg-subtle);opacity:0.3" title="AGENT 5 — Inactive"></div>
+                <div data-agent-heat="peritia" style="width:28px;height:8px;border-radius:2px;background:var(--color-state-success);opacity:0.8" title="PERITIA — Active"></div>
+                <div data-agent-heat="prime" style="width:28px;height:8px;border-radius:2px;background:var(--color-state-warning);opacity:0.8" title="PRIME — Semi"></div>
+                <div data-agent-heat="praxis" style="width:28px;height:8px;border-radius:2px;background:var(--color-fg-subtle);opacity:0.3" title="PRAXIS — Safe"></div>
               </div>
             </div>
 
@@ -894,6 +892,8 @@
   <script src="assets/scripts/logs.js"></script>
   <script src="assets/scripts/rulers.js"></script>
   <script src="assets/scripts/trading.js"></script>
+  <script src="assets/scripts/positions.js"></script>
+  <script src="assets/scripts/agents.js"></script>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -909,6 +909,8 @@
       if (typeof LiveLogs !== 'undefined') LiveLogs.initialize();
       if (typeof Rulers !== 'undefined') Rulers.initialize();
       if (typeof TradingStudio !== 'undefined') TradingStudio.initialize();
+      if (typeof PositionsPanel !== 'undefined') PositionsPanel.initialize();
+      if (typeof AgentDashboard !== 'undefined') AgentDashboard.initialize();
 
       /* ---- Theme selector (left sidebar) ---- */
       ThemeManager.createSelector({
@@ -1140,6 +1142,10 @@
           /* Notify TradingStudio */
           if (typeof TradingStudio !== 'undefined' && TradingStudio.onConnected) {
             TradingStudio.onConnected(selectedMode);
+          }
+          /* Notify AgentDashboard */
+          if (typeof AgentDashboard !== 'undefined' && AgentDashboard.onConnected) {
+            AgentDashboard.onConnected();
           }
         });
       }
