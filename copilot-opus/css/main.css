@@ -487,8 +487,8 @@ textarea.input {
 .checkbox input,
 .radio input {
   appearance: none;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
   border: 2px solid var(--color-border-default);
   background: var(--color-bg-surface-raised);
@@ -1225,7 +1225,7 @@ textarea.input {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1px;
+  gap: var(--space-1);
   padding: var(--space-1);
   min-width: 80px;
   background: var(--color-bg-surface-raised);
@@ -1508,7 +1508,7 @@ textarea.input {
 }
 
 .theme-selector__swatch {
-  font-size: 11px;
+  font-size: 0.6875rem;
   padding: 3px 2px 2px 2px;
   font-weight: 700;
   text-align: center;
