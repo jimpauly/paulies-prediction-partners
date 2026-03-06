@@ -27,7 +27,7 @@
 }
 
 html {
-  font-size: 16px;
+  font-size: clamp(16px, 0.95vw, 19px);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   scroll-behavior: smooth;
@@ -36,7 +36,7 @@ html {
 body {
   min-height: 100vh;
   font-family: var(--font-family-base);
-  font-size: 0.875rem;
+  font-size: clamp(0.9rem, 0.2vw + 0.82rem, 1rem);
   line-height: 1.5;
   color: var(--color-fg-default);
   background: var(--color-bg-canvas);
@@ -49,13 +49,20 @@ body {
    1. SPACING SCALE
    ========================================================================== */
 :root {
-  --space-1:  2px;
-  --space-2:  3px;
-  --space-3:  4px;
-  --space-4:  6px;
-  --space-5:  8px;
-  --space-6: 12px;
-  --space-8: 16px;
+  --space-1:  4px;
+  --space-2:  6px;
+  --space-3:  8px;
+  --space-4: 10px;
+  --space-5: 12px;
+  --space-6: 16px;
+  --space-8: 24px;
+
+  --layout-shell-padding: clamp(8px, 0.7vw, 16px);
+  --layout-shell-gap: clamp(8px, 0.65vw, 14px);
+  --layout-sidebar-width: clamp(240px, 19vw, 340px);
+  --layout-nav-height: clamp(36px, 4vh, 52px);
+  --layout-foot-height: clamp(150px, 18vh, 240px);
+  --layout-main-max-width: min(1600px, 100%);
 
   /* Foreground colour for text rendered on top of accent/state backgrounds.
      Override per-theme if the default accent is too light for white text.  */
@@ -92,15 +99,15 @@ body {
   display: grid;
   width: 100vw;
   height: 100vh;
-  padding: 6px;
-  grid-template-columns: 320px 1fr 320px;
-  grid-template-rows: auto 36px 1fr 150px;
+  padding: var(--layout-shell-padding);
+  grid-template-columns: var(--layout-sidebar-width) minmax(0, 1fr) var(--layout-sidebar-width);
+  grid-template-rows: auto var(--layout-nav-height) minmax(0, 1fr) var(--layout-foot-height);
   grid-template-areas:
     "header  header  header"
     "left    nav     right"
     "left    main    right"
     "foot    foot    foot";
-  gap: 6px;
+  gap: var(--layout-shell-gap);
   background: var(--color-bg-canvas);
 }
 
@@ -123,7 +130,7 @@ body {
 .region-foot {
   grid-area: foot;
   display: flex;
-  gap: 6px;
+  gap: var(--layout-shell-gap);
   overflow: hidden;
 }
 
@@ -167,6 +174,8 @@ body {
 
 /* ---------- Main Region ------------------------------------------------- */
 .region-main {
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
   padding: var(--space-4);
@@ -186,7 +195,8 @@ body {
 
 /* ---------- Action Bar -------------------------------------------------- */
 .region-action {
-  flex: 1;
+  flex: 1 1 360px;
+  min-width: 300px;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -194,12 +204,26 @@ body {
 
 /* ---------- Bottom Bar -------------------------------------------------- */
 .region-bottom {
-  flex: 2;
+  flex: 2 1 680px;
   display: flex;
   align-items: center;
   gap: var(--space-3);
   overflow-x: auto;
   overflow-y: hidden;
+}
+
+/* Constrain content width and keep balanced reading measure in main region. */
+.region-main > .studio-view {
+  width: min(100%, var(--layout-main-max-width));
+  margin-inline: auto;
+}
+
+.region-main .card {
+  margin-bottom: var(--space-4);
+}
+
+.region-main .card:last-child {
+  margin-bottom: 0;
 }
 
 /* ---------- Region titles (engraved cockpit style) ---------------------- */
@@ -260,6 +284,30 @@ body {
   box-shadow: 0 4px 12px var(--color-shadow);
 }
 
+/* Shrink-wrap cards to content in utility regions. */
+.region-left .card,
+.region-right .card,
+.region-foot .card {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  max-width: 100%;
+  align-self: flex-start;
+}
+
+/* Main content cards should use the available reading width. */
+.region-main .card {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Prevent utility cards from filling rows when inline styles set flex:1. */
+.region-left .card,
+.region-right .card,
+.region-foot .card {
+  flex: 0 0 auto !important;
+}
+
 .card-header {
   display: flex;
   align-items: center;
@@ -267,7 +315,7 @@ body {
   padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--color-border-muted);
   font-family: var(--font-family-mono);
-  font-size: 0.7rem;
+  font-size: clamp(0.74rem, 0.14vw + 0.68rem, 0.9rem);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -275,7 +323,7 @@ body {
 }
 
 .card-body {
-  padding: var(--space-4);
+  padding: clamp(10px, 0.8vw, 14px);
 }
 
 .card-footer {
@@ -558,10 +606,10 @@ textarea.input {
   align-items: center;
   justify-content: center;
   gap: var(--space-1);
-  min-height: 28px;
-  padding: var(--space-1) var(--space-3);
+  min-height: clamp(30px, 2.6vh, 38px);
+  padding: var(--space-2) var(--space-3);
   font-family: var(--font-family-mono);
-  font-size: 0.75rem;
+  font-size: clamp(0.74rem, 0.12vw + 0.7rem, 0.86rem);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -596,7 +644,10 @@ textarea.input {
 .sidebar-panel {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-1);
+  border-radius: var(--border-radius-md);
+  background: color-mix(in srgb, var(--color-bg-surface) 88%, transparent);
 }
 
 .sidebar-panel__header {
@@ -609,7 +660,7 @@ textarea.input {
 
 .sidebar-panel__title {
   font-family: var(--font-family-mono);
-  font-size: 0.65rem;
+  font-size: clamp(0.68rem, 0.1vw + 0.64rem, 0.78rem);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1086,12 +1137,12 @@ textarea.input {
 /* ==========================================================================
    17. TYPOGRAPHY UTILITIES
    ========================================================================== */
-.text-xs    { font-size: 0.7rem; }
-.text-sm    { font-size: 0.75rem; }
-.text-base  { font-size: 0.875rem; }
-.text-lg    { font-size: 1rem; }
-.text-xl    { font-size: 1.25rem; }
-.text-2xl   { font-size: 1.5rem; }
+.text-xs    { font-size: clamp(0.76rem, 0.12vw + 0.72rem, 0.86rem); }
+.text-sm    { font-size: clamp(0.84rem, 0.14vw + 0.78rem, 0.94rem); }
+.text-base  { font-size: clamp(0.92rem, 0.16vw + 0.84rem, 1.03rem); }
+.text-lg    { font-size: clamp(1rem, 0.2vw + 0.9rem, 1.14rem); }
+.text-xl    { font-size: clamp(1.16rem, 0.28vw + 0.98rem, 1.38rem); }
+.text-2xl   { font-size: clamp(1.32rem, 0.44vw + 1.05rem, 1.72rem); }
 
 .text-mono  { font-family: var(--font-family-mono); }
 
@@ -1504,12 +1555,12 @@ textarea.input {
 .theme-selector__grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--space-2);
 }
 
 .theme-selector__swatch {
-  font-size: 0.6875rem;
-  padding: 3px 2px 2px 2px;
+  font-size: clamp(0.7rem, 0.1vw + 0.66rem, 0.8rem);
+  padding: var(--space-2) var(--space-1);
   font-weight: 700;
   text-align: center;
   flex: 1 1 calc(50% - 4px);
@@ -1529,8 +1580,8 @@ textarea.input {
 
 .theme-selector__swatch:hover {
   border-color: var(--color-accent-primary);
-  box-shadow: 0 2px 6px var(--color-shadow);
-  transform: scale(1.02);
+  box-shadow: 0 3px 10px var(--color-shadow);
+  transform: translateY(-1px);
 }
 
 .theme-selector__swatch--active {
@@ -1617,4 +1668,161 @@ textarea.input {
    ========================================================================== */
 .region-foot > .region {
   padding: var(--space-1) var(--space-2);
+}
+
+/* Bottom-bar card flow: fill available width without microscopic controls. */
+#bottom-bar > div {
+  height: 100%;
+}
+
+#bottom-bar > div > div {
+  align-items: stretch !important;
+  align-content: flex-start;
+  flex-wrap: wrap !important;
+  row-gap: var(--space-3);
+}
+
+#bottom-bar .card {
+  flex: 1 1 260px !important;
+  width: auto;
+  min-width: min(320px, 100%);
+}
+
+#bottom-bar #api-key-card {
+  flex: 1.4 1 360px !important;
+}
+
+#bottom-bar .card--compact .card-body {
+  height: 100%;
+}
+
+/* ==========================================================================
+   31. COMPACT CONTROL TYPOGRAPHY (centralized, no inline font-size)
+   ========================================================================== */
+.region-nav .ml-auto {
+  font-size: clamp(0.78rem, 0.16vw + 0.72rem, 0.9rem);
+}
+
+.gauge-value {
+  font-size: clamp(0.8rem, 0.18vw + 0.72rem, 0.92rem);
+}
+
+#live-logs {
+  font-size: clamp(0.78rem, 0.14vw + 0.72rem, 0.88rem);
+}
+
+#trading-account-bar {
+  font-family: var(--font-family-mono);
+  font-size: clamp(0.68rem, 0.12vw + 0.62rem, 0.8rem);
+}
+
+#market-refresh-button {
+  font-size: clamp(0.82rem, 0.2vw + 0.74rem, 0.96rem);
+}
+
+.trading-filters label,
+.trading-filters select {
+  font-size: clamp(0.64rem, 0.1vw + 0.6rem, 0.74rem);
+}
+
+.approval-header > span {
+  font-size: clamp(0.82rem, 0.18vw + 0.74rem, 0.96rem);
+}
+
+.approval-actions button {
+  font-size: clamp(0.74rem, 0.14vw + 0.68rem, 0.86rem);
+}
+
+.region-foot .card-header,
+.region-foot .card-body {
+  font-size: clamp(0.74rem, 0.14vw + 0.68rem, 0.86rem);
+}
+
+.region-foot .agent-card > span:nth-child(2),
+.region-foot #connection-status,
+.region-foot #win-rate-label {
+  font-size: clamp(0.7rem, 0.12vw + 0.64rem, 0.8rem);
+}
+
+.region-foot .agent-dial-option {
+  font-size: clamp(0.66rem, 0.1vw + 0.62rem, 0.74rem);
+}
+
+#action-bar [style*="letter-spacing:0.1em"] {
+  font-size: clamp(0.68rem, 0.12vw + 0.62rem, 0.78rem);
+}
+
+#action-bar [style*="letter-spacing:0.08em"] {
+  font-size: clamp(0.64rem, 0.1vw + 0.6rem, 0.72rem);
+}
+
+#throttle-track > div:not(#throttle-handle) {
+  font-size: clamp(0.64rem, 0.1vw + 0.58rem, 0.72rem);
+}
+
+/* ==========================================================================
+   32. RESPONSIVE DESKTOP BREAKPOINTS
+   ========================================================================== */
+@media (max-width: 1680px) {
+  :root {
+    --layout-sidebar-width: clamp(220px, 18vw, 300px);
+    --layout-main-max-width: 100%;
+  }
+}
+
+@media (max-width: 1440px) {
+  :root {
+    --layout-sidebar-width: clamp(200px, 17vw, 260px);
+    --layout-foot-height: clamp(170px, 24vh, 280px);
+  }
+
+  .app-title {
+    font-size: clamp(1.2rem, 1.2vw, 1.45rem);
+  }
+}
+
+@media (max-width: 1240px) {
+  .app-shell {
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+    grid-template-rows: auto var(--layout-nav-height) minmax(0, 1fr) var(--layout-foot-height);
+    grid-template-areas:
+      "header header"
+      "nav nav"
+      "main right"
+      "foot foot";
+  }
+
+  .region-left {
+    display: none;
+  }
+
+  .region-main {
+    padding-right: var(--space-3);
+  }
+}
+
+@media (max-width: 1040px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "header"
+      "nav"
+      "main"
+      "right"
+      "foot";
+  }
+
+  .region-right {
+    max-height: 34vh;
+  }
+
+  .region-foot {
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  .region-action {
+    min-width: 0;
+  }
 }

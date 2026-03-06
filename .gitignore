@@ -1,0 +1,27 @@
+# Dependencies
+webpage/node_modules/
+
+# Build outputs
+webpage/dist/
+webpage/out/
+webpage/release/
+webpage/build/
+
+# Python artifacts
+**/__pycache__/
+**/*.pyc
+**/.venv/
+**/venv/
+
+# Local environment and logs
+.env
+.env.*
+*.log
+
+# Editor/OS noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo

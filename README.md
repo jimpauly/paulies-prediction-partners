@@ -1,52 +1,47 @@
-# Paulie's Prediction Partners 🤖
+# Paulie's Prediction Partners
 
-Desktop trading app. Three AI agents trade prediction markets on [Kalshi](https://kalshi.com) so you don't have to stare at screens all day.
+AI-assisted prediction market trading platform (web + desktop + API services).
 
-**Status:** In development. Not ready for real money yet.
+## Repository Layout
 
-## Run It
+- `index.html`: Root landing page.
+- `README.md`, `SECURITY.md`: Project information files.
+- `DOCUMENTS/`: Product requirements, references, and development logs.
+- `webpage/`: Main code workspace.
+  - `apps/web/public/`: Web UI assets and entrypoint.
+  - `apps/desktop/`: Electron desktop shell.
+  - `services/api/backend/`: FastAPI backend and trading services.
+
+## Quick Start
 
 ```bash
 git clone https://github.com/jimpauly/paulies-prediction-partners.git
-cd paulies-prediction-partners/copilot-opus
-
-pip install -r backend/requirements.txt
-python -m uvicorn backend.main:main --host 127.0.0.1 --port 8000 &
-
-# Open the frontend
-python -m http.server 3000
-# Visit http://localhost:3000/copilot-opus/index.html
+cd paulies-prediction-partners/webpage
+npm install
+npm start
 ```
 
-Or grab a desktop build from [Releases](https://github.com/jimpauly/paulies-prediction-partners/releases) (when available).
+## Backend Only
 
-## What's In Here
-
-```
-copilot-opus/          Main app (frontend + backend)
-  backend/             Python/FastAPI — agents, risk, execution
-  css/                 Themes, illumination, layout
-  js/                  Vanilla JS — no framework
-  index.html           The app
-electron/              Desktop wrapper
-DOCUMENTS/             PRD, reference material, dev logs
-index.html             GitHub Pages landing page
+```bash
+cd webpage
+npm run start:backend
 ```
 
-## Stack
+## Web Preview Only
 
-- **Frontend:** HTML, CSS, vanilla JS, Tailwind (CDN)
-- **Backend:** Python 3.12+, FastAPI, Uvicorn
-- **Desktop:** Electron
-- **Agents:** Prime (volume), Praxis (sports), Peritia (candlestick patterns)
+```bash
+cd webpage
+npm run start:web
+```
 
 ## Build Desktop Installers
 
 ```bash
-npm install
-npm run build:win    # .exe
-npm run build:mac    # .dmg
-npm run build:linux  # .AppImage
+cd webpage
+npm run build:win
+npm run build:mac
+npm run build:linux
 ```
 
 ## License

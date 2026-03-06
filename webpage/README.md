@@ -7,8 +7,7 @@
 - `apps/desktop`: Electron desktop shell and runtime orchestration.
 - `apps/web/public`: Frontend renderer assets served to Electron/browser.
 - `services/api/backend`: FastAPI backend and domain services.
-- `.github/workflows`: CI/CD workflow definitions scoped to this workspace.
-- `docs`: Contributor-focused documentation.
+- `package.json`: Build/dev scripts for web, desktop, and packaging.
 
 ## Quick Start
 
@@ -28,6 +27,11 @@
    ```bash
    npm run start:web
    ```
+
+## Notes
+
+- CI workflows are defined at the repository root in `.github/workflows/`.
+- Keep generated dependencies (`node_modules`) and build artifacts out of git.
 
 ## Packaging
 
