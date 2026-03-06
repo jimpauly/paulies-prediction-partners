@@ -65,7 +65,10 @@ const LiveLogs = (() => {
       });
     });
 
-    /* Periodic system status log */
+    /* Periodic system status log
+     * Note: performance.memory is Chromium-only (non-standard). It will be
+     * undefined in non-Chromium browsers but Electron uses Chromium, so this
+     * works in production. The null-check on line 71 prevents errors elsewhere. */
     setInterval(() => {
       const mem = performance.memory;
       if (mem) {

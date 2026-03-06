@@ -600,8 +600,10 @@
       if (window.wizardBridge && typeof window.wizardBridge.complete === 'function') {
         window.wizardBridge.complete(preferences);
       } else {
-        /* Fallback: try IPC via postMessage for contextBridge */
-        window.postMessage({ type: 'wizard-complete', preferences }, '*');
+        /* No fallback — wizard should always have contextBridge via preload.
+           If wizardBridge is unavailable, the wizard was opened incorrectly. */
+        console.warn('wizardBridge not available — wizard context is unexpected');
+        window.close();
       }
     }
   </script>

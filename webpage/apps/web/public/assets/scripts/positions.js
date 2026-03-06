@@ -117,7 +117,11 @@ const PositionsPanel = (() => {
         return;
       }
       const data = await response.json();
-      renderPositions(panel, data.positions || []);
+      /* Handle multiple response shapes: { positions: [...] } or [...] */
+      const positions = Array.isArray(data)
+        ? data
+        : (Array.isArray(data.positions) ? data.positions : []);
+      renderPositions(panel, positions);
     } catch (_error) {
       renderPositionsError(panel, 'Backend offline');
     }
@@ -253,7 +257,14 @@ const PositionsPanel = (() => {
     let html = `<div class="history-list">`;
     recentFills.forEach(fill => {
       const ticker = fill.ticker || '—';
-      const side = fill.yes_price !== undefined ? 'YES' : (fill.no_price !== undefined ? 'NO' : (fill.side || '—').toUpperCase());
+      let side;
+      if (fill.yes_price !== undefined) {
+        side = 'YES';
+      } else if (fill.no_price !== undefined) {
+        side = 'NO';
+      } else {
+        side = (fill.side || '—').toUpperCase();
+      }
       const price = fill.yes_price || fill.no_price || fill.price || '—';
       const count = fill.count_fp || fill.count || '—';
       const action = fill.action || 'buy';

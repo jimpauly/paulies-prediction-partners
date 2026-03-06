@@ -114,7 +114,18 @@ const Telemetry = (() => {
 
       try {
         const startTime = performance.now();
-        const response = await fetch('http://127.0.0.1:8000/api/connection/status', { signal: AbortSignal.timeout(3000) });
+        /* AbortSignal.timeout is available in modern browsers and Electron 20+;
+           fall back to AbortController for broader compatibility */
+        let signal;
+        let abortController;
+        if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') {
+          signal = AbortSignal.timeout(2000);
+        } else {
+          abortController = new AbortController();
+          signal = abortController.signal;
+          setTimeout(() => abortController.abort(), 2000);
+        }
+        const response = await fetch('http://127.0.0.1:8000/api/connection/status', { signal });
         const elapsed = performance.now() - startTime;
 
         if (response.ok) {

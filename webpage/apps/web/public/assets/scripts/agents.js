@@ -38,12 +38,11 @@ const AgentDashboard = (() => {
   let pollIntervalId = null;
   let isConnected = false;
 
-  /* PnL history per agent keyed by agent name (arrays of {time, pnl}) */
-  const pnlHistory = {
-    peritia: [],
-    prime: [],
-    praxis: [],
-  };
+  /* PnL history per agent — initialized dynamically from AGENT_CONFIG */
+  const pnlHistory = Object.keys(AGENT_CONFIG).reduce((acc, key) => {
+    acc[key] = [];
+    return acc;
+  }, {});
 
   /* ---- Public API ---- */
 
@@ -212,8 +211,8 @@ const AgentDashboard = (() => {
       /* Update win rate (from win_count / total_trades) */
       const wrElement = document.getElementById(`agent-wr-${agentName}`);
       if (wrElement) {
-        const winCount = parseInt(agentData.win_count || 0);
-        const totalTrades = parseInt(agentData.total_trades || 0);
+        const winCount = parseInt(agentData.win_count, 10) || 0;
+        const totalTrades = parseInt(agentData.total_trades, 10) || 0;
         let winRateStr = '—%';
         if (totalTrades > 0) {
           const wr = Math.round((winCount / totalTrades) * 100);
@@ -248,9 +247,9 @@ const AgentDashboard = (() => {
       const pnl = agentData.realized_pnl !== undefined ? parseFloat(agentData.realized_pnl) : 0;
       if (!isNaN(pnl)) {
         pnlHistory[agentName].push({ time: Date.now(), pnl });
-        /* Keep last 100 data points */
+        /* Keep last 100 data points using slice (O(n) vs O(n) shift but cleaner) */
         if (pnlHistory[agentName].length > 100) {
-          pnlHistory[agentName].shift();
+          pnlHistory[agentName] = pnlHistory[agentName].slice(-100);
         }
       }
 
@@ -384,8 +383,8 @@ const AgentDashboard = (() => {
     Object.keys(AGENT_CONFIG).forEach(agentName => {
       const agentData = agentsData[agentName];
       if (!agentData) return;
-      totalWins += parseInt(agentData.win_count || 0);
-      totalTrades += parseInt(agentData.total_trades || 0);
+      totalWins += parseInt(agentData.win_count, 10) || 0;
+      totalTrades += parseInt(agentData.total_trades, 10) || 0;
     });
 
     if (totalTrades > 0) {

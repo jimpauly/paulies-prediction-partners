@@ -16,6 +16,7 @@ const TradingStudio = (() => {
   let currentSubcategory = 'all';
   let connected = false;
   let websocket = null;
+  let approvalExpiryTimeout = null;   /* stores approval overlay auto-close timer */
 
   const SUBCATEGORY_MAP = {
     all: ['All'],
@@ -420,7 +421,7 @@ const TradingStudio = (() => {
 
   function calcPotentialReturn(priceDollars, notional) {
     const price = parseFloat(priceDollars);
-    if (!price || price <= 0 || price >= 1) return null;
+    if (!price || price <= 0 || price > 0.99) return null;
     /* If we invest $notional and win: payout = notional / price */
     const payout = notional / price;
     const profit = payout - notional;
@@ -825,8 +826,8 @@ const TradingStudio = (() => {
     const reasoning = data.reasoning || 'No reasoning provided';
 
     /* Set a 60-second auto-expiry timer (no countdown shown per PRD) */
-    if (overlay._expiryTimeout) clearTimeout(overlay._expiryTimeout);
-    overlay._expiryTimeout = setTimeout(() => {
+    if (approvalExpiryTimeout) clearTimeout(approvalExpiryTimeout);
+    approvalExpiryTimeout = setTimeout(() => {
       if (overlay.style.display !== 'none') {
         overlay.style.display = 'none';
         showToast(`Approval request for ${ticker} expired`, 'info');
