@@ -314,8 +314,17 @@ Last update: 03-02-26
 
 - **Viewport:** `1920px` wide × `1080px` tall
     - Full desktop window (titlebar + minimize/maximize/close buttons only; no browser bars)
-    - Region proportions remain fixed; content within cards shrinks/expands on zoom
     - All measurements are device pixels, not CSS pixels
+- **Resize Behavior**
+    - **Vertical resize** (viewport raised / lowered):
+        - Only the **two sidebars** and the **main region** grow or shrink vertically.
+        - The **Header**, **Nav Bar**, **Bottom Bar**, and **Action Bar** remain vertically static (fixed heights).
+    - **Horizontal resize** (viewport wider / narrower):
+        - The **Header**, **Nav Bar**, **Main Region**, and **Bottom Bar** (including **Action Bar**) stretch or shrink horizontally.
+        - The **two sidebars** remain horizontally static (fixed widths of 320 px).
+    - **Zoom** (Ctrl +/−, pinch):
+        - Region proportions remain fixed; content within cards shrinks/expands.
+        - The grid itself does not reflow — only the rendered scale of text, icons, and card internals changes.
 - **Bezel Logic**
     - Regions: `6px` inner wrapper, `12px` outer wrapper
     - Cards or special components: `6px` inner wrapper, `6px` outer wrapper
