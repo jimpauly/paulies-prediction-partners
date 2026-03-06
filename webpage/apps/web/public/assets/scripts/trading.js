@@ -1,14 +1,14 @@
 /* ============================================================
    Paulie's Prediction Partners — Trading Studio Module
-   Manages market cards, category filtering, real-time updates,
-   expanded card overlay, and semi-auto approval flow.
+   Manages market cards, category filtering, series grouping,
+   real-time updates, expanded card overlay, and approval flow.
    ============================================================ */
 
 const TradingStudio = (() => {
   'use strict';
 
   const BACKEND_URL = 'http://127.0.0.1:8000';
-  const CARDS_PER_PAGE = 18;
+  const CARDS_PER_PAGE = 24;
 
   let markets = [];
   let displayedCount = 0;
@@ -16,6 +16,7 @@ const TradingStudio = (() => {
   let currentSubcategory = 'all';
   let connected = false;
   let websocket = null;
+  let approvalExpiryTimeout = null;   /* stores approval overlay auto-close timer */
 
   const SUBCATEGORY_MAP = {
     all: ['All'],
@@ -38,6 +39,20 @@ const TradingStudio = (() => {
     entertainment: ['oscar', 'grammy', 'emmy', 'movie', 'tv', 'music'],
     tech: ['tech', 'ai', 'apple', 'google', 'tesla', 'spacex'],
     science: ['space', 'nasa', 'climate', 'vaccine']
+  };
+
+  /* Series display names and icons for section headers */
+  const SERIES_DISPLAY = {
+    kxbtc: { label: 'Bitcoin (BTC)', icon: '₿', priority: 1 },
+    kxeth: { label: 'Ethereum (ETH)', icon: '⬡', priority: 2 },
+    kxsol: { label: 'Solana (SOL)', icon: '◎', priority: 3 },
+    nfl: { label: 'NFL Football', icon: '🏈', priority: 10 },
+    nba: { label: 'NBA Basketball', icon: '🏀', priority: 11 },
+    mlb: { label: 'MLB Baseball', icon: '⚾', priority: 12 },
+    nhl: { label: 'NHL Hockey', icon: '🏒', priority: 13 },
+    fed: { label: 'Federal Reserve', icon: '🏦', priority: 20 },
+    cpi: { label: 'CPI Inflation', icon: '📈', priority: 21 },
+    gdp: { label: 'GDP', icon: '📊', priority: 22 },
   };
 
   /* ---- Initialization ---- */
@@ -86,7 +101,7 @@ const TradingStudio = (() => {
   }
 
   function bindFilters() {
-    ['filter-volume', 'filter-frequency', 'filter-time-to-close'].forEach(id => {
+    ['filter-volume', 'filter-frequency', 'filter-time-to-close', 'filter-status'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.addEventListener('change', () => { displayedCount = 0; renderCards(); });
     });
@@ -148,13 +163,17 @@ const TradingStudio = (() => {
     const iface = document.getElementById('trading-interface');
     if (preConnect) preConnect.style.display = 'none';
     if (iface) {
-      iface.style.display = 'block';
+      iface.style.display = 'flex';
       iface.classList.add('trading-init-animation');
       setTimeout(() => iface.classList.remove('trading-init-animation'), 1500);
     }
     await fetchMarkets();
     await fetchAccountSummary();
     connectWebSocket();
+
+    /* Notify sub-modules */
+    if (typeof PositionsPanel !== 'undefined') PositionsPanel.onConnected();
+    if (typeof AgentDashboard !== 'undefined') AgentDashboard.onConnected();
 
     /* Poll account summary every 10 seconds */
     if (onConnected._accountInterval) clearInterval(onConnected._accountInterval);
@@ -175,6 +194,9 @@ const TradingStudio = (() => {
     displayedCount = 0;
     renderCards();
     if (websocket) { websocket.close(); websocket = null; }
+
+    if (typeof PositionsPanel !== 'undefined') PositionsPanel.onDisconnected();
+    if (typeof AgentDashboard !== 'undefined') AgentDashboard.onDisconnected();
   }
 
   /* ---- Data Fetching ---- */
@@ -201,13 +223,29 @@ const TradingStudio = (() => {
     return keywords.some(k => ticker.includes(k) || event.includes(k));
   }
 
+  function detectFrequency(market) {
+    const ticker = (market.ticker || '').toLowerCase();
+    const title = (market.yes_sub_title || '').toLowerCase();
+    const series = (market.series_ticker || market.event_ticker || '').toLowerCase();
+    const combined = ticker + ' ' + title + ' ' + series;
+
+    if (combined.includes('15min') || combined.includes('15m') || combined.includes('15-min')) return '15min';
+    if (combined.includes('1hr') || combined.includes('1h') || combined.includes('hourly') || combined.includes('1-hour')) return '1h';
+    if (combined.includes('6hr') || combined.includes('6h') || combined.includes('6-hour')) return '6h';
+    if (combined.includes('24hr') || combined.includes('24h') || combined.includes('daily') || combined.includes('1-day')) return '24h';
+    if (combined.includes('weekly') || combined.includes('1-week') || combined.includes('7-day')) return '7d';
+    return 'other';
+  }
+
   function filterMarkets() {
     let filtered = [...markets];
 
+    /* Category filter */
     if (currentCategory !== 'all') {
       filtered = filtered.filter(m => matchesCategory(m, currentCategory));
     }
 
+    /* Subcategory filter */
     if (currentSubcategory !== 'all') {
       const sub = currentSubcategory.toLowerCase();
       filtered = filtered.filter(m => {
@@ -217,6 +255,7 @@ const TradingStudio = (() => {
       });
     }
 
+    /* Volume filter */
     const volumeFilter = document.getElementById('filter-volume')?.value;
     if (volumeFilter && volumeFilter !== 'all') {
       filtered = filtered.filter(m => {
@@ -228,13 +267,20 @@ const TradingStudio = (() => {
       });
     }
 
+    /* Frequency filter */
+    const freqFilter = document.getElementById('filter-frequency')?.value;
+    if (freqFilter && freqFilter !== 'all') {
+      filtered = filtered.filter(m => detectFrequency(m) === freqFilter);
+    }
+
+    /* Time-to-close filter */
     const timeFilter = document.getElementById('filter-time-to-close')?.value;
     if (timeFilter && timeFilter !== 'all') {
       const now = Date.now();
       filtered = filtered.filter(m => {
         if (!m.close_time) return false;
         const diff = new Date(m.close_time).getTime() - now;
-        if (diff <= 0) return false;
+        if (diff <= 0) return timeFilter === 'closed';
         const hours = diff / 3600000;
         if (timeFilter === '1h') return hours < 1;
         if (timeFilter === '24h') return hours < 24;
@@ -244,7 +290,57 @@ const TradingStudio = (() => {
       });
     }
 
+    /* Status filter */
+    const statusFilter = document.getElementById('filter-status')?.value;
+    if (statusFilter && statusFilter !== 'all') {
+      filtered = filtered.filter(m => {
+        const status = (m.status || '').toLowerCase();
+        if (statusFilter === 'active') return status === 'active' || status === 'open';
+        if (statusFilter === 'closed') return status === 'closed' || status === 'finalized' || status === 'settled';
+        return true;
+      });
+    }
+
     return filtered;
+  }
+
+  /* ---- Group markets by series ---- */
+
+  function groupBySeries(marketList) {
+    const groups = new Map();
+    marketList.forEach(market => {
+      const seriesKey = market.series_ticker || market.event_ticker || 'other';
+      if (!groups.has(seriesKey)) groups.set(seriesKey, []);
+      groups.get(seriesKey).push(market);
+    });
+
+    /* Sort groups: known series first (by priority), then alphabetically */
+    const sorted = [...groups.entries()].sort((a, b) => {
+      const keyA = a[0].toLowerCase();
+      const keyB = b[0].toLowerCase();
+      const prioA = getSeriesPriority(keyA);
+      const prioB = getSeriesPriority(keyB);
+      if (prioA !== prioB) return prioA - prioB;
+      return keyA.localeCompare(keyB);
+    });
+
+    return sorted;
+  }
+
+  function getSeriesPriority(seriesKey) {
+    const lower = seriesKey.toLowerCase();
+    for (const [key, info] of Object.entries(SERIES_DISPLAY)) {
+      if (lower.includes(key)) return info.priority;
+    }
+    return 99;
+  }
+
+  function getSeriesDisplay(seriesKey) {
+    const lower = seriesKey.toLowerCase();
+    for (const [key, info] of Object.entries(SERIES_DISPLAY)) {
+      if (lower.includes(key)) return info;
+    }
+    return { label: seriesKey, icon: '📋', priority: 99 };
   }
 
   /* ---- Subcategory Nav ---- */
@@ -265,68 +361,161 @@ const TradingStudio = (() => {
     if (!grid) return;
 
     const filtered = filterMarkets();
-    const limit = displayedCount + CARDS_PER_PAGE;
-    const toShow = filtered.slice(0, limit);
-    displayedCount = toShow.length;
+
+    if (filtered.length === 0 && connected) {
+      grid.innerHTML = '<div class="no-markets-message" style="grid-column:1/-1;">No markets match your current filters</div>';
+      const showMoreContainer = document.getElementById('show-more-container');
+      if (showMoreContainer) showMoreContainer.style.display = 'none';
+      return;
+    }
+
+    /* Group by series for section headers */
+    const groups = groupBySeries(filtered);
+
+    /* Calculate how many total cards to show */
+    const limit = Math.max(CARDS_PER_PAGE, displayedCount + CARDS_PER_PAGE);
+    let cardsRendered = 0;
+    let totalMarkets = 0;
 
     grid.innerHTML = '';
 
-    if (toShow.length === 0 && connected) {
-      grid.innerHTML = '<div class="no-data" style="grid-column:1/-1;">No markets match your filters</div>';
-    }
+    groups.forEach(([seriesKey, seriesMarkets]) => {
+      const marketsToShow = seriesMarkets.slice(0, Math.max(0, limit - cardsRendered));
+      if (marketsToShow.length === 0) return;
 
-    toShow.forEach((market, idx) => {
-      const card = createSeriesCard(market);
-      card.style.animationDelay = (idx * 30) + 'ms';
-      grid.appendChild(card);
+      totalMarkets += seriesMarkets.length;
+
+      /* Series section header */
+      const seriesDisplay = getSeriesDisplay(seriesKey);
+      const header = document.createElement('div');
+      header.className = 'series-section-header';
+      header.innerHTML = `
+        <span class="series-section-icon">${seriesDisplay.icon}</span>
+        <span class="series-section-label">${escapeHtml(seriesDisplay.label)}</span>
+        <span class="series-section-count">${seriesMarkets.length} market${seriesMarkets.length !== 1 ? 's' : ''}</span>
+        <div class="series-section-line"></div>
+      `;
+      grid.appendChild(header);
+
+      /* Market cards for this series */
+      const cardsRow = document.createElement('div');
+      cardsRow.className = 'series-cards-row';
+      marketsToShow.forEach((market, idx) => {
+        const card = createSeriesCard(market);
+        card.style.animationDelay = (idx * 25) + 'ms';
+        cardsRow.appendChild(card);
+      });
+      grid.appendChild(cardsRow);
+      cardsRendered += marketsToShow.length;
     });
+
+    displayedCount = cardsRendered;
 
     const showMoreContainer = document.getElementById('show-more-container');
     if (showMoreContainer) {
-      showMoreContainer.style.display = displayedCount < filtered.length ? 'flex' : 'none';
+      showMoreContainer.style.display = cardsRendered < filtered.length ? 'flex' : 'none';
     }
   }
 
+  /* ---- Potential Returns Calculator ---- */
+
+  function calcPotentialReturn(priceDollars, notional) {
+    const price = parseFloat(priceDollars);
+    if (!price || price <= 0 || price > 0.99) return null;
+    /* If we invest $notional and win: payout = notional / price */
+    const payout = notional / price;
+    const profit = payout - notional;
+    return { payout: payout.toFixed(0), profit: profit.toFixed(0) };
+  }
+
+  function renderPotentialReturns(market) {
+    const notional = 100; /* $100 base calculation */
+    const yesReturn = market.yes_ask_dollars
+      ? calcPotentialReturn(market.yes_ask_dollars, notional)
+      : null;
+    const noReturn = market.no_ask_dollars
+      ? calcPotentialReturn(market.no_ask_dollars, notional)
+      : null;
+
+    if (!yesReturn && !noReturn) return '';
+
+    const yesStr = yesReturn ? `+$${yesReturn.profit}` : '—';
+    const noStr = noReturn ? `+$${noReturn.profit}` : '—';
+
+    return `
+      <div class="series-card-returns">
+        <span class="returns-label">$${notional} wins →</span>
+        <span class="returns-yes" title="YES potential profit on $${notional}">${escapeHtml(yesStr)}</span>
+        <span class="returns-sep">/</span>
+        <span class="returns-no" title="NO potential profit on $${notional}">${escapeHtml(noStr)}</span>
+      </div>
+    `;
+  }
+
+  /* ---- Frequency Badge ---- */
+
+  function renderFrequencyBadge(market) {
+    const freq = detectFrequency(market);
+    if (freq === 'other') return '';
+    const labels = { '15min': '15m', '1h': '1hr', '6h': '6hr', '24h': '24hr', '7d': '7d' };
+    return `<span class="series-card-freq-badge">${escapeHtml(labels[freq] || freq)}</span>`;
+  }
+
+  /* ---- Series Card Creation ---- */
+
   function createSeriesCard(market) {
     const card = document.createElement('div');
-    card.className = 'series-card card-enter';
+    const isClosed = isMarketClosed(market);
+    card.className = `series-card card-enter${isClosed ? ' series-card--closed' : ''}`;
     card.dataset.ticker = market.ticker;
 
     const yesPrice = market.yes_bid_dollars || null;
     const noPrice = market.no_bid_dollars || null;
     const lastPrice = market.last_price_dollars || null;
-    const volume = market.volume_24h_fp || '0';
+    const volume = formatVolume(market.volume_24h_fp || '0');
     const status = market.status || 'unknown';
     const title = market.yes_sub_title || market.ticker || 'Untitled';
     const closeTime = market.close_time ? new Date(market.close_time) : null;
     const timeRemaining = closeTime ? formatTimeRemaining(closeTime) : '—';
-    const chancePercent = yesPrice ? Math.round(parseFloat(yesPrice) * 100) : '—';
+    const isClosingSoon = closeTime && (closeTime - Date.now()) < 3600000 && !isClosed;
+    const chancePercent = yesPrice ? Math.round(parseFloat(yesPrice) * 100) : null;
     const yesCents = yesPrice ? (parseFloat(yesPrice) * 100).toFixed(0) + '¢' : '—';
     const noCents = noPrice ? (parseFloat(noPrice) * 100).toFixed(0) + '¢' : '—';
-    const lastDisplay = lastPrice ? '$' + parseFloat(lastPrice).toFixed(2) : '—';
+
+    const timerClass = isClosingSoon ? 'series-card-timer series-card-timer--urgent' : 'series-card-timer';
+    const chanceColor = chancePercent !== null
+      ? (chancePercent > 60 ? 'var(--color-state-success)' : chancePercent < 40 ? 'var(--color-state-error)' : 'var(--color-accent-primary)')
+      : '';
 
     card.innerHTML = `
       <div class="series-card-header">
         <span class="series-card-category">${escapeHtml(market.event_ticker || '')}</span>
-        <span class="series-card-timer">${escapeHtml(timeRemaining)}</span>
+        <div style="display:flex;align-items:center;gap:3px">
+          ${renderFrequencyBadge(market)}
+          <span class="${timerClass}">${escapeHtml(timeRemaining)}</span>
+        </div>
       </div>
       <div class="series-card-title">${escapeHtml(title)}</div>
       <div class="series-card-chart">
-        <canvas class="series-card-canvas" width="280" height="60"></canvas>
+        <canvas class="series-card-canvas" width="280" height="52"></canvas>
         <div class="series-card-price-row">
-          <span class="series-card-last-price">${escapeHtml(lastDisplay)}</span>
           <span class="series-card-volume">Vol: ${escapeHtml(String(volume))}</span>
+          <span class="series-card-oi">OI: ${escapeHtml(formatVolume(market.open_interest_fp || '0'))}</span>
         </div>
       </div>
       <div class="series-card-chance">
         <span class="chance-label">Chance</span>
-        <span class="chance-value">${escapeHtml(String(chancePercent))}%</span>
+        <span class="chance-value" style="color:${chanceColor}">${chancePercent !== null ? chancePercent + '%' : '—'}</span>
+        <div class="chance-bar">
+          <div class="chance-bar__fill" style="width:${chancePercent !== null ? chancePercent : 50}%;background:${chanceColor || 'var(--color-accent-primary)'}"></div>
+        </div>
       </div>
+      ${renderPotentialReturns(market)}
       <div class="series-card-buttons">
-        <button class="yes-button" data-ticker="${escapeAttr(market.ticker)}" data-side="yes">Yes ${escapeHtml(yesCents)}</button>
-        <button class="no-button" data-ticker="${escapeAttr(market.ticker)}" data-side="no">No ${escapeHtml(noCents)}</button>
+        <button class="yes-button${isClosed ? ' disabled' : ''}" data-ticker="${escapeAttr(market.ticker)}" data-side="yes" ${isClosed ? 'disabled' : ''}>Yes ${escapeHtml(yesCents)}</button>
+        <button class="no-button${isClosed ? ' disabled' : ''}" data-ticker="${escapeAttr(market.ticker)}" data-side="no" ${isClosed ? 'disabled' : ''}>No ${escapeHtml(noCents)}</button>
       </div>
-      <div class="series-card-status ${status === 'active' ? 'status-active' : 'status-inactive'}">${escapeHtml(status)}</div>
+      ${isClosed ? '<div class="series-card-closed-overlay"><span>CLOSED</span></div>' : ''}
       <button class="expand-button" data-ticker="${escapeAttr(market.ticker)}" title="Expand card">⤢</button>
     `;
 
@@ -335,13 +524,29 @@ const TradingStudio = (() => {
       expandCard(market);
     });
 
-    /* Render mini sparkline on the card canvas (simulated trend) */
+    /* Render mini sparkline on the card canvas */
     const miniCanvas = card.querySelector('.series-card-canvas');
     if (miniCanvas) {
       drawMiniSparkline(miniCanvas, market);
     }
 
     return card;
+  }
+
+  function isMarketClosed(market) {
+    const status = (market.status || '').toLowerCase();
+    if (status === 'closed' || status === 'finalized' || status === 'settled') return true;
+    if (market.close_time) {
+      return new Date(market.close_time).getTime() < Date.now();
+    }
+    return false;
+  }
+
+  function formatVolume(value) {
+    const num = parseFloat(value) || 0;
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return String(Math.round(num));
   }
 
   /* ---- Mini Sparkline for Series Cards ---- */
@@ -372,11 +577,12 @@ const TradingStudio = (() => {
     const priceRange = maxPrice - minPrice || 0.01;
     const padding = 4;
 
-    const computedStyle = getComputedStyle(document.body);
+    const computedStyle = getComputedStyle(document.documentElement);
     const successColor = computedStyle.getPropertyValue('--color-state-success').trim() || '#22c55e';
-    const dangerColor = computedStyle.getPropertyValue('--color-state-danger').trim() || '#ef4444';
+    const errorColor = computedStyle.getPropertyValue('--color-state-error').trim() ||
+      computedStyle.getPropertyValue('--color-state-danger').trim() || '#ef4444';
     const isUpTrend = prices[prices.length - 1] >= prices[0];
-    const lineColor = isUpTrend ? successColor : dangerColor;
+    const lineColor = isUpTrend ? successColor : errorColor;
 
     /* Draw line */
     context.beginPath();
@@ -414,31 +620,64 @@ const TradingStudio = (() => {
     if (!overlay || !content) return;
 
     const title = market.yes_sub_title || market.ticker || 'Untitled';
+    const isClosed = isMarketClosed(market);
+
+    const yesAsk = market.yes_ask_dollars ? `${(parseFloat(market.yes_ask_dollars) * 100).toFixed(0)}¢` : '—';
+    const noBid = market.no_bid_dollars ? `${(parseFloat(market.no_bid_dollars) * 100).toFixed(0)}¢` : '—';
+    const yesReturn = market.yes_ask_dollars ? calcPotentialReturn(market.yes_ask_dollars, 100) : null;
+    const noReturn = market.no_ask_dollars ? calcPotentialReturn(market.no_ask_dollars, 100) : null;
 
     content.innerHTML = `
       <div class="expanded-card-header">
-        <h3>${escapeHtml(title)}</h3>
-        <button class="close-expanded" id="close-expanded">✕</button>
+        <div>
+          <h3 style="margin:0;font-size:14px;line-height:1.3">${escapeHtml(title)}</h3>
+          <div style="font-size:10px;opacity:0.6;margin-top:2px">${escapeHtml(market.ticker || '')}</div>
+        </div>
+        <button class="close-expanded" id="close-expanded" aria-label="Close expanded card">✕</button>
       </div>
       <div class="expanded-card-body">
-        <div class="expanded-chart"><canvas id="expanded-chart-canvas" width="600" height="200"></canvas></div>
-        <div class="expanded-details">
-          <div class="detail-row"><span>Ticker</span><span>${escapeHtml(market.ticker || '')}</span></div>
-          <div class="detail-row"><span>Event</span><span>${escapeHtml(market.event_ticker || '')}</span></div>
-          <div class="detail-row"><span>Status</span><span>${escapeHtml(market.status || '')}</span></div>
-          <div class="detail-row"><span>Last Price</span><span>${escapeHtml(market.last_price_dollars || '—')}</span></div>
-          <div class="detail-row"><span>Yes Bid</span><span>${escapeHtml(market.yes_bid_dollars || '—')}</span></div>
-          <div class="detail-row"><span>Yes Ask</span><span>${escapeHtml(market.yes_ask_dollars || '—')}</span></div>
-          <div class="detail-row"><span>No Bid</span><span>${escapeHtml(market.no_bid_dollars || '—')}</span></div>
-          <div class="detail-row"><span>No Ask</span><span>${escapeHtml(market.no_ask_dollars || '—')}</span></div>
-          <div class="detail-row"><span>Volume 24h</span><span>${escapeHtml(String(market.volume_24h_fp || '0'))}</span></div>
-          <div class="detail-row"><span>Open Interest</span><span>${escapeHtml(String(market.open_interest_fp || '0'))}</span></div>
-          <div class="detail-row"><span>Close Time</span><span>${escapeHtml(market.close_time || '—')}</span></div>
+        <div class="expanded-chart">
+          <canvas id="expanded-chart-canvas" width="600" height="160"></canvas>
+        </div>
+        <div class="expanded-two-col">
+          <div class="expanded-details">
+            <div class="detail-section-title">Market Info</div>
+            <div class="detail-row"><span>Event</span><span>${escapeHtml(market.event_ticker || '—')}</span></div>
+            <div class="detail-row"><span>Series</span><span>${escapeHtml(market.series_ticker || '—')}</span></div>
+            <div class="detail-row"><span>Status</span><span class="${isMarketClosed(market) ? 'status-inactive' : 'status-active'}">${escapeHtml(market.status || '—')}</span></div>
+            <div class="detail-row"><span>Closes</span><span>${market.close_time ? new Date(market.close_time).toLocaleString() : '—'}</span></div>
+            <div class="detail-row"><span>Volume 24h</span><span>${escapeHtml(formatVolume(market.volume_24h_fp || '0'))}</span></div>
+            <div class="detail-row"><span>Open Interest</span><span>${escapeHtml(formatVolume(market.open_interest_fp || '0'))}</span></div>
+          </div>
+          <div class="expanded-orderbook">
+            <div class="detail-section-title">Order Book</div>
+            <div class="orderbook-row yes">
+              <span class="ob-side">YES</span>
+              <span class="ob-bid">Bid: ${escapeHtml(market.yes_bid_dollars ? (parseFloat(market.yes_bid_dollars)*100).toFixed(0)+'¢' : '—')}</span>
+              <span class="ob-ask">Ask: ${escapeHtml(yesAsk)}</span>
+            </div>
+            <div class="orderbook-row no">
+              <span class="ob-side">NO</span>
+              <span class="ob-bid">Bid: ${escapeHtml(noBid)}</span>
+              <span class="ob-ask">Ask: ${escapeHtml(market.no_ask_dollars ? (parseFloat(market.no_ask_dollars)*100).toFixed(0)+'¢' : '—')}</span>
+            </div>
+            ${yesReturn || noReturn ? `
+            <div class="detail-section-title" style="margin-top:8px">Potential Returns (per $100)</div>
+            ${yesReturn ? `<div class="detail-row"><span>YES wins</span><span class="text-success">+$${yesReturn.profit} ($${yesReturn.payout} total)</span></div>` : ''}
+            ${noReturn ? `<div class="detail-row"><span>NO wins</span><span class="text-success">+$${noReturn.profit} ($${noReturn.payout} total)</span></div>` : ''}
+            ` : ''}
+            <div class="detail-row"><span>Last Price</span><span>${escapeHtml(market.last_price_dollars ? '$'+parseFloat(market.last_price_dollars).toFixed(2) : '—')}</span></div>
+          </div>
         </div>
         <div class="expanded-actions">
-          <button class="yes-button large" data-ticker="${escapeAttr(market.ticker)}" data-side="yes">Buy YES</button>
-          <button class="no-button large" data-ticker="${escapeAttr(market.ticker)}" data-side="no">Buy NO</button>
+          <button class="yes-button large" data-ticker="${escapeAttr(market.ticker)}" data-side="yes" ${isClosed ? 'disabled' : ''}>
+            Buy YES ${yesAsk}
+          </button>
+          <button class="no-button large" data-ticker="${escapeAttr(market.ticker)}" data-side="no" ${isClosed ? 'disabled' : ''}>
+            Buy NO ${noBid}
+          </button>
         </div>
+        ${isClosed ? '<div class="expanded-closed-notice">⚠ This market is closed. Orders cannot be placed.</div>' : ''}
       </div>
     `;
 
@@ -446,6 +685,92 @@ const TradingStudio = (() => {
     document.getElementById('close-expanded').addEventListener('click', () => {
       overlay.style.display = 'none';
     });
+
+    /* Draw expanded sparkline */
+    requestAnimationFrame(() => {
+      const expandedCanvas = document.getElementById('expanded-chart-canvas');
+      if (expandedCanvas) drawExpandedChart(expandedCanvas, market);
+    });
+  }
+
+  function drawExpandedChart(canvas, market) {
+    const context = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+    context.clearRect(0, 0, width, height);
+
+    const computedStyle = getComputedStyle(document.documentElement);
+    const bgColor = computedStyle.getPropertyValue('--color-bg-canvas').trim();
+    const gridColor = computedStyle.getPropertyValue('--color-border-muted').trim();
+    const successColor = computedStyle.getPropertyValue('--color-state-success').trim() || '#22c55e';
+    const errorColor = computedStyle.getPropertyValue('--color-state-error').trim() ||
+      computedStyle.getPropertyValue('--color-state-danger').trim() || '#ef4444';
+
+    context.fillStyle = bgColor;
+    context.fillRect(0, 0, width, height);
+
+    /* Draw grid lines */
+    context.strokeStyle = gridColor;
+    context.lineWidth = 0.5;
+    context.setLineDash([3, 4]);
+    [0.25, 0.5, 0.75].forEach(fraction => {
+      const y = fraction * height;
+      context.beginPath();
+      context.moveTo(0, y);
+      context.lineTo(width, y);
+      context.stroke();
+    });
+    context.setLineDash([]);
+
+    /* Generate price series */
+    const currentPrice = parseFloat(market.last_price_dollars || market.yes_bid_dollars || '0.50');
+    const dataPoints = 60;
+    const prices = [];
+    let price = currentPrice * (0.8 + Math.random() * 0.2);
+
+    for (let i = 0; i < dataPoints; i++) {
+      const drift = (currentPrice - price) * 0.06;
+      const noise = (Math.random() - 0.5) * 0.03;
+      price = Math.max(0.01, Math.min(0.99, price + drift + noise));
+      prices.push(price);
+    }
+    prices[prices.length - 1] = currentPrice;
+
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
+    const priceRange = maxPrice - minPrice || 0.01;
+    const padding = 8;
+    const isUpTrend = prices[prices.length - 1] >= prices[0];
+    const lineColor = isUpTrend ? successColor : errorColor;
+
+    /* Draw line */
+    context.beginPath();
+    context.lineWidth = 2;
+    context.lineJoin = 'round';
+    context.strokeStyle = lineColor;
+
+    prices.forEach((pricePoint, index) => {
+      const x = padding + (index / (dataPoints - 1)) * (width - padding * 2);
+      const y = padding + (1 - (pricePoint - minPrice) / priceRange) * (height - padding * 2);
+      if (index === 0) context.moveTo(x, y);
+      else context.lineTo(x, y);
+    });
+    context.stroke();
+
+    /* Fill */
+    const gradient = context.createLinearGradient(0, padding, 0, height - padding);
+    gradient.addColorStop(0, lineColor + '40');
+    gradient.addColorStop(1, lineColor + '05');
+    context.lineTo(width - padding, height - padding);
+    context.lineTo(padding, height - padding);
+    context.closePath();
+    context.fillStyle = gradient;
+    context.fill();
+
+    /* Current price label */
+    context.fillStyle = lineColor;
+    context.font = 'bold 11px monospace';
+    context.fillText(`${(currentPrice * 100).toFixed(0)}¢`, width - 32, 14);
   }
 
   /* ---- Real-time Updates ---- */
@@ -476,6 +801,7 @@ const TradingStudio = (() => {
     if (event.type === 'fill' && event.data) {
       showToast(`Fill: ${event.data.data?.ticker || 'unknown'} — ${event.data.data?.side || ''}`, 'success');
       fetchAccountSummary();
+      if (typeof PositionsPanel !== 'undefined') PositionsPanel.onFill(event.data);
     }
     if (event.type === 'manual_order' && event.data) {
       fetchAccountSummary();
@@ -483,6 +809,7 @@ const TradingStudio = (() => {
     if (event.type === 'trading_enabled' || event.type === 'trading_disabled') {
       fetchAccountSummary();
     }
+    if (typeof AgentDashboard !== 'undefined') AgentDashboard.onEvent(event);
   }
 
   /* ---- Approval Overlay ---- */
@@ -490,10 +817,27 @@ const TradingStudio = (() => {
   function showApprovalOverlay(data) {
     const overlay = document.getElementById('approval-overlay');
     if (!overlay) return;
-    setText('approval-agent-name', data.agent_name || '');
-    setText('approval-ticker', data.ticker || '');
-    setText('approval-reasoning', data.reasoning || '');
-    setText('approval-details', `Side: ${data.side || '?'}, Price: ${data.price_dollars || '?'}`);
+
+    /* Build richer approval display */
+    const agentName = data.agent_name || 'Agent';
+    const ticker = data.ticker || '—';
+    const side = (data.side || '?').toUpperCase();
+    const price = data.price_dollars ? `${(parseFloat(data.price_dollars) * 100).toFixed(0)}¢` : '?';
+    const reasoning = data.reasoning || 'No reasoning provided';
+
+    /* Set a 60-second auto-expiry timer (no countdown shown per PRD) */
+    if (approvalExpiryTimeout) clearTimeout(approvalExpiryTimeout);
+    approvalExpiryTimeout = setTimeout(() => {
+      if (overlay.style.display !== 'none') {
+        overlay.style.display = 'none';
+        showToast(`Approval request for ${ticker} expired`, 'info');
+      }
+    }, 60000);
+
+    setText('approval-agent-name', agentName);
+    setText('approval-ticker', ticker);
+    setText('approval-reasoning', reasoning);
+    setText('approval-details', `${side} @ ${price}`);
     overlay.style.display = 'flex';
     overlay.dataset.clientOrderId = data.client_order_id || '';
   }
@@ -509,7 +853,7 @@ const TradingStudio = (() => {
         showToast(`Approval ${action} failed (${response.status})`, 'error');
         return;
       }
-      showToast(`Trade ${approved ? 'approved' : 'denied'}: ${orderId}`, approved ? 'success' : 'info');
+      showToast(`Trade ${approved ? 'approved ✓' : 'denied ✕'}: ${orderId}`, approved ? 'success' : 'info');
     } catch (e) {
       showToast('Approval post failed — backend not reachable', 'error');
     }
@@ -523,7 +867,7 @@ const TradingStudio = (() => {
     if (!tradingSection) return;
     tradingSection.addEventListener('click', (e) => {
       const button = e.target.closest('.yes-button[data-ticker], .no-button[data-ticker]');
-      if (!button) return;
+      if (!button || button.disabled) return;
       e.stopPropagation();
       const ticker = button.dataset.ticker;
       const side = button.dataset.side;
@@ -567,7 +911,6 @@ const TradingStudio = (() => {
         showToast(errorData.detail || `Order failed (${response.status})`, 'error');
         return;
       }
-      const result = await response.json();
       showToast(`✓ Order submitted: ${side.toUpperCase()} on ${ticker}`, 'success');
     } catch (networkError) {
       showToast('Backend not reachable — cannot place orders', 'error');
@@ -609,8 +952,15 @@ const TradingStudio = (() => {
             pnlElement.textContent = sign + '$' + pnl.toFixed(2);
             pnlElement.style.color = pnl >= 0
               ? 'var(--color-state-success)'
-              : 'var(--color-state-danger)';
+              : 'var(--color-state-error, var(--color-state-danger))';
           }
+        }
+
+        /* Update circuit breaker indicator */
+        const cbEl = document.getElementById('circuit-breaker-status');
+        if (cbEl) {
+          cbEl.textContent = tradingData.circuit_breaker_open ? '⚡ CIRCUIT OPEN' : '';
+          cbEl.style.color = tradingData.circuit_breaker_open ? 'var(--color-state-error)' : '';
         }
       }
     } catch (error) {
@@ -632,7 +982,7 @@ const TradingStudio = (() => {
     const toast = document.createElement('div');
     const colorMap = {
       success: 'var(--color-state-success, #22c55e)',
-      error: 'var(--color-state-danger, #ef4444)',
+      error: 'var(--color-state-error, var(--color-state-danger, #ef4444))',
       info: 'var(--color-state-info, #3b82f6)',
     };
     const borderColor = colorMap[type] || colorMap.info;
@@ -669,12 +1019,15 @@ const TradingStudio = (() => {
     }, 4000);
   }
 
+  /* ---- Utility Functions ---- */
+
   function formatTimeRemaining(closeTime) {
     const diff = closeTime - new Date();
     if (diff <= 0) return 'Closed';
     const hours = Math.floor(diff / 3600000);
     const minutes = Math.floor((diff % 3600000) / 60000);
-    if (hours > 24) return Math.floor(hours / 24) + 'd';
+    if (hours > 24 * 7) return Math.floor(hours / 24) + 'd';
+    if (hours > 24) return Math.floor(hours / 24) + 'd ' + (hours % 24) + 'h';
     if (hours > 0) return hours + 'h ' + minutes + 'm';
     return minutes + 'm';
   }
