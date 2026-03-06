@@ -49,7 +49,7 @@
   var themeIndex = {};
   THEMES.forEach(function (t) { themeIndex[t.id] = t; });
 
-  /* Representative colours per theme — used to style selector buttons */
+  /* Representative colors per theme — used to style selector buttons */
   var THEME_COLORS = {
     "webpage":        { light: { bg: "#f8f9fa", fg: "#1a1a2e", accent: "#3b82f6" }, dark: { bg: "#1e293b", fg: "#f1f5f9", accent: "#60a5fa" } },
     "mosaic-1993":    { light: { bg: "#d4d0c8", fg: "#000000", accent: "#000080" }, dark: { bg: "#3a3a3a", fg: "#c0c0c0", accent: "#6666cc" } },

@@ -213,6 +213,35 @@ body {
   color: var(--color-fg-muted);
 }
 
+.region-title--centered {
+  flex: 1;
+  text-align: center;
+}
+
+/* ---------- Axis buttons (Action Bar P/L graph) ------------------------- */
+.axis-btn {
+  font-size: 0.4rem;
+  padding: 1px 4px;
+  border: 1px solid var(--color-border-muted);
+  border-radius: 2px;
+  background: var(--color-bg-surface);
+  color: var(--color-fg-default);
+  cursor: pointer;
+  font-family: var(--font-family-mono);
+  white-space: nowrap;
+  transition: border-color var(--transition-speed), background var(--transition-speed);
+}
+
+.axis-btn:hover {
+  border-color: var(--color-accent-primary);
+}
+
+.axis-btn.active {
+  background: var(--color-accent-primary);
+  color: var(--color-fg-on-accent);
+  border-color: var(--color-accent-primary);
+}
+
 /* ==========================================================================
    3. CARDS
    ========================================================================== */
