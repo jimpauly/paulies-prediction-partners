@@ -46,7 +46,7 @@ function getBackendPath() {
   if (app.isPackaged) {
     return path.join(process.resourcesPath, 'backend');
   }
-  return path.join(__dirname, '..', 'copilot-opus', 'backend');
+  return path.join(__dirname, '..', '..', 'services', 'api', 'backend');
 }
 
 function getPythonExecutable() {
@@ -181,7 +181,7 @@ function createMainWindow() {
     show: false,
   });
 
-  const indexPath = path.join(__dirname, '..', 'copilot-opus', 'index.html');
+  const indexPath = path.join(__dirname, '..', 'web', 'public', 'index.html');
   mainWindow.loadFile(indexPath);
 
   mainWindow.once('ready-to-show', () => {

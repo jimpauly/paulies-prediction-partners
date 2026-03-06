@@ -2,7 +2,7 @@
   "name": "paulies-prediction-partners",
   "version": "1.0.0",
   "description": "AI-Powered Prediction Market Trading Studio for Kalshi",
-  "main": "electron/main.js",
+  "main": "apps/desktop/main.js",
   "author": "Paulie's Prediction Partners",
   "license": "MIT",
   "homepage": "https://github.com/jimpauly/paulies-prediction-partners",
@@ -12,7 +12,8 @@
   },
   "scripts": {
     "start": "electron .",
-    "start:backend": "cd copilot-opus && python -m uvicorn backend.main:main --host 127.0.0.1 --port 8000",
+    "start:backend": "cd services/api && python -m uvicorn backend.main:main --host 127.0.0.1 --port 8000",
+    "start:web": "cd apps/web/public && python -m http.server 4173",
     "build:win": "electron-builder --win",
     "build:mac": "electron-builder --mac",
     "build:linux": "electron-builder --linux",
@@ -23,15 +24,14 @@
     "appId": "com.paulies.prediction-partners",
     "productName": "Paulie's Prediction Partners",
     "files": [
-      "electron/**/*",
-      "copilot-opus/**/*",
-      "index.html",
-      "!copilot-opus/backend/**/*",
+      "apps/desktop/**/*",
+      "apps/web/public/**/*",
+      "!services/api/backend/**/*",
       "!**/node_modules/**/*"
     ],
     "extraResources": [
       {
-        "from": "copilot-opus/backend",
+        "from": "services/api/backend",
         "to": "backend",
         "filter": [
           "**/*",
@@ -47,7 +47,7 @@
           "arch": ["x64"]
         }
       ],
-      "icon": "electron/icons/icon.ico"
+      "icon": "build/icons/icon.ico"
     },
     "mac": {
       "target": [
@@ -56,7 +56,7 @@
           "arch": ["x64", "arm64"]
         }
       ],
-      "icon": "electron/icons/icon.icns",
+      "icon": "build/icons/icon.icns",
       "category": "public.app-category.finance"
     },
     "linux": {
@@ -66,15 +66,15 @@
           "arch": ["x64"]
         }
       ],
-      "icon": "electron/icons",
+      "icon": "build/icons",
       "category": "Office"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "installerIcon": "electron/icons/icon.ico",
-      "uninstallerIcon": "electron/icons/icon.ico",
-      "installerHeaderIcon": "electron/icons/icon.ico",
+      "installerIcon": "build/icons/icon.ico",
+      "uninstallerIcon": "build/icons/icon.ico",
+      "installerHeaderIcon": "build/icons/icon.ico",
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "Paulie's Prediction Partners"
