@@ -21,12 +21,12 @@
 
 The following is stored locally and never sent to us:
 
-| Data | Where |
-| ---- | ----- |
-| Theme and display preferences | Local browser/Electron storage |
-| Illumination control settings | Local browser/Electron storage |
+| Data                          | Where                                       |
+| ----------------------------- | ------------------------------------------- |
+| Theme and display preferences | Local browser/Electron storage              |
+| Illumination control settings | Local browser/Electron storage              |
 | Setup wizard completion state | `userData/wizard-state.json` on your device |
-| To-Do list items | Local browser storage |
+| To-Do list items              | Local browser storage                       |
 
 You can wipe all of this by clearing your app data or uninstalling.
 
@@ -46,6 +46,7 @@ When you connect to Kalshi, your credentials go **directly from your computer to
 ## Third-party services
 
 **Kalshi** — When you connect, you're subject to Kalshi's own policies:
+
 - https://kalshi.com/privacy-policy
 - https://kalshi.com/terms-of-service
 
