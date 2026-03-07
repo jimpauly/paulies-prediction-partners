@@ -122,6 +122,12 @@
           connectionStatus.textContent = selectedMode === 'live' ? 'LIVE' : 'DEMO';
         }
 
+        /* Start uptime timer */
+        startUptimeTimer();
+
+        /* Start account summary polling */
+        startAccountSummaryPolling();
+
         /* Notify Trading Studio of connection */
         TradingStudio.onConnected(selectedMode);
 
@@ -377,6 +383,71 @@
         const body = encodeURIComponent('Here is my idea:\n\n');
         window.location.href = `mailto:chickensaurusrex@outlook.com?subject=${subject}&body=${body}`;
       });
+    }
+  }
+
+  // ---- Uptime Timer ----
+  let uptimeInterval = null;
+  let connectionStartTime = null;
+
+  function startUptimeTimer() {
+    connectionStartTime = Date.now();
+    if (uptimeInterval) clearInterval(uptimeInterval);
+    const uptimeEl = document.getElementById('connection-uptime');
+    if (!uptimeEl) return;
+    uptimeInterval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - connectionStartTime) / 1000);
+      const hours = Math.floor(elapsed / 3600);
+      const minutes = Math.floor((elapsed % 3600) / 60);
+      const seconds = elapsed % 60;
+      const pad = (n) => String(n).padStart(2, '0');
+      uptimeEl.textContent = hours > 0
+        ? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+        : `${pad(minutes)}:${pad(seconds)}`;
+      uptimeEl.style.color = 'var(--color-state-success)';
+    }, 1000);
+  }
+
+  // ---- Account Summary Polling ----
+  let accountPollInterval = null;
+
+  function startAccountSummaryPolling() {
+    if (accountPollInterval) clearInterval(accountPollInterval);
+    fetchAccountSummary();
+    accountPollInterval = setInterval(fetchAccountSummary, 10000);
+  }
+
+  async function fetchAccountSummary() {
+    const balanceEl = document.getElementById('account-balance');
+    const portfolioEl = document.getElementById('account-portfolio');
+    const pnlEl = document.getElementById('account-pnl');
+    const tradesEl = document.getElementById('account-trades');
+    if (!balanceEl && !portfolioEl && !pnlEl && !tradesEl) return;
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/trading/account-summary');
+      if (!response.ok) return;
+      const data = await response.json();
+
+      if (balanceEl && data.balance !== undefined) {
+        balanceEl.textContent = '$' + Number(data.balance).toFixed(2);
+      }
+      if (portfolioEl && data.portfolio_value !== undefined) {
+        portfolioEl.textContent = '$' + Number(data.portfolio_value).toFixed(2);
+      }
+      if (pnlEl && data.today_pnl !== undefined) {
+        const pnl = Number(data.today_pnl);
+        const sign = pnl >= 0 ? '+' : '';
+        pnlEl.textContent = sign + '$' + Math.abs(pnl).toFixed(2);
+        pnlEl.style.color = pnl >= 0
+          ? 'var(--color-state-success)'
+          : 'var(--color-state-error)';
+      }
+      if (tradesEl && data.total_trades !== undefined) {
+        tradesEl.textContent = String(data.total_trades);
+      }
+    } catch (_error) {
+      /* Backend offline — keep existing display */
     }
   }
 
