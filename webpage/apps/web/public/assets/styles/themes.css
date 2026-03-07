@@ -27,8 +27,10 @@
   --color-state-error: #dc2626;
   --color-state-info: #0ea5e9;
   --color-shadow: rgba(0, 0, 0, 0.08);
-  --font-family-base: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-family-mono: "Fira Code", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-family-base:
+    "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-family-mono:
+    "Fira Code", ui-monospace, SFMono-Regular, Menlo, monospace;
   --border-radius-sm: 4px;
   --border-radius-md: 8px;
   --border-radius-lg: 16px;
@@ -56,8 +58,10 @@
   --color-state-error: #dc2626;
   --color-state-info: #0ea5e9;
   --color-shadow: rgba(0, 0, 0, 0.08);
-  --font-family-base: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-family-mono: "Fira Code", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-family-base:
+    "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-family-mono:
+    "Fira Code", ui-monospace, SFMono-Regular, Menlo, monospace;
   --border-radius-sm: 4px;
   --border-radius-md: 8px;
   --border-radius-lg: 16px;
@@ -82,8 +86,10 @@
   --color-state-error: #f87171;
   --color-state-info: #38bdf8;
   --color-shadow: rgba(0, 0, 0, 0.3);
-  --font-family-base: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-family-mono: "Fira Code", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-family-base:
+    "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-family-mono:
+    "Fira Code", ui-monospace, SFMono-Regular, Menlo, monospace;
   --border-radius-sm: 4px;
   --border-radius-md: 8px;
   --border-radius-lg: 16px;
@@ -1101,7 +1107,8 @@
   --color-state-error: #9a2a1a;
   --color-state-info: #3a5a7a;
   --color-shadow: rgba(0, 0, 0, 0.15);
-  --font-family-base: "Archivo Black", "Impact", "Franklin Gothic Medium", sans-serif;
+  --font-family-base:
+    "Archivo Black", "Impact", "Franklin Gothic Medium", sans-serif;
   --font-family-mono: "Share Tech Mono", "Courier New", monospace;
   --border-radius-sm: 0px;
   --border-radius-md: 2px;
@@ -1127,7 +1134,8 @@
   --color-state-error: #d04030;
   --color-state-info: #5080a8;
   --color-shadow: rgba(0, 0, 0, 0.4);
-  --font-family-base: "Archivo Black", "Impact", "Franklin Gothic Medium", sans-serif;
+  --font-family-base:
+    "Archivo Black", "Impact", "Franklin Gothic Medium", sans-serif;
   --font-family-mono: "Share Tech Mono", "Courier New", monospace;
   --border-radius-sm: 0px;
   --border-radius-md: 2px;
@@ -1321,7 +1329,8 @@
   --color-state-error: #d42020;
   --color-state-info: #0090d0;
   --color-shadow: rgba(0, 60, 120, 0.1);
-  --font-family-base: "Frutiger", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-family-base:
+    "Frutiger", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --font-family-mono: "Consolas", "Lucida Console", monospace;
   --border-radius-sm: 4px;
   --border-radius-md: 8px;
@@ -1347,7 +1356,8 @@
   --color-state-error: #f05050;
   --color-state-info: #40b8f0;
   --color-shadow: rgba(64, 168, 240, 0.08);
-  --font-family-base: "Frutiger", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-family-base:
+    "Frutiger", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --font-family-mono: "Consolas", "Lucida Console", monospace;
   --border-radius-sm: 4px;
   --border-radius-md: 8px;
