@@ -38,11 +38,11 @@ The app does not share your keys with anyone.
 
 Set your mode in the **Agent Dashboard** before the agents do anything.
 
-| Mode | What happens |
-|---|---|
-| Auto | Agents trade on their own without asking you |
-| Semi-Auto | Agents ask you to approve each trade first |
-| Safe | No trades are placed |
+| Mode      | What happens                                 |
+| --------- | -------------------------------------------- |
+| Auto      | Agents trade on their own without asking you |
+| Semi-Auto | Agents ask you to approve each trade first   |
+| Safe      | No trades are placed                         |
 
 Start in **Safe** mode to look around before anything is live.
 
