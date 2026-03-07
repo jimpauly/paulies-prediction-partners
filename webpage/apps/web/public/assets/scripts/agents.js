@@ -18,6 +18,7 @@ const AgentDashboard = (() => {
       description: "BTC 15-min Candlestick",
       chartColor: "#22c55e" /* green */,
       defaultMode: "semi-auto",
+      active: true,
     },
     prime: {
       displayName: "PRIME",
@@ -25,6 +26,7 @@ const AgentDashboard = (() => {
       description: "Majority Signal",
       chartColor: "#3b82f6" /* blue */,
       defaultMode: "semi-auto",
+      active: true,
     },
     praxis: {
       displayName: "PRAXIS",
@@ -32,6 +34,23 @@ const AgentDashboard = (() => {
       description: "Sports Markets",
       chartColor: "#a855f7" /* purple */,
       defaultMode: "safe",
+      active: true,
+    },
+    vigil: {
+      displayName: "VIGIL",
+      icon: "🛡️",
+      description: "Risk Sentinel",
+      chartColor: "#64748b" /* slate */,
+      defaultMode: "safe",
+      active: false,
+    },
+    nexus: {
+      displayName: "NEXUS",
+      icon: "🔗",
+      description: "Cross-Market",
+      chartColor: "#64748b" /* slate */,
+      defaultMode: "safe",
+      active: false,
     },
   };
 
@@ -71,43 +90,54 @@ const AgentDashboard = (() => {
     container.innerHTML = "";
     Object.entries(AGENT_CONFIG).forEach(([agentName, config]) => {
       const card = document.createElement("div");
-      card.className = "agent-card";
+      card.className = config.active
+        ? "agent-card"
+        : "agent-card agent-card--inactive";
       card.id = `agent-card-${agentName}`;
       card.dataset.agent = agentName;
 
-      card.innerHTML = `
-        <span class="agent-card__avatar">${config.icon}</span>
-        <span class="agent-card__name">${config.displayName}</span>
-        <span class="agent-card__role">${config.description}</span>
-        <div class="agent-card__status-dot" id="agent-dot-${agentName}" title="Status: Offline"></div>
-        <div class="agent-card__stats" id="agent-stats-${agentName}">
-          <span class="agent-card__wr" id="agent-wr-${agentName}">—%</span>
-          <span class="agent-card__pnl" id="agent-pnl-${agentName}">$—</span>
-        </div>
-        <div class="agent-mode-buttons" id="agent-modes-${agentName}">
-          <button
-            class="agent-mode-btn"
-            data-agent="${agentName}"
-            data-mode="auto"
-            title="Full Auto — agent trades without approval"
-            aria-label="Set ${config.displayName} to Full Auto mode"
-          >A</button>
-          <button
-            class="agent-mode-btn active"
-            data-agent="${agentName}"
-            data-mode="semi-auto"
-            title="Semi-Auto — agent requests approval before buying"
-            aria-label="Set ${config.displayName} to Semi-Auto mode"
-          >S</button>
-          <button
-            class="agent-mode-btn"
-            data-agent="${agentName}"
-            data-mode="safe"
-            title="Safe — agent is paused"
-            aria-label="Set ${config.displayName} to Safe (paused) mode"
-          >⛔</button>
-        </div>
-      `;
+      if (config.active) {
+        card.innerHTML = `
+          <span class="agent-card__avatar">${config.icon}</span>
+          <span class="agent-card__name">${config.displayName}</span>
+          <span class="agent-card__role">${config.description}</span>
+          <div class="agent-card__status-dot" id="agent-dot-${agentName}" title="Status: Offline"></div>
+          <div class="agent-card__stats" id="agent-stats-${agentName}">
+            <span class="agent-card__wr" id="agent-wr-${agentName}">—%</span>
+            <span class="agent-card__pnl" id="agent-pnl-${agentName}">$—</span>
+          </div>
+          <div class="agent-mode-buttons" id="agent-modes-${agentName}">
+            <button
+              class="agent-mode-btn"
+              data-agent="${agentName}"
+              data-mode="auto"
+              title="Full Auto — agent trades without approval"
+              aria-label="Set ${config.displayName} to Full Auto mode"
+            >A</button>
+            <button
+              class="agent-mode-btn active"
+              data-agent="${agentName}"
+              data-mode="semi-auto"
+              title="Semi-Auto — agent requests approval before buying"
+              aria-label="Set ${config.displayName} to Semi-Auto mode"
+            >S</button>
+            <button
+              class="agent-mode-btn"
+              data-agent="${agentName}"
+              data-mode="safe"
+              title="Safe — agent is paused"
+              aria-label="Set ${config.displayName} to Safe (paused) mode"
+            >⛔</button>
+          </div>
+        `;
+      } else {
+        card.innerHTML = `
+          <span class="agent-card__avatar">${config.icon}</span>
+          <span class="agent-card__name">${config.displayName}</span>
+          <span class="agent-card__role">${config.description}</span>
+          <span class="agent-card__locked">LOCKED</span>
+        `;
+      }
 
       container.appendChild(card);
     });

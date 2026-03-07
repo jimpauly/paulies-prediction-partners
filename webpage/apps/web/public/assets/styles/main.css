@@ -301,13 +301,19 @@ body {
 
 /* Shrink-wrap cards to content in utility regions. */
 .region-left .card,
-.region-right .card,
-.region-foot .card {
+.region-right .card {
   display: flex;
   flex-direction: column;
   width: fit-content;
   max-width: 100%;
   align-self: flex-start;
+}
+
+/* Bottom bar cards: fill equal height */
+.region-foot .card {
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
 }
 
 /* Main content cards should use the available reading width. */
@@ -318,8 +324,7 @@ body {
 
 /* Prevent utility cards from filling rows when inline styles set flex:1. */
 .region-left .card,
-.region-right .card,
-.region-foot .card {
+.region-right .card {
   flex: 0 0 auto !important;
 }
 
@@ -1575,6 +1580,20 @@ textarea.input {
   letter-spacing: 0.06em;
 }
 
+.agent-card__locked {
+  font-family: var(--font-family-mono);
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: var(--color-fg-subtle);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border: 1px dashed var(--color-border-muted);
+  border-radius: var(--border-radius-sm, 3px);
+  margin-top: auto;
+}
+}
+
 /* ==========================================================================
    22. SPIRAL NOTEBOOK  (Right sidebar To-Do list)
    ========================================================================== */
@@ -1981,7 +2000,7 @@ textarea.input {
   padding: var(--space-1) var(--space-2);
 }
 
-/* Bottom-bar card flow: fill available width without microscopic controls. */
+/* Bottom-bar card flow: equal-height cards that fill available space. */
 #bottom-bar > div {
   height: 100%;
 }
@@ -1989,22 +2008,40 @@ textarea.input {
 #bottom-bar > div > div {
   align-items: stretch !important;
   align-content: flex-start;
-  flex-wrap: wrap !important;
+  flex-wrap: nowrap !important;
   row-gap: var(--space-3);
+  flex: 1;
 }
 
 #bottom-bar .card {
-  flex: 1 1 260px !important;
+  flex: 1 1 200px !important;
   width: auto;
-  min-width: min(320px, 100%);
+  min-width: min(200px, 100%);
+  display: flex;
+  flex-direction: column;
 }
 
 #bottom-bar #api-key-card {
-  flex: 1.4 1 360px !important;
+  flex: 1.2 1 220px !important;
 }
 
 #bottom-bar .card--compact .card-body {
-  height: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+#bottom-bar .card--compact .card-header {
+  flex-shrink: 0;
+}
+
+/* Account summary card stats */
+#account-summary-card .card-body span {
+  font-size: clamp(0.62rem, 0.1vw + 0.58rem, 0.72rem);
+}
+
+#account-summary-card .card-body > div {
+  min-height: 0;
 }
 
 /* ==========================================================================
