@@ -1,0 +1,18 @@
+
+
+1. Header bar:
+
+- robot emoji ahould go after 'paulie's prediction partners'- remove the 'prediction trading'; no subtext needed
+
+- set a placeholder circle in the center of header bar
+
+2. System Design (side bar):
+
+modes:
+- Let's make light/dark one single button in the same row next to it, should be a single button for 3d/2d toggle. rename this card with these two updated buttons 'modes'
+
+themes:
+- let's make the text inside the theme buttons also have a border. this way the button can show the theme's background color, it's body color, and two border colors if applicable. set theme button's outer borders right angles, almost touching, text borders can be slightly rounded.
+- keep theme buttons in single column and the same width. the button width should be reactive to the width of the text. this means that the text should be shrinkwrapped with a tiny padding inside their buttons. and the themes-card should be shrink wrapped to the theme-buttons with a tiny padding
+
+- 
