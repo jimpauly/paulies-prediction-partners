@@ -866,10 +866,8 @@
     inset 0 0 6px color-mix(in srgb, var(--color-bg-canvas) 85%, black),
     inset 0 0 2px
       color-mix(in srgb, var(--color-accent-primary) 6%, transparent),
-    inset 0 1px 0
-      color-mix(in srgb, var(--color-fg-default) 6%, transparent),
-    0 0 4px
-      color-mix(in srgb, var(--color-accent-primary) 12%, transparent);
+    inset 0 1px 0 color-mix(in srgb, var(--color-fg-default) 6%, transparent),
+    0 0 4px color-mix(in srgb, var(--color-accent-primary) 12%, transparent);
 }
 
 /* Dial option labels removed — style "b" (Knurled Edge) chosen as final */
