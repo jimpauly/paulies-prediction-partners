@@ -13,6 +13,7 @@ const TradingStudio = (() => {
 
   let markets = [];
   let events = {};
+  let seriesData = {};
   let displayedCount = 0;
   let currentCategory = "all";
   let currentSubcategory = "all";
@@ -20,6 +21,8 @@ const TradingStudio = (() => {
   let websocket = null;
   let approvalExpiryTimeout =
     null; /* stores approval overlay auto-close timer */
+  let currentSeriesDetail = null; /* series key when in detail view */
+  let seriesDetailFreqFilter = "all"; /* frequency filter inside detail view */
 
   /* Kalshi-style category mapping — matches Kalshi platform top nav.
      Each category maps to Kalshi event categories and keyword matchers. */
@@ -265,6 +268,15 @@ const TradingStudio = (() => {
     gdp: { label: "GDP", icon: "📊", priority: 22 },
   };
 
+  /* Frequency display labels — shared by series detail view and event panels */
+  const FREQ_LABELS = {
+    "15min": "15 Min",
+    "1h": "Hourly",
+    "6h": "6 Hour",
+    "24h": "Daily",
+    "7d": "Weekly",
+  };
+
   /* ---- Initialization ---- */
 
   function initialize() {
@@ -276,6 +288,24 @@ const TradingStudio = (() => {
     bindApprovalButtons();
     bindOverlayClose();
     bindBuySellDelegation();
+
+    /* Show trading interface immediately with public data.
+       The pre-connect prompt becomes a small inline banner rather than
+       blocking the entire interface. */
+    const preConnect = document.getElementById("trading-pre-connect");
+    const iface = document.getElementById("trading-interface");
+    if (preConnect) preConnect.style.display = "none";
+    if (iface) iface.style.display = "flex";
+
+    /* Hide account bar until connected (no balance data without API keys) */
+    const accountBar = document.getElementById("trading-account-bar");
+    if (accountBar) accountBar.style.display = "none";
+
+    /* Fetch public market data from backend with retry polling */
+    pollForPublicData();
+
+    /* Listen for public_data_ready events from WebSocket */
+    connectPublicWebSocket();
   }
 
   /* ---- Event Binding ---- */
@@ -286,6 +316,18 @@ const TradingStudio = (() => {
     nav.addEventListener("click", (e) => {
       const tab = e.target.closest(".ks-cat-tab");
       if (!tab) return;
+
+      /* Close series detail view if open */
+      if (currentSeriesDetail) {
+        currentSeriesDetail = null;
+        const detailView = document.getElementById("series-detail-view");
+        const grid = document.getElementById("series-cards-grid");
+        const filtersRow = document.querySelector(".trading-filters");
+        if (detailView) detailView.style.display = "none";
+        if (grid) grid.style.display = "";
+        if (filtersRow) filtersRow.style.display = "";
+      }
+
       nav
         .querySelectorAll(".ks-cat-tab")
         .forEach((t) => t.classList.remove("active"));
@@ -305,11 +347,17 @@ const TradingStudio = (() => {
       const item = e.target.closest(".ks-sidebar-item");
       if (!item) return;
 
+      /* If in series detail view, series-nav items have their own handlers */
+      if (item.dataset.seriesNav) return;
+
       /* Handle expandable items with children */
       if (item.classList.contains("ks-sidebar-parent")) {
         item.classList.toggle("ks-sidebar-expanded");
         return;
       }
+
+      /* Close series detail view if open */
+      if (currentSeriesDetail) closeSeriesDetail();
 
       nav
         .querySelectorAll(".ks-sidebar-item")
@@ -399,6 +447,14 @@ const TradingStudio = (() => {
 
   async function onConnected(environment) {
     connected = true;
+
+    /* Close the public-data WebSocket since the main one takes over */
+    if (publicWs) {
+      publicWs.onclose = null; /* prevent reconnect */
+      publicWs.close();
+      publicWs = null;
+    }
+
     const preConnect = document.getElementById("trading-pre-connect");
     const iface = document.getElementById("trading-interface");
     if (preConnect) preConnect.style.display = "none";
@@ -407,9 +463,13 @@ const TradingStudio = (() => {
       iface.classList.add("trading-init-animation");
       setTimeout(() => iface.classList.remove("trading-init-animation"), 1500);
     }
+    /* Refresh with authenticated data (may include private markets) */
     await Promise.all([fetchMarkets(), fetchEvents()]);
     await fetchAccountSummary();
     connectWebSocket();
+
+    /* Update button states to show connected */
+    updateConnectionState();
 
     /* Notify sub-modules */
     if (typeof PositionsPanel !== "undefined") PositionsPanel.onConnected();
@@ -427,18 +487,19 @@ const TradingStudio = (() => {
       clearInterval(onConnected._accountInterval);
       onConnected._accountInterval = null;
     }
-    const preConnect = document.getElementById("trading-pre-connect");
-    const iface = document.getElementById("trading-interface");
-    if (preConnect) preConnect.style.display = "flex";
-    if (iface) iface.style.display = "none";
-    markets = [];
-    events = {};
-    displayedCount = 0;
-    renderCards();
+    /* Keep the trading interface visible — show markets from public API.
+       Only hide account summary data and update button states. */
+    const accountBar = document.getElementById("trading-account-bar");
+    if (accountBar) accountBar.style.display = "none";
+    updateConnectionState();
+
     if (websocket) {
       websocket.close();
       websocket = null;
     }
+
+    /* Re-fetch public data so cards remain populated */
+    fetchPublicData();
 
     if (typeof PositionsPanel !== "undefined") PositionsPanel.onDisconnected();
     if (typeof AgentDashboard !== "undefined") AgentDashboard.onDisconnected();
@@ -471,6 +532,77 @@ const TradingStudio = (() => {
     } catch (e) {
       console.warn("Failed to fetch events:", e);
     }
+  }
+
+  async function fetchPublicData() {
+    /* Fetch markets and events from the backend's state cache which is
+       populated from Kalshi's public (unauthenticated) API on startup. */
+    await Promise.all([fetchMarkets(), fetchEvents(), fetchSeries()]);
+  }
+
+  async function fetchSeries() {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/state/series`);
+      if (!response.ok) return;
+      const data = await response.json();
+      seriesData = data || {};
+    } catch (e) {
+      console.warn("Failed to fetch series:", e);
+    }
+  }
+
+  let _publicDataPollTimer = null;
+  let _publicDataPollAttempts = 0;
+  const _MAX_POLL_ATTEMPTS = 20;
+  const _POLL_BASE_DELAY_MS = 3000;
+  const _POLL_BACKOFF_MULTIPLIER = 1.2;
+  const _MAX_POLL_DELAY_MS = 15000;
+
+  function pollForPublicData() {
+    if (_publicDataPollTimer) clearTimeout(_publicDataPollTimer);
+    _publicDataPollAttempts = 0;
+    _tryFetchPublicData();
+  }
+
+  async function _tryFetchPublicData() {
+    _publicDataPollAttempts++;
+    await fetchPublicData();
+
+    /* If we got markets, stop polling */
+    if (markets.length > 0) {
+      _publicDataPollTimer = null;
+      return;
+    }
+
+    /* Retry with increasing delay up to max attempts */
+    if (_publicDataPollAttempts < _MAX_POLL_ATTEMPTS) {
+      const delay = Math.min(
+        _POLL_BASE_DELAY_MS *
+          Math.pow(_POLL_BACKOFF_MULTIPLIER, _publicDataPollAttempts - 1),
+        _MAX_POLL_DELAY_MS,
+      );
+      _publicDataPollTimer = setTimeout(_tryFetchPublicData, delay);
+    }
+  }
+
+  function updateConnectionState() {
+    /* Update UI elements to reflect connection status.
+       When not connected, buy/sell buttons show "Connect to Trade". */
+    const accountBar = document.getElementById("trading-account-bar");
+    if (accountBar) {
+      accountBar.style.display = connected ? "flex" : "none";
+    }
+
+    /* Update all action buttons based on connection state */
+    document
+      .querySelectorAll(".ks-action-btn, .yes-button, .no-button")
+      .forEach((btn) => {
+        if (!connected && !btn.disabled) {
+          btn.dataset.needsConnection = "true";
+        } else {
+          delete btn.dataset.needsConnection;
+        }
+      });
   }
 
   /* ---- Filtering ---- */
@@ -794,9 +926,42 @@ const TradingStudio = (() => {
 
     const filtered = filterMarkets();
 
-    if (filtered.length === 0 && connected) {
-      grid.innerHTML =
-        '<div class="no-markets-message" style="grid-column:1/-1;">No markets match your current filters</div>';
+    if (filtered.length === 0) {
+      if (markets.length === 0) {
+        /* Show skeleton loading panels that match Kalshi's layout */
+        grid.innerHTML = Array(6)
+          .fill(null)
+          .map(
+            () => `
+            <div class="ks-series-panel ks-skeleton-panel">
+                <div class="ks-panel-header">
+                    <div class="ks-panel-header-left">
+                        <span class="ks-skeleton-circle"></span>
+                        <div class="ks-panel-title-group">
+                            <span class="ks-skeleton-line" style="width:60px;height:10px"></span>
+                            <span class="ks-skeleton-line" style="width:180px;height:14px"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ks-panel-chart" style="padding:8px 14px">
+                    <div class="ks-skeleton-line" style="width:100%;height:60px;border-radius:4px"></div>
+                </div>
+                <div class="ks-outcome-table" style="padding:4px 14px 8px">
+                    <div class="ks-skeleton-line" style="width:100%;height:32px;margin-bottom:6px;border-radius:4px"></div>
+                    <div class="ks-skeleton-line" style="width:100%;height:32px;margin-bottom:6px;border-radius:4px"></div>
+                    <div class="ks-skeleton-line" style="width:100%;height:32px;border-radius:4px"></div>
+                </div>
+                <div class="ks-panel-footer" style="padding:6px 14px">
+                    <span class="ks-skeleton-line" style="width:120px;height:10px"></span>
+                </div>
+            </div>
+        `,
+          )
+          .join("");
+      } else {
+        grid.innerHTML =
+          '<div class="no-markets-message" style="grid-column:1/-1;">No markets match your current filters</div>';
+      }
       const showMoreContainer = document.getElementById("show-more-container");
       if (showMoreContainer) showMoreContainer.style.display = "none";
       return;
@@ -849,10 +1014,23 @@ const TradingStudio = (() => {
     /* Representative market for the series chart */
     const repMarket = seriesMarkets[0];
 
-    /* Build title from event ticker or series display */
-    const seriesTitle = repMarket.yes_sub_title
-      ? deriveSeriesTitle(repMarket)
-      : seriesDisplay.label;
+    /* Build title from event data, then series data, then ticker */
+    let seriesTitle = seriesDisplay.label;
+
+    /* Try event title first (most accurate for Kalshi-style display) */
+    const eventData = events[repMarket.event_ticker];
+    if (eventData && eventData.title) {
+      seriesTitle = eventData.title;
+    } else if (repMarket.yes_sub_title) {
+      seriesTitle = deriveSeriesTitle(repMarket);
+    }
+
+    /* Try series data for even better context */
+    const seriesInfo =
+      seriesData[seriesKey] || seriesData[repMarket.series_ticker];
+    if (seriesInfo && seriesInfo.title && !eventData) {
+      seriesTitle = seriesInfo.title;
+    }
 
     /* Category breadcrumb */
     const catBreadcrumb = deriveCategoryBreadcrumb(seriesKey);
@@ -930,6 +1108,16 @@ const TradingStudio = (() => {
       });
     });
 
+    /* Bind series panel header click → open series detail view */
+    const header = panel.querySelector(".ks-panel-header");
+    if (header) {
+      header.style.cursor = "pointer";
+      header.addEventListener("click", (e) => {
+        if (e.target.closest("button")) return;
+        openSeriesDetail(seriesKey);
+      });
+    }
+
     return panel;
   }
 
@@ -988,8 +1176,8 @@ const TradingStudio = (() => {
           <span class="${chanceClass}">${chanceDisplay}</span>
         </div>
         <div class="ks-outcome-cell-actions">
-          <button class="yes-button ks-action-btn" data-ticker="${escapeAttr(market.ticker)}" data-side="yes" ${isClosed ? "disabled" : ""}>Yes ${escapeHtml(yesCents)}</button>
-          <button class="no-button ks-action-btn" data-ticker="${escapeAttr(market.ticker)}" data-side="no" ${isClosed ? "disabled" : ""}>No ${escapeHtml(noCents)}</button>
+          <button class="yes-button ks-action-btn${!connected ? " ks-needs-connection" : ""}" data-ticker="${escapeAttr(market.ticker)}" data-side="yes" ${isClosed ? "disabled" : ""}>Yes ${escapeHtml(yesCents)}</button>
+          <button class="no-button ks-action-btn${!connected ? " ks-needs-connection" : ""}" data-ticker="${escapeAttr(market.ticker)}" data-side="no" ${isClosed ? "disabled" : ""}>No ${escapeHtml(noCents)}</button>
         </div>
       </div>
     `;
@@ -1381,14 +1569,15 @@ const TradingStudio = (() => {
           />
         </div>
         <div class="expanded-actions">
-          <button class="yes-button large" data-ticker="${escapeAttr(market.ticker)}" data-side="yes" ${isClosed ? "disabled" : ""}>
-            Buy YES ${yesAsk}
+          <button class="yes-button large${!connected ? " ks-needs-connection" : ""}" data-ticker="${escapeAttr(market.ticker)}" data-side="yes" ${isClosed ? "disabled" : ""}>
+            ${connected ? "Buy YES " + yesAsk : "🔒 Connect to Buy YES"}
           </button>
-          <button class="no-button large" data-ticker="${escapeAttr(market.ticker)}" data-side="no" ${isClosed ? "disabled" : ""}>
-            Buy NO ${noBid}
+          <button class="no-button large${!connected ? " ks-needs-connection" : ""}" data-ticker="${escapeAttr(market.ticker)}" data-side="no" ${isClosed ? "disabled" : ""}>
+            ${connected ? "Buy NO " + noBid : "🔒 Connect to Buy NO"}
           </button>
         </div>
         ${isClosed ? '<div class="expanded-closed-notice">⚠ This market is closed. Orders cannot be placed.</div>' : ""}
+        ${!connected && !isClosed ? '<div class="expanded-closed-notice" style="color:var(--color-accent-primary)">🔑 Connect your Kalshi API keys in the bottom bar to place trades</div>' : ""}
       </div>
     `;
 
@@ -1524,6 +1713,50 @@ const TradingStudio = (() => {
     }
   }
 
+  let publicWs = null;
+  let publicWsRetryDelay = 5000;
+
+  function connectPublicWebSocket() {
+    /* Lightweight WebSocket that listens for public_data_ready events
+       so the Trading Studio auto-refreshes when the backend finishes
+       fetching public Kalshi data. */
+    if (connected) return; /* Main WS handles everything when connected */
+    try {
+      publicWs = new WebSocket(
+        BACKEND_URL.replace(/^http/, "ws") + "/api/events",
+      );
+      publicWs.onopen = () => {
+        publicWsRetryDelay = 5000; /* Reset backoff on successful connect */
+      };
+      publicWs.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.type === "public_data_ready") {
+            fetchPublicData();
+          }
+          /* Handle agent activity events for semi-auto/full-auto display */
+          if (msg.type === "agent_analysis" && msg.data) {
+            showAgentActivity(msg.data);
+          }
+        } catch (_) {
+          /* ignore parse errors */
+        }
+      };
+      publicWs.onclose = () => {
+        /* Reconnect with exponential backoff (max 60s) */
+        setTimeout(() => {
+          if (!connected) connectPublicWebSocket();
+        }, publicWsRetryDelay);
+        publicWsRetryDelay = Math.min(publicWsRetryDelay * 1.5, 60000);
+      };
+      publicWs.onerror = () => {
+        /* silent — backend may not be running yet, retry on close */
+      };
+    } catch (_) {
+      /* WebSocket not available */
+    }
+  }
+
   function handleRealtimeEvent(event) {
     if (event.type === "market_update" && event.data) {
       const idx = markets.findIndex((m) => m.ticker === event.data.ticker);
@@ -1542,6 +1775,8 @@ const TradingStudio = (() => {
         `Fill: ${event.data.data?.ticker || "unknown"} — ${event.data.data?.side || ""}`,
         "success",
       );
+      /* Full-auto: flash the buy/sell button on the card */
+      flashTradeActivity(event.data);
       fetchAccountSummary();
       if (typeof PositionsPanel !== "undefined")
         PositionsPanel.onFill(event.data);
@@ -1552,7 +1787,62 @@ const TradingStudio = (() => {
     if (event.type === "trading_enabled" || event.type === "trading_disabled") {
       fetchAccountSummary();
     }
+    if (event.type === "agent_analysis" && event.data) {
+      showAgentActivity(event.data);
+    }
     if (typeof AgentDashboard !== "undefined") AgentDashboard.onEvent(event);
+  }
+
+  /* ---- Agent Activity Display (Semi-Auto & Full-Auto) ---- */
+
+  function showAgentActivity(data) {
+    /* In semi-auto mode, agents analyze markets and display their analysis
+       around the yes/no contracts. This shows bot analysis on relevant cards. */
+    const ticker = data.ticker || "";
+    const agentName = data.agent_name || "Agent";
+    const side = (data.side || "").toUpperCase();
+    const reasoning = data.reasoning || "";
+
+    /* Find the outcome row for this ticker and show agent analysis indicator */
+    const row = document.querySelector(
+      `.ks-outcome-row[data-ticker="${ticker}"]`,
+    );
+    if (!row) return;
+
+    /* Remove any existing agent badge */
+    const existing = row.querySelector(".ks-agent-badge");
+    if (existing) existing.remove();
+
+    const badge = document.createElement("span");
+    badge.className = "ks-agent-badge";
+    badge.title = `${agentName}: ${reasoning}`;
+    badge.textContent = `🤖 ${agentName} → ${side}`;
+
+    const descCell = row.querySelector(".ks-outcome-cell-desc");
+    if (descCell) descCell.appendChild(badge);
+
+    /* Auto-remove after 10 seconds */
+    setTimeout(() => badge.remove(), 10000);
+  }
+
+  function flashTradeActivity(data) {
+    /* In full-auto mode, briefly flash buy/sell activity on the relevant card
+       to show what is being traded by the autonomous agents. */
+    const ticker = data.data?.ticker || data.ticker || "";
+    const side = (data.data?.side || data.side || "").toLowerCase();
+
+    const row = document.querySelector(
+      `.ks-outcome-row[data-ticker="${ticker}"]`,
+    );
+    if (!row) return;
+
+    /* Flash the appropriate button */
+    const btnSelector = side === "yes" ? ".yes-button" : ".no-button";
+    const btn = row.querySelector(btnSelector);
+    if (!btn) return;
+
+    btn.classList.add("ks-trade-flash");
+    setTimeout(() => btn.classList.remove("ks-trade-flash"), 1500);
   }
 
   /* ---- Approval Overlay ---- */
@@ -1631,6 +1921,10 @@ const TradingStudio = (() => {
   }
 
   async function handleManualOrder(ticker, side) {
+    if (!connected) {
+      showToast("Connect your Kalshi API keys to place trades", "info");
+      return;
+    }
     const market = markets.find((m) => m.ticker === ticker);
     if (!market) {
       showToast("Market not found", "error");
@@ -1813,6 +2107,290 @@ const TradingStudio = (() => {
     }, 4000);
   }
 
+  /* ============================================================
+     Series Detail View — Kalshi-style drill-down into a series
+     Shows all events/markets for a given series_ticker, grouped
+     by event, with breadcrumb navigation and related-series sidebar.
+     ============================================================ */
+
+  function openSeriesDetail(seriesKey) {
+    currentSeriesDetail = seriesKey;
+    seriesDetailFreqFilter = "all";
+
+    const grid = document.getElementById("series-cards-grid");
+    const detailView = document.getElementById("series-detail-view");
+    const showMore = document.getElementById("show-more-container");
+    const filtersRow = document.querySelector(".trading-filters");
+    if (!detailView) return;
+
+    /* Hide grid, show detail view */
+    if (grid) grid.style.display = "none";
+    if (showMore) showMore.style.display = "none";
+    if (filtersRow) filtersRow.style.display = "none";
+    detailView.style.display = "flex";
+
+    renderSeriesDetail();
+    updateSeriesDetailSidebar();
+  }
+
+  function closeSeriesDetail() {
+    currentSeriesDetail = null;
+
+    const grid = document.getElementById("series-cards-grid");
+    const detailView = document.getElementById("series-detail-view");
+    const filtersRow = document.querySelector(".trading-filters");
+    if (grid) grid.style.display = "";
+    if (detailView) detailView.style.display = "none";
+    if (filtersRow) filtersRow.style.display = "";
+
+    /* Restore sidebar to category subcategories */
+    updateSidebar();
+    renderCards();
+  }
+
+  function renderSeriesDetail() {
+    if (!currentSeriesDetail) return;
+
+    const seriesKey = currentSeriesDetail;
+    const seriesDisplay = getSeriesDisplay(seriesKey);
+    const catBreadcrumb = deriveCategoryBreadcrumb(seriesKey);
+
+    /* Collect all markets belonging to this series */
+    const seriesMarkets = markets.filter((m) => {
+      const st = (m.series_ticker || m.event_ticker || "").toLowerCase();
+      return st === seriesKey.toLowerCase();
+    });
+
+    /* -- Breadcrumb -- */
+    const breadcrumbEl = document.getElementById("series-detail-breadcrumb");
+    if (breadcrumbEl) {
+      breadcrumbEl.innerHTML = `
+        <button class="ks-detail-back-btn" id="series-detail-back" aria-label="Back to market grid">
+          ← Back
+        </button>
+        <span class="ks-detail-crumb">${escapeHtml(catBreadcrumb)}</span>
+        <span class="ks-detail-crumb-sep">›</span>
+        <span class="ks-detail-crumb-current">${escapeHtml(seriesDisplay.label)}</span>
+      `;
+      document
+        .getElementById("series-detail-back")
+        .addEventListener("click", closeSeriesDetail);
+    }
+
+    /* -- Header with series icon, title, and stats -- */
+    const headerEl = document.getElementById("series-detail-header");
+    if (headerEl) {
+      const totalVolume = seriesMarkets.reduce(
+        (sum, m) => sum + (parseFloat(m.volume_24h_fp) || 0),
+        0,
+      );
+      const activeCount = seriesMarkets.filter(
+        (m) => !isMarketClosed(m),
+      ).length;
+      const eventCount = new Set(seriesMarkets.map((m) => m.event_ticker)).size;
+
+      headerEl.innerHTML = `
+        <div class="ks-detail-hero">
+          <span class="ks-detail-icon">${seriesDisplay.icon}</span>
+          <div class="ks-detail-hero-text">
+            <h2 class="ks-detail-title">${escapeHtml(seriesDisplay.label)}</h2>
+            <span class="ks-detail-subtitle">${escapeHtml(seriesKey.toUpperCase())} · ${eventCount} event${eventCount !== 1 ? "s" : ""} · ${activeCount} active market${activeCount !== 1 ? "s" : ""}</span>
+          </div>
+        </div>
+        <div class="ks-detail-stats">
+          <div class="ks-detail-stat">
+            <span class="ks-detail-stat-label">Markets</span>
+            <span class="ks-detail-stat-value">${seriesMarkets.length}</span>
+          </div>
+          <div class="ks-detail-stat">
+            <span class="ks-detail-stat-label">24h Volume</span>
+            <span class="ks-detail-stat-value">${formatVolume(String(totalVolume))}</span>
+          </div>
+          <div class="ks-detail-stat">
+            <span class="ks-detail-stat-label">Active</span>
+            <span class="ks-detail-stat-value">${activeCount}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    /* -- Frequency filter pills for series detail -- */
+    const filtersEl = document.getElementById("series-detail-filters");
+    if (filtersEl) {
+      const frequencies = detectSeriesFrequencies(seriesMarkets);
+      filtersEl.innerHTML = `
+        <div class="ks-freq-pills">
+          <button class="ks-freq-pill${seriesDetailFreqFilter === "all" ? " active" : ""}" data-detail-freq="all">All</button>
+          ${frequencies.map((f) => `<button class="ks-freq-pill${seriesDetailFreqFilter === f.key ? " active" : ""}" data-detail-freq="${escapeAttr(f.key)}">${escapeHtml(f.label)}</button>`).join("")}
+        </div>
+        <span class="ks-detail-market-count">${seriesMarkets.length} total market${seriesMarkets.length !== 1 ? "s" : ""}</span>
+      `;
+      filtersEl.querySelectorAll(".ks-freq-pill").forEach((pill) => {
+        pill.addEventListener("click", () => {
+          seriesDetailFreqFilter = pill.dataset.detailFreq;
+          renderSeriesDetail();
+        });
+      });
+    }
+
+    /* -- Event groups (grouped by event_ticker, sorted by close time) -- */
+    const eventsEl = document.getElementById("series-detail-events");
+    if (!eventsEl) return;
+
+    /* Apply frequency filter */
+    let filteredMarkets = seriesMarkets;
+    if (seriesDetailFreqFilter !== "all") {
+      filteredMarkets = seriesMarkets.filter(
+        (m) => detectFrequency(m) === seriesDetailFreqFilter,
+      );
+    }
+
+    /* Group by event_ticker */
+    const eventGroups = new Map();
+    filteredMarkets.forEach((m) => {
+      const ek = m.event_ticker || "unknown";
+      if (!eventGroups.has(ek)) eventGroups.set(ek, []);
+      eventGroups.get(ek).push(m);
+    });
+
+    /* Sort events: open events first (by close time ascending), then closed */
+    const sortedGroups = [...eventGroups.entries()].sort((a, b) => {
+      const aClose = a[1][0].close_time
+        ? new Date(a[1][0].close_time).getTime()
+        : Infinity;
+      const bClose = b[1][0].close_time
+        ? new Date(b[1][0].close_time).getTime()
+        : Infinity;
+      const aClosed = aClose < Date.now();
+      const bClosed = bClose < Date.now();
+      if (aClosed !== bClosed) return aClosed ? 1 : -1;
+      return aClose - bClose;
+    });
+
+    if (sortedGroups.length === 0) {
+      eventsEl.innerHTML = `
+        <div class="ks-detail-empty">No markets match the selected frequency filter.</div>
+      `;
+      return;
+    }
+
+    eventsEl.innerHTML = "";
+    sortedGroups.forEach(([eventTicker, eventMarkets]) => {
+      const eventPanel = buildSeriesEventPanel(eventTicker, eventMarkets);
+      eventsEl.appendChild(eventPanel);
+    });
+  }
+
+  function buildSeriesEventPanel(eventTicker, eventMarkets) {
+    const panel = document.createElement("div");
+    panel.className = "ks-detail-event-panel";
+
+    const eventData = events[eventTicker];
+    const eventTitle = eventData?.title || eventTicker.replace(/-/g, " ");
+    const repMarket = eventMarkets[0];
+    const closeTime = repMarket.close_time
+      ? new Date(repMarket.close_time)
+      : null;
+    const isClosed = closeTime && closeTime.getTime() < Date.now();
+    const closeStr = closeTime ? formatEventCloseTime(closeTime) : "";
+    const freq = detectFrequency(repMarket);
+    const freqLabel = FREQ_LABELS[freq] || "";
+    const timeRemaining = closeTime ? formatTimeRemaining(closeTime) : "";
+
+    panel.innerHTML = `
+      <div class="ks-detail-event-header${isClosed ? " ks-detail-event-header--closed" : ""}">
+        <div class="ks-detail-event-title-row">
+          <span class="ks-detail-event-title">${escapeHtml(eventTitle)}</span>
+          ${freqLabel ? `<span class="series-card-freq-badge">${escapeHtml(freqLabel)}</span>` : ""}
+        </div>
+        <div class="ks-detail-event-meta">
+          ${closeStr ? `<span class="ks-detail-event-close">${escapeHtml(closeStr)}</span>` : ""}
+          ${timeRemaining ? `<span class="ks-detail-event-remaining">${escapeHtml(timeRemaining)}</span>` : ""}
+          ${isClosed ? '<span class="ks-detail-event-status--closed">Closed</span>' : '<span class="ks-detail-event-status--open">Open</span>'}
+        </div>
+      </div>
+      <div class="ks-outcome-table">
+        <div class="ks-outcome-header-row">
+          <span class="ks-outcome-header-cell ks-outcome-cell-desc">Outcome</span>
+          <span class="ks-outcome-header-cell ks-outcome-cell-chance">Chance</span>
+          <span class="ks-outcome-header-cell ks-outcome-cell-actions"></span>
+        </div>
+        ${eventMarkets.map((m) => buildOutcomeRow(m)).join("")}
+      </div>
+    `;
+
+    /* Bind outcome row clicks */
+    panel.querySelectorAll(".ks-outcome-row").forEach((row) => {
+      row.addEventListener("click", (e) => {
+        if (e.target.closest("button")) return;
+        const ticker = row.dataset.ticker;
+        const market = eventMarkets.find((m) => m.ticker === ticker);
+        if (market) expandCard(market);
+      });
+    });
+
+    return panel;
+  }
+
+  function detectSeriesFrequencies(seriesMarkets) {
+    const found = new Set();
+    seriesMarkets.forEach((m) => {
+      const f = detectFrequency(m);
+      if (f !== "other") found.add(f);
+    });
+    return Object.entries(FREQ_LABELS)
+      .map(([key, label]) => ({ key, label }))
+      .filter((f) => found.has(f.key));
+  }
+
+  function updateSeriesDetailSidebar() {
+    const nav = document.getElementById("trading-subcategory-nav");
+    const sidebar = document.getElementById("trading-subcategory-sidebar");
+    if (!nav || !currentSeriesDetail) return;
+
+    /* Show related series in the same category */
+    const catBreadcrumb = deriveCategoryBreadcrumb(currentSeriesDetail);
+
+    /* Collect all unique series tickers from markets in same category */
+    const relatedSeries = new Map();
+    markets.forEach((m) => {
+      const st = m.series_ticker || m.event_ticker || "";
+      if (!st) return;
+      const mCat = deriveCategoryBreadcrumb(st);
+      if (mCat.toLowerCase() === catBreadcrumb.toLowerCase()) {
+        if (!relatedSeries.has(st)) {
+          const display = getSeriesDisplay(st);
+          relatedSeries.set(st, {
+            key: st,
+            label: display.label,
+            icon: display.icon,
+            priority: display.priority,
+          });
+        }
+      }
+    });
+
+    const sortedRelated = [...relatedSeries.values()].sort(
+      (a, b) => a.priority - b.priority,
+    );
+
+    if (sidebar) sidebar.classList.remove("ks-sidebar-hidden");
+
+    nav.innerHTML = sortedRelated
+      .map(
+        (s) =>
+          `<button class="ks-sidebar-item${s.key.toLowerCase() === currentSeriesDetail.toLowerCase() ? " active" : ""}" data-series-nav="${escapeAttr(s.key)}">${s.icon} ${escapeHtml(s.label)}</button>`,
+      )
+      .join("");
+
+    /* Bind clicks to navigate between related series */
+    nav.querySelectorAll("[data-series-nav]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        openSeriesDetail(btn.dataset.seriesNav);
+      });
+    });
+  }
+
   /* ---- Utility Functions ---- */
 
   function formatTimeRemaining(closeTime) {
@@ -1875,5 +2453,5 @@ const TradingStudio = (() => {
       .replace(/>/g, "&gt;");
   }
 
-  return { initialize, onConnected, onDisconnected };
+  return { initialize, onConnected, onDisconnected, fetchPublicData };
 })();
