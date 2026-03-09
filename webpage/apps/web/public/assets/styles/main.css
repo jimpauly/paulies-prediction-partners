@@ -35,6 +35,7 @@ html {
 
 body {
   min-height: 100vh;
+  min-height: 100dvh;
   font-family: var(--font-family-base);
   font-size: calc(
     clamp(0.9rem, 0.2vw + 0.82rem, 1rem) * var(--font-size-scale, 1)
@@ -101,6 +102,7 @@ body {
   display: grid;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   padding: var(--layout-shell-padding);
   grid-template-columns: var(--layout-sidebar-width) minmax(0, 1fr) var(
       --layout-sidebar-width
@@ -2579,16 +2581,6 @@ textarea.input {
 .region-left,
 .region-right {
   min-width: 0;
-}
-
-/* Touch targets: ensure adequate size on small viewports (44px minimum) */
-@media (pointer: coarse) {
-  button,
-  [role="button"],
-  select,
-  a {
-    min-height: 44px;
-  }
 }
 
 /* Bottom bar cards: fluid min-widths for narrow viewports */
