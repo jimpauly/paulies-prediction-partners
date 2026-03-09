@@ -175,43 +175,6 @@
     }
   }
 
-  // ---- Throttle Control ----
-  function initializeThrottle() {
-    const track = document.getElementById('throttle-track');
-    const handle = document.getElementById('throttle-handle');
-    if (!track || !handle) return;
-
-    const positions = [
-      { top: 'calc(100% - 18px)', value: 0, label: 'Full-Stop' },   // Bottom
-      { top: 'calc(50% - 8px)', value: 1, label: 'Semi-Auto' },     // Middle
-      { top: '2px', value: 2, label: 'Full-Auto' },                   // Top
-    ];
-    let currentPosition = 0;
-
-    track.addEventListener('click', () => {
-      currentPosition = (currentPosition + 1) % positions.length;
-      const position = positions[currentPosition];
-      handle.style.top = position.top;
-      track.setAttribute('aria-valuenow', position.value);
-      track.setAttribute('aria-valuetext', position.label);
-    });
-
-    track.addEventListener('keydown', (event) => {
-      if (event.key === 'ArrowUp' || event.key === 'ArrowRight') {
-        event.preventDefault();
-        currentPosition = Math.min(currentPosition + 1, positions.length - 1);
-      } else if (event.key === 'ArrowDown' || event.key === 'ArrowLeft') {
-        event.preventDefault();
-        currentPosition = Math.max(currentPosition - 1, 0);
-      } else return;
-
-      const position = positions[currentPosition];
-      handle.style.top = position.top;
-      track.setAttribute('aria-valuenow', position.value);
-      track.setAttribute('aria-valuetext', position.label);
-    });
-  }
-
   // ---- Agent Dial Controls ----
   function initializeAgentDials() {
     const agentCards = document.querySelectorAll('.agent-card:not(.inactive)');
@@ -226,9 +189,9 @@
     });
   }
 
-  // ---- Axis Buttons ----
+  // ---- MFD Axis Buttons ----
   function initializeAxisButtons() {
-    const axisButtons = document.querySelectorAll('.axis-button');
+    const axisButtons = document.querySelectorAll('.mfd-btn[data-axis]');
     axisButtons.forEach(button => {
       button.addEventListener('click', () => {
         const axis = button.dataset.axis;
@@ -504,7 +467,6 @@
 
     initializeStudioSwitching();
     initializeApiKeyConnection();
-    initializeThrottle();
     initializeAgentDials();
     initializeAxisButtons();
     initializePlGraph();
