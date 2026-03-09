@@ -259,7 +259,8 @@ const TradingStudio = (() => {
       const response = await fetch(`${BACKEND_URL}/api/state/markets`);
       if (!response.ok) return;
       const data = await response.json();
-      markets = data.markets || [];
+      /* Backend returns {ticker: marketObj, …} — convert to array */
+      markets = Array.isArray(data) ? data : Object.values(data);
       displayedCount = 0;
       renderCards();
     } catch (e) {
