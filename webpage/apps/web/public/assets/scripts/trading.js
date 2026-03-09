@@ -547,7 +547,11 @@ const TradingStudio = (() => {
 
     /* Retry with increasing delay up to max attempts */
     if (_publicDataPollAttempts < _MAX_POLL_ATTEMPTS) {
-      const delay = Math.min(_POLL_BASE_DELAY_MS * Math.pow(_POLL_BACKOFF_MULTIPLIER, _publicDataPollAttempts - 1), _MAX_POLL_DELAY_MS);
+      const delay = Math.min(
+        _POLL_BASE_DELAY_MS *
+          Math.pow(_POLL_BACKOFF_MULTIPLIER, _publicDataPollAttempts - 1),
+        _MAX_POLL_DELAY_MS,
+      );
       _publicDataPollTimer = setTimeout(_tryFetchPublicData, delay);
     }
   }
@@ -561,13 +565,15 @@ const TradingStudio = (() => {
     }
 
     /* Update all action buttons based on connection state */
-    document.querySelectorAll(".ks-action-btn, .yes-button, .no-button").forEach((btn) => {
-      if (!connected && !btn.disabled) {
-        btn.dataset.needsConnection = "true";
-      } else {
-        delete btn.dataset.needsConnection;
-      }
-    });
+    document
+      .querySelectorAll(".ks-action-btn, .yes-button, .no-button")
+      .forEach((btn) => {
+        if (!connected && !btn.disabled) {
+          btn.dataset.needsConnection = "true";
+        } else {
+          delete btn.dataset.needsConnection;
+        }
+      });
   }
 
   /* ---- Filtering ---- */
@@ -894,7 +900,10 @@ const TradingStudio = (() => {
     if (filtered.length === 0) {
       if (markets.length === 0) {
         /* Show skeleton loading panels that match Kalshi's layout */
-        grid.innerHTML = Array(6).fill(null).map(() => `
+        grid.innerHTML = Array(6)
+          .fill(null)
+          .map(
+            () => `
             <div class="ks-series-panel ks-skeleton-panel">
                 <div class="ks-panel-header">
                     <div class="ks-panel-header-left">
@@ -917,9 +926,12 @@ const TradingStudio = (() => {
                     <span class="ks-skeleton-line" style="width:120px;height:10px"></span>
                 </div>
             </div>
-        `).join('');
+        `,
+          )
+          .join("");
       } else {
-        grid.innerHTML = '<div class="no-markets-message" style="grid-column:1/-1;">No markets match your current filters</div>';
+        grid.innerHTML =
+          '<div class="no-markets-message" style="grid-column:1/-1;">No markets match your current filters</div>';
       }
       const showMoreContainer = document.getElementById("show-more-container");
       if (showMoreContainer) showMoreContainer.style.display = "none";
@@ -985,7 +997,8 @@ const TradingStudio = (() => {
     }
 
     /* Try series data for even better context */
-    const seriesInfo = seriesData[seriesKey] || seriesData[repMarket.series_ticker];
+    const seriesInfo =
+      seriesData[seriesKey] || seriesData[repMarket.series_ticker];
     if (seriesInfo && seriesInfo.title && !eventData) {
       seriesTitle = seriesInfo.title;
     }
@@ -1124,8 +1137,8 @@ const TradingStudio = (() => {
           <span class="${chanceClass}">${chanceDisplay}</span>
         </div>
         <div class="ks-outcome-cell-actions">
-          <button class="yes-button ks-action-btn${!connected ? ' ks-needs-connection' : ''}" data-ticker="${escapeAttr(market.ticker)}" data-side="yes" ${isClosed ? "disabled" : ""}>Yes ${escapeHtml(yesCents)}</button>
-          <button class="no-button ks-action-btn${!connected ? ' ks-needs-connection' : ''}" data-ticker="${escapeAttr(market.ticker)}" data-side="no" ${isClosed ? "disabled" : ""}>No ${escapeHtml(noCents)}</button>
+          <button class="yes-button ks-action-btn${!connected ? " ks-needs-connection" : ""}" data-ticker="${escapeAttr(market.ticker)}" data-side="yes" ${isClosed ? "disabled" : ""}>Yes ${escapeHtml(yesCents)}</button>
+          <button class="no-button ks-action-btn${!connected ? " ks-needs-connection" : ""}" data-ticker="${escapeAttr(market.ticker)}" data-side="no" ${isClosed ? "disabled" : ""}>No ${escapeHtml(noCents)}</button>
         </div>
       </div>
     `;
@@ -1517,10 +1530,10 @@ const TradingStudio = (() => {
           />
         </div>
         <div class="expanded-actions">
-          <button class="yes-button large${!connected ? ' ks-needs-connection' : ''}" data-ticker="${escapeAttr(market.ticker)}" data-side="yes" ${isClosed ? "disabled" : ""}>
+          <button class="yes-button large${!connected ? " ks-needs-connection" : ""}" data-ticker="${escapeAttr(market.ticker)}" data-side="yes" ${isClosed ? "disabled" : ""}>
             ${connected ? "Buy YES " + yesAsk : "🔒 Connect to Buy YES"}
           </button>
-          <button class="no-button large${!connected ? ' ks-needs-connection' : ''}" data-ticker="${escapeAttr(market.ticker)}" data-side="no" ${isClosed ? "disabled" : ""}>
+          <button class="no-button large${!connected ? " ks-needs-connection" : ""}" data-ticker="${escapeAttr(market.ticker)}" data-side="no" ${isClosed ? "disabled" : ""}>
             ${connected ? "Buy NO " + noBid : "🔒 Connect to Buy NO"}
           </button>
         </div>
@@ -1670,7 +1683,9 @@ const TradingStudio = (() => {
        fetching public Kalshi data. */
     if (connected) return; /* Main WS handles everything when connected */
     try {
-      publicWs = new WebSocket(BACKEND_URL.replace(/^http/, "ws") + "/api/events");
+      publicWs = new WebSocket(
+        BACKEND_URL.replace(/^http/, "ws") + "/api/events",
+      );
       publicWs.onopen = () => {
         publicWsRetryDelay = 5000; /* Reset backoff on successful connect */
       };
@@ -1750,7 +1765,9 @@ const TradingStudio = (() => {
     const reasoning = data.reasoning || "";
 
     /* Find the outcome row for this ticker and show agent analysis indicator */
-    const row = document.querySelector(`.ks-outcome-row[data-ticker="${ticker}"]`);
+    const row = document.querySelector(
+      `.ks-outcome-row[data-ticker="${ticker}"]`,
+    );
     if (!row) return;
 
     /* Remove any existing agent badge */
@@ -1775,7 +1792,9 @@ const TradingStudio = (() => {
     const ticker = data.data?.ticker || data.ticker || "";
     const side = (data.data?.side || data.side || "").toLowerCase();
 
-    const row = document.querySelector(`.ks-outcome-row[data-ticker="${ticker}"]`);
+    const row = document.querySelector(
+      `.ks-outcome-row[data-ticker="${ticker}"]`,
+    );
     if (!row) return;
 
     /* Flash the appropriate button */

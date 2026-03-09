@@ -2664,7 +2664,12 @@ select:focus {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(90deg, var(--color-bg-surface, #1a1a2e) 25%, rgba(255,255,255,0.06) 50%, var(--color-bg-surface, #1a1a2e) 75%);
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-surface, #1a1a2e) 25%,
+    rgba(255, 255, 255, 0.06) 50%,
+    var(--color-bg-surface, #1a1a2e) 75%
+  );
   background-size: 200% 100%;
   animation: skeletonShimmer 1.5s ease-in-out infinite;
 }
@@ -2672,13 +2677,22 @@ select:focus {
   display: inline-block;
   height: 12px;
   border-radius: 4px;
-  background: linear-gradient(90deg, var(--color-bg-surface, #1a1a2e) 25%, rgba(255,255,255,0.06) 50%, var(--color-bg-surface, #1a1a2e) 75%);
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-surface, #1a1a2e) 25%,
+    rgba(255, 255, 255, 0.06) 50%,
+    var(--color-bg-surface, #1a1a2e) 75%
+  );
   background-size: 200% 100%;
   animation: skeletonShimmer 1.5s ease-in-out infinite;
 }
 @keyframes skeletonShimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 /* ---- Connection-gated button states ---- */
@@ -2709,9 +2723,18 @@ select:focus {
 }
 
 @keyframes agentPulse {
-  0% { opacity: 0; transform: scale(0.8); }
-  20% { opacity: 1; transform: scale(1.05); }
-  100% { opacity: 0.9; transform: scale(1); }
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
 }
 
 /* ---- Full-auto trade flash ---- */
@@ -2720,9 +2743,17 @@ select:focus {
 }
 
 @keyframes tradeFlash {
-  0% { box-shadow: 0 0 0 0 var(--color-accent-primary, #00d4aa); }
-  25% { box-shadow: 0 0 12px 4px var(--color-accent-primary, #00d4aa); transform: scale(1.05); }
-  100% { box-shadow: 0 0 0 0 transparent; transform: scale(1); }
+  0% {
+    box-shadow: 0 0 0 0 var(--color-accent-primary, #00d4aa);
+  }
+  25% {
+    box-shadow: 0 0 12px 4px var(--color-accent-primary, #00d4aa);
+    transform: scale(1.05);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+    transform: scale(1);
+  }
 }
 
 /* ---- Expanded Card Improvements ---- */
