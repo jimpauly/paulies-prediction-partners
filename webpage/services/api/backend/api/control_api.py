@@ -312,6 +312,16 @@ def create_api(
         """Exchange connectivity / health status."""
         return state_cache.get_exchange_status()
 
+    @app.post("/api/public/refresh", tags=["public"])
+    async def refresh_public_data() -> dict[str, Any]:
+        """Trigger a re-fetch of public Kalshi market data.
+
+        This endpoint is available without API key connection and allows
+        the frontend to refresh the market card display on demand.
+        """
+        await broadcaster.broadcast("public_data_refresh_requested", {})
+        return {"message": "Public data refresh requested"}
+
     # ==================================================================
     # Agent Controls
     # ==================================================================

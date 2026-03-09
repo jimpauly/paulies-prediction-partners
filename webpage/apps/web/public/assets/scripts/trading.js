@@ -276,6 +276,24 @@ const TradingStudio = (() => {
     bindApprovalButtons();
     bindOverlayClose();
     bindBuySellDelegation();
+
+    /* Show trading interface immediately with public data.
+       The pre-connect prompt becomes a small inline banner rather than
+       blocking the entire interface. */
+    const preConnect = document.getElementById("trading-pre-connect");
+    const iface = document.getElementById("trading-interface");
+    if (preConnect) preConnect.style.display = "none";
+    if (iface) iface.style.display = "flex";
+
+    /* Hide account bar until connected (no balance data without API keys) */
+    const accountBar = document.getElementById("trading-account-bar");
+    if (accountBar) accountBar.style.display = "none";
+
+    /* Fetch public market data from backend (populated from Kalshi public API) */
+    fetchPublicData();
+
+    /* Listen for public_data_ready events from WebSocket */
+    connectPublicWebSocket();
   }
 
   /* ---- Event Binding ---- */
@@ -407,9 +425,13 @@ const TradingStudio = (() => {
       iface.classList.add("trading-init-animation");
       setTimeout(() => iface.classList.remove("trading-init-animation"), 1500);
     }
+    /* Refresh with authenticated data (may include private markets) */
     await Promise.all([fetchMarkets(), fetchEvents()]);
     await fetchAccountSummary();
     connectWebSocket();
+
+    /* Update button states to show connected */
+    updateConnectionState();
 
     /* Notify sub-modules */
     if (typeof PositionsPanel !== "undefined") PositionsPanel.onConnected();
@@ -427,18 +449,19 @@ const TradingStudio = (() => {
       clearInterval(onConnected._accountInterval);
       onConnected._accountInterval = null;
     }
-    const preConnect = document.getElementById("trading-pre-connect");
-    const iface = document.getElementById("trading-interface");
-    if (preConnect) preConnect.style.display = "flex";
-    if (iface) iface.style.display = "none";
-    markets = [];
-    events = {};
-    displayedCount = 0;
-    renderCards();
+    /* Keep the trading interface visible — show markets from public API.
+       Only hide account summary data and update button states. */
+    const accountBar = document.getElementById("trading-account-bar");
+    if (accountBar) accountBar.style.display = "none";
+    updateConnectionState();
+
     if (websocket) {
       websocket.close();
       websocket = null;
     }
+
+    /* Re-fetch public data so cards remain populated */
+    fetchPublicData();
 
     if (typeof PositionsPanel !== "undefined") PositionsPanel.onDisconnected();
     if (typeof AgentDashboard !== "undefined") AgentDashboard.onDisconnected();
@@ -471,6 +494,30 @@ const TradingStudio = (() => {
     } catch (e) {
       console.warn("Failed to fetch events:", e);
     }
+  }
+
+  async function fetchPublicData() {
+    /* Fetch markets and events from the backend's state cache which is
+       populated from Kalshi's public (unauthenticated) API on startup. */
+    await Promise.all([fetchMarkets(), fetchEvents()]);
+  }
+
+  function updateConnectionState() {
+    /* Update UI elements to reflect connection status.
+       When not connected, buy/sell buttons show "Connect to Trade". */
+    const accountBar = document.getElementById("trading-account-bar");
+    if (accountBar) {
+      accountBar.style.display = connected ? "flex" : "none";
+    }
+
+    /* Update all action buttons based on connection state */
+    document.querySelectorAll(".ks-action-btn, .yes-button, .no-button").forEach((btn) => {
+      if (!connected && !btn.disabled) {
+        btn.dataset.needsConnection = "true";
+      } else {
+        delete btn.dataset.needsConnection;
+      }
+    });
   }
 
   /* ---- Filtering ---- */
@@ -794,9 +841,11 @@ const TradingStudio = (() => {
 
     const filtered = filterMarkets();
 
-    if (filtered.length === 0 && connected) {
-      grid.innerHTML =
-        '<div class="no-markets-message" style="grid-column:1/-1;">No markets match your current filters</div>';
+    if (filtered.length === 0) {
+      const message = markets.length === 0
+        ? '<div class="no-markets-message" style="grid-column:1/-1;text-align:center;padding:32px 16px;"><div style="font-size:24px;margin-bottom:8px;">📡</div><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Loading Kalshi Markets…</div><div style="font-size:11px;opacity:0.6;">Fetching live market data from Kalshi. This may take a moment.</div></div>'
+        : '<div class="no-markets-message" style="grid-column:1/-1;">No markets match your current filters</div>';
+      grid.innerHTML = message;
       const showMoreContainer = document.getElementById("show-more-container");
       if (showMoreContainer) showMoreContainer.style.display = "none";
       return;
@@ -988,8 +1037,8 @@ const TradingStudio = (() => {
           <span class="${chanceClass}">${chanceDisplay}</span>
         </div>
         <div class="ks-outcome-cell-actions">
-          <button class="yes-button ks-action-btn" data-ticker="${escapeAttr(market.ticker)}" data-side="yes" ${isClosed ? "disabled" : ""}>Yes ${escapeHtml(yesCents)}</button>
-          <button class="no-button ks-action-btn" data-ticker="${escapeAttr(market.ticker)}" data-side="no" ${isClosed ? "disabled" : ""}>No ${escapeHtml(noCents)}</button>
+          <button class="yes-button ks-action-btn${!connected ? ' ks-needs-connection' : ''}" data-ticker="${escapeAttr(market.ticker)}" data-side="yes" ${isClosed ? "disabled" : ""}>Yes ${escapeHtml(yesCents)}</button>
+          <button class="no-button ks-action-btn${!connected ? ' ks-needs-connection' : ''}" data-ticker="${escapeAttr(market.ticker)}" data-side="no" ${isClosed ? "disabled" : ""}>No ${escapeHtml(noCents)}</button>
         </div>
       </div>
     `;
@@ -1381,14 +1430,15 @@ const TradingStudio = (() => {
           />
         </div>
         <div class="expanded-actions">
-          <button class="yes-button large" data-ticker="${escapeAttr(market.ticker)}" data-side="yes" ${isClosed ? "disabled" : ""}>
-            Buy YES ${yesAsk}
+          <button class="yes-button large${!connected ? ' ks-needs-connection' : ''}" data-ticker="${escapeAttr(market.ticker)}" data-side="yes" ${isClosed ? "disabled" : ""}>
+            ${connected ? "Buy YES " + yesAsk : "🔒 Connect to Buy YES"}
           </button>
-          <button class="no-button large" data-ticker="${escapeAttr(market.ticker)}" data-side="no" ${isClosed ? "disabled" : ""}>
-            Buy NO ${noBid}
+          <button class="no-button large${!connected ? ' ks-needs-connection' : ''}" data-ticker="${escapeAttr(market.ticker)}" data-side="no" ${isClosed ? "disabled" : ""}>
+            ${connected ? "Buy NO " + noBid : "🔒 Connect to Buy NO"}
           </button>
         </div>
         ${isClosed ? '<div class="expanded-closed-notice">⚠ This market is closed. Orders cannot be placed.</div>' : ""}
+        ${!connected && !isClosed ? '<div class="expanded-closed-notice" style="color:var(--color-accent-primary)">🔑 Connect your Kalshi API keys in the bottom bar to place trades</div>' : ""}
       </div>
     `;
 
@@ -1524,6 +1574,46 @@ const TradingStudio = (() => {
     }
   }
 
+  let publicWs = null;
+
+  function connectPublicWebSocket() {
+    /* Lightweight WebSocket that listens for public_data_ready events
+       so the Trading Studio auto-refreshes when the backend finishes
+       fetching public Kalshi data. */
+    try {
+      publicWs = new WebSocket("ws://127.0.0.1:8000/api/events");
+      publicWs.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.type === "public_data_ready") {
+            fetchPublicData();
+          }
+          /* Also handle agent activity events for semi-auto/full-auto display */
+          if (msg.type === "agent_analysis" && msg.data) {
+            showAgentActivity(msg.data);
+          }
+          if (msg.type === "fill" && msg.data && !connected) {
+            /* Full auto: flash buy/sell on cards */
+            flashTradeActivity(msg.data);
+          }
+        } catch (_) {
+          /* ignore parse errors */
+        }
+      };
+      publicWs.onclose = () => {
+        /* Reconnect after a delay */
+        setTimeout(() => {
+          if (!connected) connectPublicWebSocket();
+        }, 5000);
+      };
+      publicWs.onerror = () => {
+        /* silent — backend may not be running yet, retry on close */
+      };
+    } catch (_) {
+      /* WebSocket not available */
+    }
+  }
+
   function handleRealtimeEvent(event) {
     if (event.type === "market_update" && event.data) {
       const idx = markets.findIndex((m) => m.ticker === event.data.ticker);
@@ -1553,6 +1643,58 @@ const TradingStudio = (() => {
       fetchAccountSummary();
     }
     if (typeof AgentDashboard !== "undefined") AgentDashboard.onEvent(event);
+  }
+
+  /* ---- Agent Activity Display (Semi-Auto & Full-Auto) ---- */
+
+  function showAgentActivity(data) {
+    /* In semi-auto mode, agents analyze markets and display their analysis
+       around the yes/no contracts. This shows bot analysis on relevant cards. */
+    const ticker = data.ticker || "";
+    const agentName = data.agent_name || "Agent";
+    const side = (data.side || "").toUpperCase();
+    const reasoning = data.reasoning || "";
+
+    /* Find the outcome row for this ticker and show agent analysis indicator */
+    const row = document.querySelector(`.ks-outcome-row[data-ticker="${ticker}"]`);
+    if (!row) return;
+
+    /* Remove any existing agent badge */
+    const existing = row.querySelector(".ks-agent-badge");
+    if (existing) existing.remove();
+
+    const badge = document.createElement("span");
+    badge.className = "ks-agent-badge";
+    badge.title = `${agentName}: ${reasoning}`;
+    badge.textContent = `🤖 ${agentName} → ${side}`;
+    badge.style.cssText =
+      "font-size:9px;padding:2px 6px;border-radius:8px;margin-left:6px;" +
+      "background:var(--color-accent-primary,#00d4aa);color:#000;font-weight:700;" +
+      "animation:agentPulse 2s ease-in-out;opacity:0.9;display:inline-block;";
+
+    const descCell = row.querySelector(".ks-outcome-cell-desc");
+    if (descCell) descCell.appendChild(badge);
+
+    /* Auto-remove after 10 seconds */
+    setTimeout(() => badge.remove(), 10000);
+  }
+
+  function flashTradeActivity(data) {
+    /* In full-auto mode, briefly flash buy/sell activity on the relevant card
+       to show what is being traded by the autonomous agents. */
+    const ticker = data.data?.ticker || data.ticker || "";
+    const side = (data.data?.side || data.side || "").toLowerCase();
+
+    const row = document.querySelector(`.ks-outcome-row[data-ticker="${ticker}"]`);
+    if (!row) return;
+
+    /* Flash the appropriate button */
+    const btnSelector = side === "yes" ? ".yes-button" : ".no-button";
+    const btn = row.querySelector(btnSelector);
+    if (!btn) return;
+
+    btn.classList.add("ks-trade-flash");
+    setTimeout(() => btn.classList.remove("ks-trade-flash"), 1500);
   }
 
   /* ---- Approval Overlay ---- */
@@ -1631,6 +1773,10 @@ const TradingStudio = (() => {
   }
 
   async function handleManualOrder(ticker, side) {
+    if (!connected) {
+      showToast("Connect your Kalshi API keys to place trades", "info");
+      return;
+    }
     const market = markets.find((m) => m.ticker === ticker);
     if (!market) {
       showToast("Market not found", "error");
@@ -1875,5 +2021,5 @@ const TradingStudio = (() => {
       .replace(/>/g, "&gt;");
   }
 
-  return { initialize, onConnected, onDisconnected };
+  return { initialize, onConnected, onDisconnected, fetchPublicData };
 })();
