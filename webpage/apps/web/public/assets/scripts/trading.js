@@ -658,6 +658,11 @@ const TradingStudio = (() => {
     /* Category breadcrumb */
     const catBreadcrumb = deriveCategoryBreadcrumb(seriesKey);
 
+    /* Build close time from representative market (Kalshi shows this at panel bottom) */
+    const closeTimeStr = repMarket.close_time
+      ? formatEventCloseTime(new Date(repMarket.close_time))
+      : "";
+
     panel.innerHTML = `
       <div class="ks-panel-header">
         <div class="ks-panel-header-left">
@@ -681,6 +686,11 @@ const TradingStudio = (() => {
           <span class="ks-outcome-header-cell ks-outcome-cell-actions"></span>
         </div>
         ${visibleMarkets.map((m) => buildOutcomeRow(m)).join("")}
+      </div>
+      <div class="ks-panel-footer">
+        ${closeTimeStr ? `<span class="ks-panel-close-time">${escapeHtml(closeTimeStr)}</span>` : ""}
+        <span class="ks-panel-footer-spacer"></span>
+        ${seriesMarkets.length > 1 ? `<span class="ks-panel-spread-total">Spread and Total ▾</span>` : ""}
       </div>
       ${
         hasMore
@@ -740,14 +750,15 @@ const TradingStudio = (() => {
     const noCents = noPrice
       ? (parseFloat(noPrice) * 100).toFixed(0) + "¢"
       : "—";
-    const chanceColor =
-      chancePercent !== null
-        ? chancePercent > 60
-          ? "var(--color-state-success)"
-          : chancePercent < 40
-            ? "var(--color-state-error)"
-            : "var(--color-accent-primary)"
-        : "";
+
+    /* Kalshi uses green pill for high certainty, outlined for moderate */
+    let chanceClass = "ks-chance-badge";
+    if (chancePercent !== null) {
+      if (chancePercent >= 90 || chancePercent <= 10) {
+        chanceClass += " ks-chance-badge--strong";
+      }
+    }
+
     const closeTime = market.close_time ? new Date(market.close_time) : null;
     const timeRemaining = closeTime ? formatTimeRemaining(closeTime) : "";
     const isClosingSoon =
@@ -757,6 +768,14 @@ const TradingStudio = (() => {
       : "ks-outcome-timer";
     const freqBadge = renderFrequencyBadge(market);
 
+    /* Format chance display like Kalshi: "<1%" or "99%" */
+    let chanceDisplay = "—";
+    if (chancePercent !== null) {
+      if (chancePercent < 1 && chancePercent > 0) chanceDisplay = "<1%";
+      else if (chancePercent > 99 && chancePercent < 100) chanceDisplay = ">99%";
+      else chanceDisplay = chancePercent + "%";
+    }
+
     return `
       <div class="ks-outcome-row${isClosed ? " ks-outcome-row--closed" : ""}" data-ticker="${escapeAttr(market.ticker)}">
         <div class="ks-outcome-cell-desc">
@@ -765,7 +784,7 @@ const TradingStudio = (() => {
           ${freqBadge}
         </div>
         <div class="ks-outcome-cell-chance">
-          <span class="ks-chance-value" style="color:${chanceColor}">${chancePercent !== null ? chancePercent + "%" : "—"}</span>
+          <span class="${chanceClass}">${chanceDisplay}</span>
         </div>
         <div class="ks-outcome-cell-actions">
           <button class="yes-button ks-action-btn" data-ticker="${escapeAttr(market.ticker)}" data-side="yes" ${isClosed ? "disabled" : ""}>Yes ${escapeHtml(yesCents)}</button>
@@ -1598,6 +1617,20 @@ const TradingStudio = (() => {
     if (hours > 24) return Math.floor(hours / 24) + "d " + (hours % 24) + "h";
     if (hours > 0) return hours + "h " + minutes + "m";
     return minutes + "m";
+  }
+
+  function formatEventCloseTime(date) {
+    /* Kalshi-style close time: "Jan 25 @ 5:30am EST" */
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const month = months[date.getMonth()];
+    const day = date.getDate();
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const ampm = hours >= 12 ? "pm" : "am";
+    hours = hours % 12 || 12;
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "EST";
+    const tzAbbr = new Date().toLocaleTimeString("en-us", { timeZoneName: "short" }).split(" ").pop();
+    return `${month} ${day} @ ${hours}:${minutes}${ampm} ${tzAbbr}`;
   }
 
   function setText(id, text) {
