@@ -1410,11 +1410,16 @@
 
       /* ---- Ignition Panel (Action Bar global throttle) ---- */
       (function initIgnitionPanel() {
+        const BACKEND_URL = 'http://127.0.0.1:8000';
+
         const STATE_CONFIG = {
-          auto:  { label: 'FULL·AUTO',  dot: 'auto' },
-          semi:  { label: 'SEMI·AUTO',  dot: 'semi' },
-          stop:  { label: 'FULL·STOP',  dot: 'stop' },
+          auto:  { label: 'FULL·AUTO',  dot: 'auto',  agentMode: 'auto' },
+          semi:  { label: 'SEMI·AUTO',  dot: 'semi',  agentMode: 'semi-auto' },
+          stop:  { label: 'FULL·STOP',  dot: 'stop',  agentMode: 'safe' },
         };
+
+        /* Active agent names to control via ignition throttle */
+        const ACTIVE_AGENTS = ['peritia', 'prime', 'praxis'];
 
         let currentState = 'stop';
 
@@ -1433,6 +1438,34 @@
           document.querySelectorAll('.ign-btn').forEach(btn => {
             btn.classList.toggle('ign-btn--active', btn.dataset.ignState === state);
           });
+
+          /* Set all active agents to the corresponding mode via backend API.
+             The /api/agents/{name}/mode endpoint now also sets status to
+             "running" (for auto/semi-auto) or "idle" (for safe). */
+          ACTIVE_AGENTS.forEach(agentName => {
+            fetch(`${BACKEND_URL}/api/agents/${encodeURIComponent(agentName)}/mode`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ mode: cfg.agentMode }),
+            }).catch(() => { /* backend may be offline */ });
+          });
+
+          /* Also enable/disable global trading via risk gateway */
+          if (cfg.agentMode === 'safe') {
+            fetch(`${BACKEND_URL}/api/trading/disable`, { method: 'POST' }).catch(() => {});
+          } else {
+            fetch(`${BACKEND_URL}/api/trading/enable`, { method: 'POST' }).catch(() => {});
+          }
+
+          /* Keep per-agent mode buttons in sync (if AgentDashboard is loaded) */
+          if (typeof AgentDashboard !== 'undefined' && AgentDashboard.onEvent) {
+            ACTIVE_AGENTS.forEach(agentName => {
+              AgentDashboard.onEvent({
+                type: 'agent_mode_changed',
+                data: { agent_name: agentName, mode: cfg.agentMode },
+              });
+            });
+          }
         }
 
         /* Wire up the three buttons */
