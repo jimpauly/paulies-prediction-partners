@@ -889,8 +889,8 @@
 
           <div style="display:flex;gap:var(--space-3);align-items:stretch;flex-wrap:nowrap;overflow-x:auto;flex:1">
 
-            <!-- Agent Access Card (~50% of bottom bar) -->
-            <div class="card card--compact hangar-agent-card" style="flex:0 0 50%;min-width:340px">
+            <!-- Agent Access Card (~40% of bottom bar) -->
+            <div class="card card--compact hangar-agent-card" style="flex:0 0 40%;min-width:260px">
               <div class="card-header" style="padding:4px 8px">
                 <span style="font-weight:700">🤖 Agent Access</span>
                 <span style="font-family:var(--font-family-mono);font-size:10px;font-weight:700;color:var(--color-fg-subtle);margin-left:auto" title="A=Auto S=Semi-Auto ⛔=Safe">A / S / ⛔</span>
@@ -901,18 +901,18 @@
               </div>
             </div>
 
-            <!-- P/L Multi-Function Display (~50% of bottom bar) -->
-            <div class="card card--compact hangar-mfd-card" style="flex:0 0 calc(50% - var(--space-3));min-width:300px">
+            <!-- P/L Multi-Function Display (~30% of bottom bar) -->
+            <div class="card card--compact hangar-mfd-card" style="flex:0 0 30%;min-width:220px">
               <div class="card-header mfd-header" style="padding:4px 8px">
-                <span style="font-weight:700">📟 P/L Multi-Function Display</span>
+                <span style="font-weight:700">📟 P/L MFD</span>
               </div>
               <div class="card-body mfd-body" style="padding:6px 8px;flex:1;display:flex;flex-direction:column;gap:0;min-height:0">
 
-                <!-- MFD Display Area: Left buttons | Canvas | Right buttons -->
-                <div class="mfd-display" style="flex:1;display:flex;gap:0;min-height:0;align-items:stretch">
+                <!-- MFD Display Area: Top buttons | Canvas + Right readouts | Bottom buttons -->
+                <div class="mfd-display" style="flex:1;display:flex;flex-direction:column;gap:0;min-height:0">
 
-                  <!-- LEFT: Y-Axis buttons -->
-                  <div class="mfd-btn-col" style="display:flex;flex-direction:column;gap:2px;justify-content:space-evenly">
+                  <!-- TOP: Y-Axis scale buttons -->
+                  <div class="mfd-btn-row" style="display:flex;gap:2px;justify-content:space-evenly;margin-bottom:2px">
                     <button class="mfd-btn active" data-axis="y" aria-label="Y-axis: $10">$10</button>
                     <button class="mfd-btn" data-axis="y" aria-label="Y-axis: $100">$100</button>
                     <button class="mfd-btn" data-axis="y" aria-label="Y-axis: $1k">$1k</button>
@@ -920,47 +920,52 @@
                     <button class="mfd-btn" data-axis="y" aria-label="Y-axis: All">ALL</button>
                   </div>
 
-                  <!-- CENTER: P/L Chart Canvas -->
-                  <div style="flex:1;display:flex;flex-direction:column;min-width:0;min-height:0">
-                    <span class="mfd-label" style="text-align:center">+/- $</span>
-                    <canvas id="pl-graph" width="300" height="80" style="width:100%;flex:1;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-canvas)"></canvas>
+                  <!-- CENTER: Chart + Right readouts -->
+                  <div style="flex:1;display:flex;gap:4px;min-height:0;align-items:stretch">
+
+                    <!-- Chart Canvas -->
+                    <div style="flex:1;display:flex;flex-direction:column;min-width:0;min-height:0">
+                      <span class="mfd-label" style="text-align:center">+/- $</span>
+                      <canvas id="pl-graph" width="300" height="80" style="width:100%;flex:1;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-canvas)"></canvas>
+                    </div>
+
+                    <!-- RIGHT: Readouts — Heatmap & Win Rate -->
+                    <div class="mfd-readout-col" style="display:flex;flex-direction:column;gap:2px;align-items:center;justify-content:space-evenly">
+                      <span class="mfd-label" style="white-space:nowrap;text-align:center;line-height:1">HEAT</span>
+                      <div id="agent-heatmap" style="display:flex;flex-direction:column;gap:1px">
+                        <div data-agent-heat="peritia" style="width:20px;height:4px;border-radius:1px;background:var(--color-state-success);opacity:0.8" title="PERITIA — Active"></div>
+                        <div data-agent-heat="prime" style="width:20px;height:4px;border-radius:1px;background:var(--color-state-warning);opacity:0.8" title="PRIME — Semi"></div>
+                        <div data-agent-heat="praxis" style="width:20px;height:4px;border-radius:1px;background:var(--color-fg-subtle);opacity:0.3" title="PRAXIS — Safe"></div>
+                        <div data-agent-heat="patiens" style="width:20px;height:4px;border-radius:1px;background:var(--color-fg-subtle);opacity:0.15" title="PATIENS — Construction"></div>
+                        <div data-agent-heat="pavis" style="width:20px;height:4px;border-radius:1px;background:var(--color-fg-subtle);opacity:0.15" title="PAVIS — Construction"></div>
+                        <div data-agent-heat="byob" style="width:20px;height:4px;border-radius:1px;background:var(--color-fg-subtle);opacity:0.15" title="BYOB — Awaiting Config"></div>
+                        <div data-agent-heat="agnt007" style="width:20px;height:4px;border-radius:1px;background:var(--color-fg-subtle);opacity:0.15" title="AGNT007 — Construction"></div>
+                      </div>
+                      <span class="mfd-label" style="white-space:nowrap;text-align:center;line-height:1">WIN%</span>
+                      <div id="win-rate-gauge" style="position:relative;width:20px;height:24px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-canvas);overflow:hidden;display:flex;align-items:flex-end">
+                        <div style="width:100%;height:0%;background:linear-gradient(180deg,var(--color-state-success),var(--color-accent-primary));border-radius:1px;transition:height 0.5s" id="win-rate-fill"></div>
+                      </div>
+                      <span id="win-rate-label" class="mfd-label" style="color:var(--color-fg-muted)">—</span>
+                    </div>
+
                   </div>
 
-                  <!-- RIGHT: Tool readouts — Heatmap & Win Rate -->
-                  <div class="mfd-btn-col" style="display:flex;flex-direction:column;gap:2px;justify-content:space-evenly;align-items:center">
-                    <span class="mfd-label" style="white-space:nowrap;text-align:center;line-height:1">HEAT</span>
-                    <div id="agent-heatmap" style="display:flex;flex-direction:column;gap:1px">
-                      <div data-agent-heat="peritia" style="width:20px;height:4px;border-radius:1px;background:var(--color-state-success);opacity:0.8" title="PERITIA — Active"></div>
-                      <div data-agent-heat="prime" style="width:20px;height:4px;border-radius:1px;background:var(--color-state-warning);opacity:0.8" title="PRIME — Semi"></div>
-                      <div data-agent-heat="praxis" style="width:20px;height:4px;border-radius:1px;background:var(--color-fg-subtle);opacity:0.3" title="PRAXIS — Safe"></div>
-                      <div data-agent-heat="patiens" style="width:20px;height:4px;border-radius:1px;background:var(--color-fg-subtle);opacity:0.15" title="PATIENS — Construction"></div>
-                      <div data-agent-heat="pavis" style="width:20px;height:4px;border-radius:1px;background:var(--color-fg-subtle);opacity:0.15" title="PAVIS — Construction"></div>
-                      <div data-agent-heat="byob" style="width:20px;height:4px;border-radius:1px;background:var(--color-fg-subtle);opacity:0.15" title="BYOB — Awaiting Config"></div>
-                      <div data-agent-heat="agnt007" style="width:20px;height:4px;border-radius:1px;background:var(--color-fg-subtle);opacity:0.15" title="AGNT007 — Construction"></div>
-                    </div>
-                    <span class="mfd-label" style="white-space:nowrap;text-align:center;line-height:1">WIN%</span>
-                    <div id="win-rate-gauge" style="position:relative;width:20px;height:24px;border:1px solid var(--color-border-muted);border-radius:2px;background:var(--color-bg-canvas);overflow:hidden;display:flex;align-items:flex-end">
-                      <div style="width:100%;height:0%;background:linear-gradient(180deg,var(--color-state-success),var(--color-accent-primary));border-radius:1px;transition:height 0.5s" id="win-rate-fill"></div>
-                    </div>
-                    <span id="win-rate-label" class="mfd-label" style="color:var(--color-fg-muted)">—</span>
+                  <!-- BOTTOM: X-Axis time buttons -->
+                  <div class="mfd-btn-row" style="display:flex;gap:2px;justify-content:space-evenly;margin-top:2px">
+                    <button class="mfd-btn active" data-axis="x" aria-label="X-axis: 24 hours">24h</button>
+                    <button class="mfd-btn" data-axis="x" aria-label="X-axis: 1 week">1w</button>
+                    <button class="mfd-btn" data-axis="x" aria-label="X-axis: 1 month">1m</button>
+                    <button class="mfd-btn" data-axis="x" aria-label="X-axis: 1 year">1y</button>
+                    <button class="mfd-btn" data-axis="x" aria-label="X-axis: All time">ALL</button>
                   </div>
 
-                </div>
-
-                <!-- BOTTOM: X-Axis time buttons -->
-                <div class="mfd-btn-row" style="display:flex;gap:2px;justify-content:space-evenly;margin-top:2px">
-                  <button class="mfd-btn active" data-axis="x" aria-label="X-axis: 24 hours">24h</button>
-                  <button class="mfd-btn" data-axis="x" aria-label="X-axis: 1 week">1w</button>
-                  <button class="mfd-btn" data-axis="x" aria-label="X-axis: 1 month">1m</button>
-                  <button class="mfd-btn" data-axis="x" aria-label="X-axis: 1 year">1y</button>
-                  <button class="mfd-btn" data-axis="x" aria-label="X-axis: All time">ALL</button>
                 </div>
 
               </div>
             </div>
 
-            <!-- Connect API Keys Card -->
-            <div id="api-key-card" class="card card--compact" style="flex:0 0 200px;min-width:180px">
+            <!-- Connect API Keys Card (~20% of bottom bar) -->
+            <div id="api-key-card" class="card card--compact" style="flex:0 0 20%;min-width:160px">
               <div class="card-header" style="padding:4px 8px">
                 <span style="font-weight:700">🔑 Connect API Keys</span>
               </div>
@@ -979,8 +984,8 @@
               </div>
             </div>
 
-            <!-- Account Summary Card -->
-            <div id="account-summary-card" class="card card--compact" style="flex:0.8;min-width:140px">
+            <!-- Account Summary Card (hidden — consolidated into 4-card layout) -->
+            <div id="account-summary-card" class="card card--compact" style="display:none;flex:0.8;min-width:140px">
               <div class="card-header" style="padding:4px 8px">
                 <span style="font-weight:700">📊 Account</span>
               </div>
@@ -1004,10 +1009,10 @@
               </div>
             </div>
 
-            <!-- Live/Demo Indicator -->
-            <div class="card card--compact" style="flex:0.5;min-width:90px;text-align:center">
+            <!-- Market Mode Indicator (~10% of bottom bar) -->
+            <div class="card card--compact hangar-market-mode-card" style="flex:1 0 10%;min-width:90px;text-align:center">
               <div class="card-header" style="padding:4px 8px">
-                <span style="font-weight:700">MODE</span>
+                <span style="font-weight:700">Market Mode</span>
               </div>
               <div class="card-body" style="padding:8px;display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;justify-content:center">
                 <div id="connection-light" class="indicator-light" style="width:22px;height:22px;border-radius:50%;background:var(--color-fg-subtle);box-shadow:0 0 6px var(--color-fg-subtle)"></div>
