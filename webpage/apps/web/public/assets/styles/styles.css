@@ -2724,8 +2724,8 @@ select:focus {
 }
 .inspector-tab {
   flex: 1;
-  padding: 6px 4px;
-  font-size: 10px;
+  padding: 7px 6px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.4px;
@@ -2763,7 +2763,7 @@ select:focus {
   vertical-align: top;
 }
 .inspector-panel-content {
-  font-size: 11px;
+  font-size: 12px;
   height: 100%;
 }
 
