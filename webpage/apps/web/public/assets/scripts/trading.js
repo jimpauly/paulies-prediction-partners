@@ -1601,13 +1601,9 @@ const TradingStudio = (() => {
           if (msg.type === "public_data_ready") {
             fetchPublicData();
           }
-          /* Also handle agent activity events for semi-auto/full-auto display */
+          /* Handle agent activity events for semi-auto/full-auto display */
           if (msg.type === "agent_analysis" && msg.data) {
             showAgentActivity(msg.data);
-          }
-          if (msg.type === "fill" && msg.data && !connected) {
-            /* Full auto: flash buy/sell on cards */
-            flashTradeActivity(msg.data);
           }
         } catch (_) {
           /* ignore parse errors */
@@ -1646,6 +1642,8 @@ const TradingStudio = (() => {
         `Fill: ${event.data.data?.ticker || "unknown"} — ${event.data.data?.side || ""}`,
         "success",
       );
+      /* Full-auto: flash the buy/sell button on the card */
+      flashTradeActivity(event.data);
       fetchAccountSummary();
       if (typeof PositionsPanel !== "undefined")
         PositionsPanel.onFill(event.data);
@@ -1655,6 +1653,9 @@ const TradingStudio = (() => {
     }
     if (event.type === "trading_enabled" || event.type === "trading_disabled") {
       fetchAccountSummary();
+    }
+    if (event.type === "agent_analysis" && event.data) {
+      showAgentActivity(event.data);
     }
     if (typeof AgentDashboard !== "undefined") AgentDashboard.onEvent(event);
   }
