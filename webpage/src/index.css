@@ -1,9 +1,13 @@
 /* Import existing theme + component styles */
-@import url('../apps/web/public/assets/styles/themes.css');
-@import url('../apps/web/public/assets/styles/main.css');
+@import url("../apps/web/public/assets/styles/themes.css");
+@import url("../apps/web/public/assets/styles/main.css");
 
 /* React app root layout */
-*, *::before, *::after { box-sizing: border-box; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 #root {
   height: 100vh;
