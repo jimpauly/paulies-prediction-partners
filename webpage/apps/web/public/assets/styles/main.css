@@ -782,7 +782,6 @@ textarea.input {
   width: 100%;
   min-height: 40px;
   padding: var(--space-1) var(--space-2);
-  font-family: var(--font-family-mono);
   font-size: 0.75rem;
   color: var(--color-fg-default);
   background: var(--color-bg-canvas);
@@ -798,8 +797,7 @@ textarea.input {
 }
 
 .idea-complaint-textarea::placeholder {
-  color: var(--color-fg-subtle);
-  font-style: italic;
+  color: #36454F;
 }
 
 /* ==========================================================================
