@@ -1964,14 +1964,22 @@ textarea.input {
   width: 32px;
 }
 
-/* Button row (bottom of display) */
+/* Button row (top/bottom of display) */
 .mfd-btn-row .mfd-btn {
   flex: 1 1 0;
 }
 
+/* Readout column (right side of MFD — indicators, not buttons) */
+.mfd-readout-col {
+  padding: 2px 0 2px 2px;
+  min-width: 28px;
+  border-left: 1px solid var(--color-border-muted);
+}
+
 /* --- Hangar Bay layout helpers --- */
 .hangar-agent-card,
-.hangar-mfd-card {
+.hangar-mfd-card,
+.hangar-market-mode-card {
   flex-shrink: 0 !important;
 }
 
@@ -2442,17 +2450,23 @@ textarea.input {
 }
 
 #bottom-bar .hangar-agent-card {
-  flex: 0 0 50% !important;
-  min-width: clamp(120px, 30vw, 340px);
+  flex: 0 0 40% !important;
+  min-width: clamp(120px, 25vw, 300px);
 }
 
 #bottom-bar .hangar-mfd-card {
-  flex: 0 0 calc(50% - 18px) !important;
-  min-width: clamp(100px, 25vw, 300px);
+  flex: 0 0 30% !important;
+  min-width: clamp(100px, 20vw, 260px);
 }
 
 #bottom-bar #api-key-card {
-  flex: 0 0 clamp(100px, 15vw, 200px) !important;
+  flex: 0 0 20% !important;
+  min-width: clamp(100px, 13vw, 200px);
+}
+
+#bottom-bar .hangar-market-mode-card {
+  flex: 1 0 10% !important;
+  min-width: 90px;
 }
 
 #bottom-bar .card--compact .card-body {
