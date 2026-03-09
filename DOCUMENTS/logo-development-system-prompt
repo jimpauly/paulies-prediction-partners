@@ -8,7 +8,7 @@ Feel: Modest, Quiet, simple, soft.
 
 - Requirement: A circular detailed 3-Dimensional seal/badge.
 
-- Frame and rings: Compass/Gymbal
+- Frame and rings: Compass/Gymbal with outer and inner ring
 
 - Body: Smith-Chart-electrical-engineering chart with all labels and text removed; only the lines produced by the chart.
 
@@ -17,6 +17,8 @@ Feel: Modest, Quiet, simple, soft.
    - Macaw facing right perched on branches.
 
    - Natural macaw colorings with reds, blues, greens, yellows; (use a are slightly-glowing #00D4FF for the Cheek feathers, neck-side, chest and , and under-wing-feathers) all other parts are not glowing only the parts that are "tealed".
+
+   - End of tail feathers should get cut off when they reach the outer ring so they don't cover 'Prediction Partners' in the outer ring
 
 - Branches: Celtic Branches Twine with fat-bronzed branches, calmy twisting with thin slightly-glowing #00D4FF branches.
 
@@ -28,7 +30,7 @@ Feel: Modest, Quiet, simple, soft.
 
 - Compass/gymbal rings and pointers: idk feel it out, but make sure any are accurate, with no labels or additional hallucinatory markings; focus on making only 7 nodes and everything else asked.
 
-- Three Typographies:
+- Three Typographies all wide kernings:
   - 1. A small, shy, sutble etched "Paulie's" script is placed at the top.
   -  2. A large, bold, dominant bronzed "Prediction Partners" forms the base foundation bottom arc.
   - 3. slightly-glowing #00D4FF motto text ("Insight, Logic, Foresight") fill the inner rings, offset, aligned in the rings in left-top or north-west quadrant, no labels for north south east or west.
@@ -57,7 +59,9 @@ Detailed Component Checklist:
 
 ✓ Circular 3D seal format
 
-✓ Compass/Gymbal rings as outer frame
+✓ Compass/Gymbal outer and inner rings as frame
+
+✓ Outermost border is fat and strong
 
 ✓ Smith Chart pattern as body (labels removed, only geometric lines)
 
@@ -105,7 +109,7 @@ Detailed Component Checklist:
 
 ✓ Clean, functional design
 
-8. Typography (Three Elements)
+8. Typography (Three Elements with wide kerning)
 
 ✓ "Paulie's": Small, shy, subtle etched script at TOP
 
