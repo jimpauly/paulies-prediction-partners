@@ -191,12 +191,12 @@
 
   // ---- MFD Axis Buttons ----
   function initializeAxisButtons() {
-    const axisButtons = document.querySelectorAll('.mfd-btn[data-axis]');
-    axisButtons.forEach(button => {
+    const mfdAxisButtons = document.querySelectorAll('.mfd-btn[data-axis]');
+    mfdAxisButtons.forEach(button => {
       button.addEventListener('click', () => {
         const axis = button.dataset.axis;
         // Deactivate other buttons in same axis group
-        axisButtons.forEach(b => {
+        mfdAxisButtons.forEach(b => {
           if (b.dataset.axis === axis) b.classList.remove('active');
         });
         button.classList.add('active');

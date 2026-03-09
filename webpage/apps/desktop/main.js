@@ -196,7 +196,7 @@ function createMainWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      sandbox: false /* needs IPC bridge */,
+      sandbox: true,
       preload: path.join(__dirname, "preload.js"),
     },
     show: false,
@@ -502,12 +502,10 @@ function saveCredentials(credentials) {
       const encrypted = safeStorage.encryptString(payload);
       fs.writeFileSync(getCredentialsPath(), encrypted);
     } else {
-      /* Fallback: base64 encode — not truly secure; warn user */
+      /* safeStorage unavailable — refuse to persist credentials insecurely */
       console.warn(
-        "safeStorage unavailable — credentials stored with base64 encoding only (not encrypted).",
+        "safeStorage unavailable — credentials will not be saved to disk.",
       );
-      const encoded = Buffer.from(payload, "utf8").toString("base64");
-      fs.writeFileSync(getCredentialsPath(), encoded, "utf8");
     }
   } catch (error) {
     console.error("Failed to save credentials:", error.message);
@@ -528,9 +526,9 @@ function loadCredentials() {
       const decrypted = safeStorage.decryptString(encrypted);
       return JSON.parse(decrypted);
     }
-    /* Fallback: base64 decode */
-    const encoded = fs.readFileSync(credPath, "utf8");
-    return JSON.parse(Buffer.from(encoded, "base64").toString("utf8"));
+    /* safeStorage unavailable — cannot decrypt stored credentials */
+    console.warn("safeStorage unavailable — cannot load stored credentials.");
+    return null;
   } catch (error) {
     console.error("Failed to load credentials:", error.message);
     return null;
