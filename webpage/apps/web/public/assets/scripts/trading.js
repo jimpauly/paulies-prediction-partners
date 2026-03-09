@@ -267,6 +267,15 @@ const TradingStudio = (() => {
     gdp: { label: "GDP", icon: "📊", priority: 22 },
   };
 
+  /* Frequency display labels — shared by series detail view and event panels */
+  const FREQ_LABELS = {
+    "15min": "15 Min",
+    "1h": "Hourly",
+    "6h": "6 Hour",
+    "24h": "Daily",
+    "7d": "Weekly",
+  };
+
   /* ---- Initialization ---- */
 
   function initialize() {
@@ -2029,15 +2038,7 @@ const TradingStudio = (() => {
       closeTime && closeTime.getTime() < Date.now();
     const closeStr = closeTime ? formatEventCloseTime(closeTime) : "";
     const freq = detectFrequency(repMarket);
-    const freqLabels = {
-      "15min": "15 Min",
-      "1h": "Hourly",
-      "6h": "6 Hour",
-      "24h": "Daily",
-      "7d": "Weekly",
-      other: "",
-    };
-    const freqLabel = freqLabels[freq] || "";
+    const freqLabel = FREQ_LABELS[freq] || "";
     const timeRemaining = closeTime ? formatTimeRemaining(closeTime) : "";
 
     panel.innerHTML = `
@@ -2081,14 +2082,9 @@ const TradingStudio = (() => {
       const f = detectFrequency(m);
       if (f !== "other") found.add(f);
     });
-    const freqOrder = [
-      { key: "15min", label: "15 Min" },
-      { key: "1h", label: "Hourly" },
-      { key: "6h", label: "6 Hour" },
-      { key: "24h", label: "Daily" },
-      { key: "7d", label: "Weekly" },
-    ];
-    return freqOrder.filter((f) => found.has(f.key));
+    return Object.entries(FREQ_LABELS)
+      .map(([key, label]) => ({ key, label }))
+      .filter((f) => found.has(f.key));
   }
 
   function updateSeriesDetailSidebar() {
