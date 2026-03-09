@@ -2643,7 +2643,9 @@ textarea.input {
   font-size: clamp(0.6rem, 0.8vw, 0.78rem);
   letter-spacing: 0.18em;
   color: var(--color-accent-primary);
-  text-shadow: 0 0 6px var(--color-accent-primary), 0 0 14px var(--color-accent-primary);
+  text-shadow:
+    0 0 6px var(--color-accent-primary),
+    0 0 14px var(--color-accent-primary);
   flex: 1;
 }
 
@@ -2694,7 +2696,9 @@ textarea.input {
   flex: 1;
   text-align: center;
   color: var(--color-fg-default);
-  transition: color 0.3s, text-shadow 0.3s;
+  transition:
+    color 0.3s,
+    text-shadow 0.3s;
 }
 
 .ignition-status-dot {
@@ -2702,7 +2706,9 @@ textarea.input {
   height: 6px;
   border-radius: 50%;
   flex-shrink: 0;
-  transition: background 0.3s, box-shadow 0.3s;
+  transition:
+    background 0.3s,
+    box-shadow 0.3s;
 }
 
 /* dot state colours */
@@ -2720,15 +2726,18 @@ textarea.input {
 }
 
 /* status value glow matches state */
-.ignition-status-bar:has(.ignition-status-dot[data-state="auto"]) .ignition-status-value {
+.ignition-status-bar:has(.ignition-status-dot[data-state="auto"])
+  .ignition-status-value {
   color: var(--color-state-success);
   text-shadow: 0 0 8px var(--color-state-success);
 }
-.ignition-status-bar:has(.ignition-status-dot[data-state="semi"]) .ignition-status-value {
+.ignition-status-bar:has(.ignition-status-dot[data-state="semi"])
+  .ignition-status-value {
   color: var(--color-state-warning);
   text-shadow: 0 0 8px var(--color-state-warning);
 }
-.ignition-status-bar:has(.ignition-status-dot[data-state="stop"]) .ignition-status-value {
+.ignition-status-bar:has(.ignition-status-dot[data-state="stop"])
+  .ignition-status-value {
   color: var(--color-state-error);
   text-shadow: 0 0 8px var(--color-state-error);
 }
@@ -2755,7 +2764,10 @@ textarea.input {
   background: var(--color-bg-canvas);
   cursor: pointer;
   text-align: left;
-  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    box-shadow 0.2s;
   position: relative;
   overflow: hidden;
 }
@@ -2791,7 +2803,9 @@ textarea.input {
   font-weight: 900;
   letter-spacing: 0.12em;
   flex: 1;
-  transition: text-shadow 0.3s, color 0.2s;
+  transition:
+    text-shadow 0.3s,
+    color 0.2s;
 }
 
 .ign-btn__desc {
@@ -2820,13 +2834,20 @@ textarea.input {
 /* ── FULL AUTO — green ── */
 .ign-btn--auto.ign-btn--active {
   border-color: var(--color-state-success);
-  background: color-mix(in srgb, var(--color-state-success) 8%, var(--color-bg-canvas));
-  box-shadow: inset 0 0 10px color-mix(in srgb, var(--color-state-success) 12%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--color-state-success) 8%,
+    var(--color-bg-canvas)
+  );
+  box-shadow: inset 0 0 10px
+    color-mix(in srgb, var(--color-state-success) 12%, transparent);
 }
 .ign-btn--auto.ign-btn--active .ign-btn__indicator,
 .ign-btn--auto.ign-btn--active .ign-btn__mode {
   color: var(--color-state-success);
-  text-shadow: 0 0 6px var(--color-state-success), 0 0 16px var(--color-state-success);
+  text-shadow:
+    0 0 6px var(--color-state-success),
+    0 0 16px var(--color-state-success);
 }
 .ign-btn--auto.ign-btn--active .ign-btn__desc {
   color: var(--color-state-success);
@@ -2840,13 +2861,20 @@ textarea.input {
 /* ── SEMI AUTO — yellow ── */
 .ign-btn--semi.ign-btn--active {
   border-color: var(--color-state-warning);
-  background: color-mix(in srgb, var(--color-state-warning) 8%, var(--color-bg-canvas));
-  box-shadow: inset 0 0 10px color-mix(in srgb, var(--color-state-warning) 12%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--color-state-warning) 8%,
+    var(--color-bg-canvas)
+  );
+  box-shadow: inset 0 0 10px
+    color-mix(in srgb, var(--color-state-warning) 12%, transparent);
 }
 .ign-btn--semi.ign-btn--active .ign-btn__indicator,
 .ign-btn--semi.ign-btn--active .ign-btn__mode {
   color: var(--color-state-warning);
-  text-shadow: 0 0 6px var(--color-state-warning), 0 0 16px var(--color-state-warning);
+  text-shadow:
+    0 0 6px var(--color-state-warning),
+    0 0 16px var(--color-state-warning);
 }
 .ign-btn--semi.ign-btn--active .ign-btn__desc {
   color: var(--color-state-warning);
@@ -2860,13 +2888,20 @@ textarea.input {
 /* ── FULL STOP — red ── */
 .ign-btn--stop.ign-btn--active {
   border-color: var(--color-state-error);
-  background: color-mix(in srgb, var(--color-state-error) 8%, var(--color-bg-canvas));
-  box-shadow: inset 0 0 10px color-mix(in srgb, var(--color-state-error) 12%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--color-state-error) 8%,
+    var(--color-bg-canvas)
+  );
+  box-shadow: inset 0 0 10px
+    color-mix(in srgb, var(--color-state-error) 12%, transparent);
 }
 .ign-btn--stop.ign-btn--active .ign-btn__indicator,
 .ign-btn--stop.ign-btn--active .ign-btn__mode {
   color: var(--color-state-error);
-  text-shadow: 0 0 6px var(--color-state-error), 0 0 16px var(--color-state-error);
+  text-shadow:
+    0 0 6px var(--color-state-error),
+    0 0 16px var(--color-state-error);
 }
 .ign-btn--stop.ign-btn--active .ign-btn__desc {
   color: var(--color-state-error);
