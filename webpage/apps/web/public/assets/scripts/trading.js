@@ -2172,7 +2172,9 @@ const TradingStudio = (() => {
         <span class="ks-detail-crumb-sep">›</span>
         <span class="ks-detail-crumb-current">${escapeHtml(seriesDisplay.label)}</span>
       `;
-      document.getElementById("series-detail-back").addEventListener("click", closeSeriesDetail);
+      document
+        .getElementById("series-detail-back")
+        .addEventListener("click", closeSeriesDetail);
     }
 
     /* -- Header with series icon, title, and stats -- */
@@ -2289,8 +2291,7 @@ const TradingStudio = (() => {
     const closeTime = repMarket.close_time
       ? new Date(repMarket.close_time)
       : null;
-    const isClosed =
-      closeTime && closeTime.getTime() < Date.now();
+    const isClosed = closeTime && closeTime.getTime() < Date.now();
     const closeStr = closeTime ? formatEventCloseTime(closeTime) : "";
     const freq = detectFrequency(repMarket);
     const freqLabel = FREQ_LABELS[freq] || "";
