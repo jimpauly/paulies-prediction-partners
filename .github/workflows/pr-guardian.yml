@@ -126,8 +126,12 @@ jobs:
           BASE_SHA="${{ github.event.pull_request.base.sha }}"
           HEAD_SHA="${{ github.event.pull_request.head.sha }}"
 
-          # Get the diff of this PR
-          DIFF=$(git diff "$BASE_SHA".."$HEAD_SHA" -- . ':!*.lock' ':!*.png' ':!*.jpg' ':!*.gif' ':!*.ico' 2>/dev/null || echo "")
+          # Get the diff of this PR (exclude binary / generated files)
+          DIFF=$(git diff "$BASE_SHA".."$HEAD_SHA" -- . \
+            ':!*.lock' ':!*.png' ':!*.jpg' ':!*.gif' ':!*.ico' \
+            ':!*.svg' ':!*.pdf' ':!*.zip' ':!*.tar.gz' ':!*.exe' \
+            ':!*.woff' ':!*.woff2' ':!*.ttf' ':!*.eot' \
+            2>/dev/null || echo "")
 
           if [ -z "$DIFF" ]; then
             echo "No diff available — skipping malicious scan." >> "$GITHUB_STEP_SUMMARY"
@@ -138,7 +142,7 @@ jobs:
             local LABEL="$1"
             local PATTERN="$2"
 
-            MATCHES=$(echo "$DIFF" | grep -n "^+" | grep -iE "$PATTERN" || true)
+            MATCHES=$(echo "$DIFF" | grep "^+" | grep -iE "$PATTERN" || true)
 
             if [ -n "$MATCHES" ]; then
               echo "- ⚠️ **$LABEL**" >> "$GITHUB_STEP_SUMMARY"
@@ -157,20 +161,20 @@ jobs:
           check_diff_pattern "Obfuscated variable names" "(_0x[a-f0-9]{4,}|\\\\x[0-9a-f]{2}|\\\\u00[0-9a-f]{2})"
 
           # ── Data exfiltration ──
-          check_diff_pattern "Outbound data to unknown hosts" "https?://[^kalshi][^localhost][^127\.0\.0\.1].*\.(php|aspx|jsp)"
+          check_diff_pattern "Outbound data to suspicious endpoints" "\.(php|aspx|jsp)\b"
           check_diff_pattern "Webhook / exfil endpoints" "webhook\.|ngrok\.io|pipedream\.net|requestbin|hookbin"
           check_diff_pattern "Encoded data in URL params" "encodeURIComponent.*token|encodeURIComponent.*key|encodeURIComponent.*secret"
 
           # ── Credential harvesting ──
           check_diff_pattern "Credential interception" "addEventListener.*password|\.value.*password|keylog|keystroke"
-          check_diff_pattern "Cookie / storage theft" "document\.cookie.*fetch\|document\.cookie.*XMLHttp\|localStorage.*fetch\|sessionStorage.*fetch"
+          check_diff_pattern "Cookie / storage theft" "document\.cookie.*(fetch|XMLHttp)|localStorage.*(fetch|XMLHttp)|sessionStorage.*(fetch|XMLHttp)"
 
           # ── Supply chain attacks ──
           check_diff_pattern "CDN script injection" "<script.*src=.*http"
           check_diff_pattern "Dynamic script loading" "createElement.*script|appendChild.*script|document\.write.*script"
 
           # ── Filesystem attacks ──
-          check_diff_pattern "Dangerous filesystem operations" "rm\s+-rf\s+/|rmdir.*force|unlink.*__|shutil\.rmtree\s*\(\s*['\"]/"
+          check_diff_pattern "Dangerous filesystem operations" "rm\s+-[rf]{2}\s*/|rmdir.*force|unlink.*__|shutil\.rmtree\s*\(\s*['\"]/"
           check_diff_pattern "Environment variable exfiltration" "process\.env\[|os\.environ\[.*\].*fetch|os\.environ\[.*\].*request"
 
           echo "" >> "$GITHUB_STEP_SUMMARY"
