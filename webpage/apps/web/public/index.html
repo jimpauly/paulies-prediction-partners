@@ -1552,13 +1552,13 @@
           <span style="opacity:0.6">Contracts</span>
           <span style="font-weight:800">${contracts.toFixed(2)}</span>
           <span style="opacity:0.6">If WIN (total)</span>
-          <span style="font-weight:800;color:#22c55e">$${winPayout.toFixed(2)}</span>
+          <span style="font-weight:800;color:var(--color-state-success)">$${winPayout.toFixed(2)}</span>
           <span style="opacity:0.6">Net Profit</span>
-          <span style="font-weight:800;color:#22c55e">+$${netProfit.toFixed(2)}</span>
+          <span style="font-weight:800;color:var(--color-state-success)">+$${netProfit.toFixed(2)}</span>
           <span style="opacity:0.6">ROI</span>
-          <span style="font-weight:800;color:#22c55e">+${roi.toFixed(1)}%</span>
+          <span style="font-weight:800;color:var(--color-state-success)">+${roi.toFixed(1)}%</span>
           <span style="opacity:0.6">If LOSE</span>
-          <span style="font-weight:800;color:#ef4444">-$${lossAmount.toFixed(2)}</span>
+          <span style="font-weight:800;color:var(--color-state-error)">-$${lossAmount.toFixed(2)}</span>
           <span style="opacity:0.6">Implied Prob</span>
           <span style="font-weight:800">${impliedProb}%</span>
         </div>
@@ -1596,7 +1596,7 @@
       results.innerHTML = `
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
           <span style="opacity:0.6">Kelly %</span>
-          <span style="font-weight:800;color:${kelly > 0 ? '#22c55e' : '#ef4444'}">${(kelly * 100).toFixed(1)}%</span>
+          <span style="font-weight:800;color:var(${kelly > 0 ? '--color-state-success' : '--color-state-error'})">${(kelly * 100).toFixed(1)}%</span>
           <span style="opacity:0.6">Full Kelly Bet</span>
           <span style="font-weight:800">$${betAmount.toFixed(2)}</span>
           <span style="opacity:0.6">Half Kelly (safer)</span>
@@ -1604,9 +1604,9 @@
           <span style="opacity:0.6">Net Odds (b)</span>
           <span style="font-weight:800">${b.toFixed(2)}×</span>
           <span style="opacity:0.6">EV on bankroll</span>
-          <span style="font-weight:800;color:${ev > 0 ? '#22c55e' : '#ef4444'}">${ev > 0 ? '+' : ''}$${ev.toFixed(2)}</span>
+          <span style="font-weight:800;color:var(${ev > 0 ? '--color-state-success' : '--color-state-error'})">${ev > 0 ? '+' : ''}$${ev.toFixed(2)}</span>
         </div>
-        ${kelly <= 0 ? '<div style="color:#f59e0b;font-size:10px;margin-top:4px">⚠ Negative edge — Kelly says skip this trade</div>' : ''}
+        ${kelly <= 0 ? '<div style="color:var(--color-state-warning);font-size:10px;margin-top:4px">⚠ Negative edge — Kelly says skip this trade</div>' : ''}
       `;
     }
 
