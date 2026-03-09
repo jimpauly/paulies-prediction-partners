@@ -238,7 +238,7 @@ body {
 /* ---------- Action Bar -------------------------------------------------- */
 .region-action {
   flex: 1 1 clamp(80px, 18vw, 300px);
-  min-width: clamp(70px, 14vw, 240px);
+  min-width: clamp(70px, 18vw, 300px);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -2463,17 +2463,17 @@ textarea.input {
 }
 
 #bottom-bar .hangar-agent-card {
-  flex: 1 1 35% !important;
+  flex: 1 1 clamp(100px, 18vw, 280px) !important;
   min-width: clamp(100px, 18vw, 280px);
 }
 
 #bottom-bar .hangar-mfd-card {
-  flex: 1 1 28% !important;
+  flex: 1 1 clamp(90px, 15vw, 240px) !important;
   min-width: clamp(90px, 15vw, 240px);
 }
 
 #bottom-bar #api-key-card {
-  flex: 1 1 20% !important;
+  flex: 1 1 clamp(80px, 10vw, 180px) !important;
   min-width: clamp(80px, 10vw, 180px);
 }
 
