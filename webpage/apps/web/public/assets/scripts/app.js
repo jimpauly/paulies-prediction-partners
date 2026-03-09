@@ -5,31 +5,31 @@
    ============================================================ */
 
 (function Application() {
-  'use strict';
+  "use strict";
 
   // ---- Studio Switching ----
   function initializeStudioSwitching() {
-    const studioButtons = document.querySelectorAll('.studio-button');
-    const studioContents = document.querySelectorAll('.studio-content');
+    const studioButtons = document.querySelectorAll(".studio-button");
+    const studioContents = document.querySelectorAll(".studio-content");
 
-    studioButtons.forEach(button => {
-      button.addEventListener('click', () => {
+    studioButtons.forEach((button) => {
+      button.addEventListener("click", () => {
         const targetStudio = button.dataset.studio;
 
         // Update buttons
-        studioButtons.forEach(b => {
-          b.classList.remove('active');
-          b.setAttribute('aria-checked', 'false');
+        studioButtons.forEach((b) => {
+          b.classList.remove("active");
+          b.setAttribute("aria-checked", "false");
         });
-        button.classList.add('active');
-        button.setAttribute('aria-checked', 'true');
+        button.classList.add("active");
+        button.setAttribute("aria-checked", "true");
 
         // Update content
-        studioContents.forEach(content => {
-          content.classList.remove('active');
+        studioContents.forEach((content) => {
+          content.classList.remove("active");
         });
         const target = document.getElementById(`studio-${targetStudio}`);
-        if (target) target.classList.add('active');
+        if (target) target.classList.add("active");
       });
     });
   }
@@ -37,17 +37,17 @@
   // ---- API Key Connection ----
   function initializeApiKeyConnection() {
     const modeRadios = document.querySelectorAll('input[name="api-mode"]');
-    const apiKeyInput = document.getElementById('api-key-input');
-    const rsaKeyInput = document.getElementById('rsa-key-input');
-    const connectButton = document.getElementById('connect-button');
-    const apiKeyCard = document.getElementById('api-key-card');
-    const connectionLight = document.getElementById('connection-light');
-    const connectionStatus = document.getElementById('connection-status');
+    const apiKeyInput = document.getElementById("api-key-input");
+    const rsaKeyInput = document.getElementById("rsa-key-input");
+    const connectButton = document.getElementById("connect-button");
+    const apiKeyCard = document.getElementById("api-key-card");
+    const connectionLight = document.getElementById("connection-light");
+    const connectionStatus = document.getElementById("connection-status");
 
     let selectedMode = null;
 
-    modeRadios.forEach(radio => {
-      radio.addEventListener('change', () => {
+    modeRadios.forEach((radio) => {
+      radio.addEventListener("change", () => {
         selectedMode = radio.value;
         if (apiKeyInput) apiKeyInput.disabled = false;
         if (rsaKeyInput) rsaKeyInput.disabled = false;
@@ -62,65 +62,84 @@
       connectButton.disabled = !(selectedMode && hasApiKey && hasRsaKey);
     }
 
-    if (apiKeyInput) apiKeyInput.addEventListener('input', validateApiInputs);
-    if (rsaKeyInput) rsaKeyInput.addEventListener('input', validateApiInputs);
+    if (apiKeyInput) apiKeyInput.addEventListener("input", validateApiInputs);
+    if (rsaKeyInput) rsaKeyInput.addEventListener("input", validateApiInputs);
 
     /* ---- Restore saved credentials (Electron desktop only) ---- */
-    if (typeof window.electronBridge !== 'undefined' && window.electronBridge.loadCredentials) {
-      window.electronBridge.loadCredentials().then(creds => {
-        if (!creds) return;
-        if (creds.mode) {
-          const modeRadio = document.querySelector(`input[name="api-mode"][value="${creds.mode}"]`);
-          if (modeRadio) {
-            modeRadio.checked = true;
-            selectedMode = creds.mode;
-            if (apiKeyInput) apiKeyInput.disabled = false;
-            if (rsaKeyInput) rsaKeyInput.disabled = false;
+    if (
+      typeof window.electronBridge !== "undefined" &&
+      window.electronBridge.loadCredentials
+    ) {
+      window.electronBridge
+        .loadCredentials()
+        .then((creds) => {
+          if (!creds) return;
+          if (creds.mode) {
+            const modeRadio = document.querySelector(
+              `input[name="api-mode"][value="${creds.mode}"]`,
+            );
+            if (modeRadio) {
+              modeRadio.checked = true;
+              selectedMode = creds.mode;
+              if (apiKeyInput) apiKeyInput.disabled = false;
+              if (rsaKeyInput) rsaKeyInput.disabled = false;
+            }
           }
-        }
-        if (creds.apiKeyId && apiKeyInput) {
-          apiKeyInput.value = creds.apiKeyId;
-        }
-        if (creds.privateKeyPem && rsaKeyInput) {
-          rsaKeyInput.value = creds.privateKeyPem;
-        }
-        validateApiInputs();
-      }).catch(() => { /* credentials not available */ });
+          if (creds.apiKeyId && apiKeyInput) {
+            apiKeyInput.value = creds.apiKeyId;
+          }
+          if (creds.privateKeyPem && rsaKeyInput) {
+            rsaKeyInput.value = creds.privateKeyPem;
+          }
+          validateApiInputs();
+        })
+        .catch(() => {
+          /* credentials not available */
+        });
     }
 
     if (connectButton) {
-      connectButton.addEventListener('click', async () => {
-        const apiKeyValue = apiKeyInput ? apiKeyInput.value.trim() : '';
-        const rsaKeyValue = rsaKeyInput ? rsaKeyInput.value.trim() : '';
+      connectButton.addEventListener("click", async () => {
+        const apiKeyValue = apiKeyInput ? apiKeyInput.value.trim() : "";
+        const rsaKeyValue = rsaKeyInput ? rsaKeyInput.value.trim() : "";
 
         if (!selectedMode || !apiKeyValue || !rsaKeyValue) return;
 
         connectButton.disabled = true;
-        connectButton.textContent = 'Connecting…';
+        connectButton.textContent = "Connecting…";
 
         let backendReachable = false;
 
         try {
-          const response = await fetch('http://127.0.0.1:8000/api/connection/connect', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              environment: selectedMode,
-              api_key_id: apiKeyValue,
-              private_key_pem: rsaKeyValue,
-            }),
-          });
+          const response = await fetch(
+            "http://127.0.0.1:8000/api/connection/connect",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                environment: selectedMode,
+                api_key_id: apiKeyValue,
+                private_key_pem: rsaKeyValue,
+              }),
+            },
+          );
 
           if (response.ok) {
             backendReachable = true;
           }
         } catch (networkError) {
           /* Backend not running — proceed in offline/demo mode */
-          console.warn('Backend not reachable, proceeding in offline mode:', networkError.message);
+          console.warn(
+            "Backend not reachable, proceeding in offline mode:",
+            networkError.message,
+          );
         }
 
         /* Save credentials securely for next launch (Electron only) */
-        if (typeof window.electronBridge !== 'undefined' && window.electronBridge.saveCredentials) {
+        if (
+          typeof window.electronBridge !== "undefined" &&
+          window.electronBridge.saveCredentials
+        ) {
           window.electronBridge.saveCredentials({
             mode: selectedMode,
             apiKeyId: apiKeyValue,
@@ -129,19 +148,22 @@
         }
 
         /* Clear credentials from DOM immediately */
-        if (apiKeyInput) apiKeyInput.value = '';
-        if (rsaKeyInput) rsaKeyInput.value = '';
+        if (apiKeyInput) apiKeyInput.value = "";
+        if (rsaKeyInput) rsaKeyInput.value = "";
 
         /* Update UI to show connected state */
         if (apiKeyCard) {
-          const inputs = apiKeyCard.querySelectorAll('.api-input, .connect-button, .api-mode-selector');
-          inputs.forEach(input => input.style.display = 'none');
+          const inputs = apiKeyCard.querySelectorAll(
+            ".api-input, .connect-button, .api-mode-selector",
+          );
+          inputs.forEach((input) => (input.style.display = "none"));
 
-          const cardInner = apiKeyCard.querySelector('.card-inner');
+          const cardInner = apiKeyCard.querySelector(".card-inner");
           if (cardInner) {
-            const connectedMessage = document.createElement('div');
-            connectedMessage.style.cssText = 'font-size:11px;font-weight:700;color:var(--color-state-success);text-align:center;padding:8px;';
-            const statusLabel = backendReachable ? 'Connected' : 'Offline Mode';
+            const connectedMessage = document.createElement("div");
+            connectedMessage.style.cssText =
+              "font-size:11px;font-weight:700;color:var(--color-state-success);text-align:center;padding:8px;";
+            const statusLabel = backendReachable ? "Connected" : "Offline Mode";
             connectedMessage.textContent = `✓ ${statusLabel} (${selectedMode.toUpperCase()})`;
             cardInner.appendChild(connectedMessage);
           }
@@ -151,7 +173,8 @@
           connectionLight.className = `indicator-light ${selectedMode}`;
         }
         if (connectionStatus) {
-          connectionStatus.textContent = selectedMode === 'live' ? 'LIVE' : 'DEMO';
+          connectionStatus.textContent =
+            selectedMode === "live" ? "LIVE" : "DEMO";
         }
 
         /* Start uptime timer */
@@ -164,12 +187,17 @@
         TradingStudio.onConnected(selectedMode);
 
         /* Notify AgentDashboard */
-        if (typeof AgentDashboard !== 'undefined' && AgentDashboard.onConnected) {
+        if (
+          typeof AgentDashboard !== "undefined" &&
+          AgentDashboard.onConnected
+        ) {
           AgentDashboard.onConnected();
         }
 
         /* Auto-navigate to Trading Studio */
-        const tradeButton = document.querySelector('.studio-button[data-studio="trade"]');
+        const tradeButton = document.querySelector(
+          '.studio-button[data-studio="trade"]',
+        );
         if (tradeButton) tradeButton.click();
       });
     }
@@ -177,13 +205,13 @@
 
   // ---- Agent Dial Controls ----
   function initializeAgentDials() {
-    const agentCards = document.querySelectorAll('.agent-card:not(.inactive)');
-    agentCards.forEach(card => {
-      const dialOptions = card.querySelectorAll('.agent-dial-option');
-      dialOptions.forEach(option => {
-        option.addEventListener('click', () => {
-          dialOptions.forEach(o => o.classList.remove('active'));
-          option.classList.add('active');
+    const agentCards = document.querySelectorAll(".agent-card:not(.inactive)");
+    agentCards.forEach((card) => {
+      const dialOptions = card.querySelectorAll(".agent-dial-option");
+      dialOptions.forEach((option) => {
+        option.addEventListener("click", () => {
+          dialOptions.forEach((o) => o.classList.remove("active"));
+          option.classList.add("active");
         });
       });
     });
@@ -191,24 +219,24 @@
 
   // ---- MFD Axis Buttons ----
   function initializeAxisButtons() {
-    const mfdAxisButtons = document.querySelectorAll('.mfd-btn[data-axis]');
-    mfdAxisButtons.forEach(button => {
-      button.addEventListener('click', () => {
+    const mfdAxisButtons = document.querySelectorAll(".mfd-btn[data-axis]");
+    mfdAxisButtons.forEach((button) => {
+      button.addEventListener("click", () => {
         const axis = button.dataset.axis;
         // Deactivate other buttons in same axis group
-        mfdAxisButtons.forEach(b => {
-          if (b.dataset.axis === axis) b.classList.remove('active');
+        mfdAxisButtons.forEach((b) => {
+          if (b.dataset.axis === axis) b.classList.remove("active");
         });
-        button.classList.add('active');
+        button.classList.add("active");
       });
     });
   }
 
   // ---- P/L Graph (Live Rendering) ----
   function initializePlGraph() {
-    const canvas = document.getElementById('pl-graph');
+    const canvas = document.getElementById("pl-graph");
     if (!canvas) return;
-    const context = canvas.getContext('2d');
+    const context = canvas.getContext("2d");
     const profitLossHistory = [];
     const MAX_DATA_POINTS = 120;
     let pollingIntervalId = null;
@@ -216,12 +244,24 @@
     function getThemeColors() {
       const computedStyle = getComputedStyle(document.body);
       return {
-        foreground: computedStyle.getPropertyValue('--color-fg-default').trim() || '#1f2937',
-        success: computedStyle.getPropertyValue('--color-state-success').trim() || '#22c55e',
-        danger: computedStyle.getPropertyValue('--color-state-danger').trim() || '#ef4444',
-        muted: computedStyle.getPropertyValue('--color-fg-muted').trim() || '#6b7280',
-        surface: computedStyle.getPropertyValue('--color-bg-surface').trim() || '#f9fafb',
-        border: computedStyle.getPropertyValue('--color-border-muted').trim() || '#e5e7eb',
+        foreground:
+          computedStyle.getPropertyValue("--color-fg-default").trim() ||
+          "#1f2937",
+        success:
+          computedStyle.getPropertyValue("--color-state-success").trim() ||
+          "#22c55e",
+        danger:
+          computedStyle.getPropertyValue("--color-state-danger").trim() ||
+          "#ef4444",
+        muted:
+          computedStyle.getPropertyValue("--color-fg-muted").trim() ||
+          "#6b7280",
+        surface:
+          computedStyle.getPropertyValue("--color-bg-surface").trim() ||
+          "#f9fafb",
+        border:
+          computedStyle.getPropertyValue("--color-border-muted").trim() ||
+          "#e5e7eb",
       };
     }
 
@@ -234,10 +274,10 @@
       if (profitLossHistory.length < 2) {
         context.fillStyle = colors.foreground;
         context.globalAlpha = 0.3;
-        context.font = '12px sans-serif';
-        context.textAlign = 'center';
-        context.textBaseline = 'middle';
-        context.fillText('Waiting for P/L data…', width / 2, height / 2);
+        context.font = "12px sans-serif";
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        context.fillText("Waiting for P/L data…", width / 2, height / 2);
         context.globalAlpha = 1.0;
         return;
       }
@@ -246,17 +286,21 @@
       const chartWidth = width - padding.left - padding.right;
       const chartHeight = height - padding.top - padding.bottom;
 
-      const values = profitLossHistory.map(point => point.value);
+      const values = profitLossHistory.map((point) => point.value);
       const minValue = Math.min(0, ...values);
       const maxValue = Math.max(0, ...values);
       const range = maxValue - minValue || 1;
 
       function xPosition(index) {
-        return padding.left + (index / (profitLossHistory.length - 1)) * chartWidth;
+        return (
+          padding.left + (index / (profitLossHistory.length - 1)) * chartWidth
+        );
       }
 
       function yPosition(value) {
-        return padding.top + chartHeight - ((value - minValue) / range) * chartHeight;
+        return (
+          padding.top + chartHeight - ((value - minValue) / range) * chartHeight
+        );
       }
 
       /* Zero line */
@@ -273,8 +317,8 @@
       /* P/L line */
       context.beginPath();
       context.lineWidth = 2;
-      context.lineJoin = 'round';
-      context.lineCap = 'round';
+      context.lineJoin = "round";
+      context.lineCap = "round";
 
       profitLossHistory.forEach((point, index) => {
         const pointX = xPosition(index);
@@ -291,13 +335,18 @@
       context.stroke();
 
       /* Gradient fill */
-      const gradient = context.createLinearGradient(0, padding.top, 0, padding.top + chartHeight);
+      const gradient = context.createLinearGradient(
+        0,
+        padding.top,
+        0,
+        padding.top + chartHeight,
+      );
       if (latestValue >= 0) {
-        gradient.addColorStop(0, colors.success + '40');
-        gradient.addColorStop(1, colors.success + '05');
+        gradient.addColorStop(0, colors.success + "40");
+        gradient.addColorStop(1, colors.success + "05");
       } else {
-        gradient.addColorStop(0, colors.danger + '05');
-        gradient.addColorStop(1, colors.danger + '40');
+        gradient.addColorStop(0, colors.danger + "05");
+        gradient.addColorStop(1, colors.danger + "40");
       }
 
       context.lineTo(xPosition(profitLossHistory.length - 1), zeroY);
@@ -308,25 +357,39 @@
 
       /* Y-axis labels */
       context.fillStyle = colors.muted;
-      context.font = '9px sans-serif';
-      context.textAlign = 'right';
-      context.textBaseline = 'middle';
-      context.fillText('$' + maxValue.toFixed(2), padding.left - 4, padding.top);
-      context.fillText('$' + minValue.toFixed(2), padding.left - 4, padding.top + chartHeight);
-      context.fillText('$0', padding.left - 4, zeroY);
+      context.font = "9px sans-serif";
+      context.textAlign = "right";
+      context.textBaseline = "middle";
+      context.fillText(
+        "$" + maxValue.toFixed(2),
+        padding.left - 4,
+        padding.top,
+      );
+      context.fillText(
+        "$" + minValue.toFixed(2),
+        padding.left - 4,
+        padding.top + chartHeight,
+      );
+      context.fillText("$0", padding.left - 4, zeroY);
 
       /* Current value label */
       context.fillStyle = latestValue >= 0 ? colors.success : colors.danger;
-      context.font = 'bold 10px sans-serif';
-      context.textAlign = 'right';
-      context.textBaseline = 'top';
-      const sign = latestValue >= 0 ? '+' : '';
-      context.fillText(`${sign}$${latestValue.toFixed(2)}`, width - padding.right, 2);
+      context.font = "bold 10px sans-serif";
+      context.textAlign = "right";
+      context.textBaseline = "top";
+      const sign = latestValue >= 0 ? "+" : "";
+      context.fillText(
+        `${sign}$${latestValue.toFixed(2)}`,
+        width - padding.right,
+        2,
+      );
     }
 
     async function fetchProfitLossData() {
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/trading/status');
+        const response = await fetch(
+          "http://127.0.0.1:8000/api/trading/status",
+        );
         if (!response.ok) return;
         const data = await response.json();
         const dailyPnl = parseFloat(data.daily_pnl) || 0;
@@ -352,37 +415,44 @@
 
     /* Redraw on theme change */
     const observer = new MutationObserver(drawChart);
-    observer.observe(document.body, { attributes: true, attributeFilter: ['data-theme', 'data-mode'] });
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["data-theme", "data-mode"],
+    });
   }
 
   // ---- Agent Graphs (Empty State) ----
   function initializeAgentGraphs() {
-    const agentGraphs = document.querySelectorAll('.agent-graph');
-    agentGraphs.forEach(canvas => {
-      const context = canvas.getContext('2d');
+    const agentGraphs = document.querySelectorAll(".agent-graph");
+    agentGraphs.forEach((canvas) => {
+      const context = canvas.getContext("2d");
       const width = canvas.width;
       const height = canvas.height;
       context.clearRect(0, 0, width, height);
 
-      context.fillStyle = '#888';
+      context.fillStyle = "#888";
       context.globalAlpha = 0.3;
-      context.font = '8px sans-serif';
-      context.textAlign = 'center';
-      context.textBaseline = 'middle';
-      context.fillText('No data', width / 2, height / 2);
+      context.font = "8px sans-serif";
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+      context.fillText("No data", width / 2, height / 2);
       context.globalAlpha = 1.0;
     });
   }
 
   // ---- Send-an-Idea ----
   function initializeSendIdea() {
-    const button = document.getElementById('send-idea-button');
+    const button = document.getElementById("send-idea-button");
     if (button) {
-      button.addEventListener('click', () => {
-        const textarea = document.getElementById('idea-complaint-box');
-        const complaint = textarea ? textarea.value.trim() : '';
-        const subject = encodeURIComponent("Paulie's Prediction Partners - Grievance");
-        const body = encodeURIComponent(complaint || '(No complaint provided — impressive restraint.)');
+      button.addEventListener("click", () => {
+        const textarea = document.getElementById("idea-complaint-box");
+        const complaint = textarea ? textarea.value.trim() : "";
+        const subject = encodeURIComponent(
+          "Paulie's Prediction Partners - Grievance",
+        );
+        const body = encodeURIComponent(
+          complaint || "(No complaint provided — impressive restraint.)",
+        );
         window.location.href = `mailto:chickensaurusrex@outlook.com?subject=${subject}&body=${body}`;
       });
     }
@@ -395,18 +465,19 @@
   function startUptimeTimer() {
     connectionStartTime = Date.now();
     if (uptimeInterval) clearInterval(uptimeInterval);
-    const uptimeEl = document.getElementById('connection-uptime');
+    const uptimeEl = document.getElementById("connection-uptime");
     if (!uptimeEl) return;
     uptimeInterval = setInterval(() => {
       const elapsed = Math.floor((Date.now() - connectionStartTime) / 1000);
       const hours = Math.floor(elapsed / 3600);
       const minutes = Math.floor((elapsed % 3600) / 60);
       const seconds = elapsed % 60;
-      const pad = (n) => String(n).padStart(2, '0');
-      uptimeEl.textContent = hours > 0
-        ? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
-        : `${pad(minutes)}:${pad(seconds)}`;
-      uptimeEl.style.color = 'var(--color-state-success)';
+      const pad = (n) => String(n).padStart(2, "0");
+      uptimeEl.textContent =
+        hours > 0
+          ? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+          : `${pad(minutes)}:${pad(seconds)}`;
+      uptimeEl.style.color = "var(--color-state-success)";
     }, 1000);
   }
 
@@ -420,30 +491,31 @@
   }
 
   async function fetchAccountSummary() {
-    const balanceEl = document.getElementById('account-balance');
-    const portfolioEl = document.getElementById('account-portfolio');
-    const pnlEl = document.getElementById('account-pnl');
-    const tradesEl = document.getElementById('account-trades');
+    const balanceEl = document.getElementById("account-balance");
+    const portfolioEl = document.getElementById("account-portfolio");
+    const pnlEl = document.getElementById("account-pnl");
+    const tradesEl = document.getElementById("account-trades");
     if (!balanceEl && !portfolioEl && !pnlEl && !tradesEl) return;
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/trading/account-summary');
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/trading/account-summary",
+      );
       if (!response.ok) return;
       const data = await response.json();
 
       if (balanceEl && data.balance !== undefined) {
-        balanceEl.textContent = '$' + Number(data.balance).toFixed(2);
+        balanceEl.textContent = "$" + Number(data.balance).toFixed(2);
       }
       if (portfolioEl && data.portfolio_value !== undefined) {
-        portfolioEl.textContent = '$' + Number(data.portfolio_value).toFixed(2);
+        portfolioEl.textContent = "$" + Number(data.portfolio_value).toFixed(2);
       }
       if (pnlEl && data.today_pnl !== undefined) {
         const pnl = Number(data.today_pnl);
-        const sign = pnl >= 0 ? '+' : '';
-        pnlEl.textContent = sign + '$' + Math.abs(pnl).toFixed(2);
-        pnlEl.style.color = pnl >= 0
-          ? 'var(--color-state-success)'
-          : 'var(--color-state-error)';
+        const sign = pnl >= 0 ? "+" : "";
+        pnlEl.textContent = sign + "$" + Math.abs(pnl).toFixed(2);
+        pnlEl.style.color =
+          pnl >= 0 ? "var(--color-state-success)" : "var(--color-state-error)";
       }
       if (tradesEl && data.total_trades !== undefined) {
         tradesEl.textContent = String(data.total_trades);
@@ -475,8 +547,8 @@
   }
 
   // Wait for DOM
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
   } else {
     boot();
   }
