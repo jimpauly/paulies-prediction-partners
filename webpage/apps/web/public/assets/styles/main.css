@@ -2184,9 +2184,9 @@ textarea.input {
   align-items: center;
   justify-content: center;
   min-height: 28px;
-  padding: var(--space-1) var(--space-2);
+  padding: var(--space-2) var(--space-3);
   font-family: var(--font-family-mono);
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--color-fg-default);
   background: var(--color-bg-surface-raised);
@@ -2210,7 +2210,8 @@ textarea.input {
 .theme-selector__grid {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  align-items: center;
+  gap: var(--space-1);
   width: 100%;
 }
 
@@ -2218,14 +2219,14 @@ textarea.input {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  padding: 4px 4px;
+  font-size: 14px;
+  padding: var(--space-2) var(--space-5);
   font-weight: 700;
   text-align: center;
-  width: 100%;
+  width: 88%;
   min-width: 0;
   border: 2px solid;
-  border-radius: 0;
+  border-radius: var(--border-radius-md);
   cursor: pointer;
   transition:
     border-color var(--transition-speed),
@@ -2239,8 +2240,8 @@ textarea.input {
   display: inline-block;
   padding: 2px 6px;
   border: 1px solid;
-  border-radius: 3px;
-  font-size: 12px;
+  border-radius: 0;
+  font-size: 14px;
   font-weight: 700;
   white-space: nowrap;
 }
