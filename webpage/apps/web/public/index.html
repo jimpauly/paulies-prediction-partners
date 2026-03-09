@@ -578,7 +578,16 @@
           </nav>
 
           <!-- Filters -->
-          <div class="trading-filters" style="display:flex;gap:8px;align-items:center;padding:2px 0;flex-shrink:0;flex-wrap:wrap">
+          <div class="trading-filters" style="display:flex;gap:8px;align-items:center;padding:4px 0;flex-shrink:0;flex-wrap:wrap">
+            <div class="ks-freq-pills" id="freq-pill-group" aria-label="Frequency filter">
+              <button class="ks-freq-pill active" data-freq="all">All</button>
+              <button class="ks-freq-pill" data-freq="15min">15 Min</button>
+              <button class="ks-freq-pill" data-freq="1h">Hourly</button>
+              <button class="ks-freq-pill" data-freq="6h">6 Hour</button>
+              <button class="ks-freq-pill" data-freq="24h">Daily</button>
+              <button class="ks-freq-pill" data-freq="7d">Weekly</button>
+            </div>
+            <span style="width:1px;height:16px;background:var(--color-border-muted);flex-shrink:0"></span>
             <label class="filter-label-group">
               <span style="color:var(--color-fg-muted);font-size:10px;font-weight:700;text-transform:uppercase">Volume:</span>
               <select id="filter-volume" style="padding:2px 4px;background:var(--color-bg-surface);color:var(--color-fg-default);border:1px solid var(--color-border-muted);border-radius:4px;font-size:10px">
@@ -586,17 +595,6 @@
                 <option value="high">High (10k+)</option>
                 <option value="medium">Medium (1k-10k)</option>
                 <option value="low">Low (&lt;1k)</option>
-              </select>
-            </label>
-            <label class="filter-label-group">
-              <span style="color:var(--color-fg-muted);font-size:10px;font-weight:700;text-transform:uppercase">Freq:</span>
-              <select id="filter-frequency" style="padding:2px 4px;background:var(--color-bg-surface);color:var(--color-fg-default);border:1px solid var(--color-border-muted);border-radius:4px;font-size:10px">
-                <option value="all">All</option>
-                <option value="15min">15 Min</option>
-                <option value="1h">Hourly</option>
-                <option value="6h">6 Hour</option>
-                <option value="24h">Daily</option>
-                <option value="7d">Weekly</option>
               </select>
             </label>
             <label class="filter-label-group">
