@@ -654,17 +654,18 @@ const TradingStudio = (() => {
 
   /* ---- Series title derivation ---- */
 
+  /* Pattern that matches price/percentage thresholds like "$87,500 or above" or "50% or below" */
+  const THRESHOLD_PATTERN = /(\$[\d,.]+|\d+(\.\d+)?%?) or (above|below|more|less)/gi;
+
   function deriveSeriesTitle(market) {
     /* Kalshi titles look like "Bitcoin price today at 8am EST?"
        We try to derive a meaningful series-level title from the first market */
     const eventTicker = market.event_ticker || "";
     const subtitle = market.yes_sub_title || "";
 
-    /* If the subtitle contains a price threshold like "$87,500 or above",
-       strip it to get the base question */
+    /* Strip price/percentage thresholds to get the base question */
     const baseTitle = subtitle
-      .replace(/\$[\d,.]+ or (above|below|more|less)/i, "")
-      .replace(/\d+(\.\d+)?%? or (above|below|more|less)/i, "")
+      .replace(THRESHOLD_PATTERN, "")
       .replace(/^\s*(—|-)\s*/, "")
       .trim();
 
