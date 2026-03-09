@@ -104,7 +104,7 @@
   --color-bg-canvas: #008080;
   --color-bg-surface: #c0c0c0;
   --color-bg-surface-raised: #ffffff;
-  --color-bg-overlay: rgba(0, 0, 0, 0.50);
+  --color-bg-overlay: rgba(0, 0, 0, 0.5);
   --color-fg-default: #000000;
   --color-fg-muted: #808080;
   --color-fg-subtle: #808080;
@@ -131,7 +131,7 @@
   --color-bg-canvas: #ff7f7f;
   --color-bg-surface: #3f3f3f;
   --color-bg-surface-raised: #000000;
-  --color-bg-overlay: rgba(255, 255, 255, 0.50);
+  --color-bg-overlay: rgba(255, 255, 255, 0.5);
   --color-fg-default: #ffffff;
   --color-fg-muted: #7f7f7f;
   --color-fg-subtle: #7f7f7f;
@@ -1411,9 +1411,9 @@
   border: none;
   box-shadow:
     inset -1px -1px 0 0 #000000,
-    inset  1px  1px 0 0 #ffffff,
+    inset 1px 1px 0 0 #ffffff,
     inset -2px -2px 0 0 #808080,
-    inset  2px  2px 0 0 #dfdfdf;
+    inset 2px 2px 0 0 #dfdfdf;
 }
 
 [data-theme="mosaic-1993"][data-mode="dark"] .region,
@@ -1423,9 +1423,9 @@
   border: none;
   box-shadow:
     inset -1px -1px 0 0 #ffffff,
-    inset  1px  1px 0 0 #000000,
+    inset 1px 1px 0 0 #000000,
     inset -2px -2px 0 0 #7f7f7f,
-    inset  2px  2px 0 0 #202020;
+    inset 2px 2px 0 0 #202020;
 }
 
 /* Inset bevel — text inputs, list boxes */
@@ -1435,9 +1435,9 @@
   border: none;
   box-shadow:
     inset -1px -1px 0 0 #dfdfdf,
-    inset  1px  1px 0 0 #808080,
+    inset 1px 1px 0 0 #808080,
     inset -2px -2px 0 0 #ffffff,
-    inset  2px  2px 0 0 #000000;
+    inset 2px 2px 0 0 #000000;
 }
 
 [data-theme="mosaic-1993"][data-mode="dark"] input,
@@ -1446,9 +1446,9 @@
   border: none;
   box-shadow:
     inset -1px -1px 0 0 #202020,
-    inset  1px  1px 0 0 #7f7f7f,
+    inset 1px 1px 0 0 #7f7f7f,
     inset -2px -2px 0 0 #000000,
-    inset  2px  2px 0 0 #ffffff;
+    inset 2px 2px 0 0 #ffffff;
 }
 
 /* Active button pressed state — inverted bevel */
@@ -1457,9 +1457,9 @@
 [data-theme="mosaic-1993"][data-mode="light"] .btn-primary {
   box-shadow:
     inset -1px -1px 0 0 #dfdfdf,
-    inset  1px  1px 0 0 #000000,
+    inset 1px 1px 0 0 #000000,
     inset -2px -2px 0 0 #ffffff,
-    inset  2px  2px 0 0 #808080;
+    inset 2px 2px 0 0 #808080;
 }
 
 [data-theme="mosaic-1993"][data-mode="dark"] .btn:active,
@@ -1467,9 +1467,9 @@
 [data-theme="mosaic-1993"][data-mode="dark"] .btn-primary {
   box-shadow:
     inset -1px -1px 0 0 #202020,
-    inset  1px  1px 0 0 #ffffff,
+    inset 1px 1px 0 0 #ffffff,
     inset -2px -2px 0 0 #000000,
-    inset  2px  2px 0 0 #7f7f7f;
+    inset 2px 2px 0 0 #7f7f7f;
 }
 
 /* Win3.1 title bars — sidebar panel headers & card headers */
@@ -1507,7 +1507,7 @@
   border: none;
   box-shadow:
     inset -1px -1px 0 0 #808080,
-    inset  1px  1px 0 0 #ffffff;
+    inset 1px 1px 0 0 #ffffff;
 }
 
 [data-theme="mosaic-1993"][data-mode="dark"] .nav-tab {
@@ -1515,25 +1515,25 @@
   border: none;
   box-shadow:
     inset -1px -1px 0 0 #7f7f7f,
-    inset  1px  1px 0 0 #000000;
+    inset 1px 1px 0 0 #000000;
 }
 
 [data-theme="mosaic-1993"][data-mode="light"] .nav-tab.active {
   background: #c0c0c0;
   color: #000000;
   box-shadow:
-    inset -1px  0 0 0 #808080,
-    inset  1px  1px 0 0 #ffffff,
-    inset  0    2px 0 0 #ffffff;
+    inset -1px 0 0 0 #808080,
+    inset 1px 1px 0 0 #ffffff,
+    inset 0 2px 0 0 #ffffff;
 }
 
 [data-theme="mosaic-1993"][data-mode="dark"] .nav-tab.active {
   background: #3f3f3f;
   color: #ffffff;
   box-shadow:
-    inset -1px  0 0 0 #7f7f7f,
-    inset  1px  1px 0 0 #000000,
-    inset  0    2px 0 0 #000000;
+    inset -1px 0 0 0 #7f7f7f,
+    inset 1px 1px 0 0 #000000,
+    inset 0 2px 0 0 #000000;
 }
 
 /* Dividers — Win3.1 etched line */
@@ -1541,14 +1541,26 @@
 [data-theme="mosaic-1993"][data-mode="light"] hr {
   border: none;
   height: 2px;
-  background: linear-gradient(to bottom, #808080 0%, #808080 50%, #ffffff 50%, #ffffff 100%);
+  background: linear-gradient(
+    to bottom,
+    #808080 0%,
+    #808080 50%,
+    #ffffff 50%,
+    #ffffff 100%
+  );
 }
 
 [data-theme="mosaic-1993"][data-mode="dark"] .divider,
 [data-theme="mosaic-1993"][data-mode="dark"] hr {
   border: none;
   height: 2px;
-  background: linear-gradient(to bottom, #7f7f7f 0%, #7f7f7f 50%, #000000 50%, #000000 100%);
+  background: linear-gradient(
+    to bottom,
+    #7f7f7f 0%,
+    #7f7f7f 50%,
+    #000000 50%,
+    #000000 100%
+  );
 }
 
 /* Scrollbars — Win3.1 style */
@@ -1566,9 +1578,9 @@
   background: #c0c0c0;
   box-shadow:
     inset -1px -1px 0 0 #000000,
-    inset  1px  1px 0 0 #ffffff,
+    inset 1px 1px 0 0 #ffffff,
     inset -2px -2px 0 0 #808080,
-    inset  2px  2px 0 0 #dfdfdf;
+    inset 2px 2px 0 0 #dfdfdf;
 }
 
 [data-theme="mosaic-1993"][data-mode="dark"] ::-webkit-scrollbar {
@@ -1585,9 +1597,9 @@
   background: #3f3f3f;
   box-shadow:
     inset -1px -1px 0 0 #ffffff,
-    inset  1px  1px 0 0 #000000,
+    inset 1px 1px 0 0 #000000,
     inset -2px -2px 0 0 #7f7f7f,
-    inset  2px  2px 0 0 #202020;
+    inset 2px 2px 0 0 #202020;
 }
 
 /* Theme selector swatch buttons — flat Win3.1 style */
