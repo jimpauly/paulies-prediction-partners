@@ -2012,12 +2012,12 @@ textarea.input {
 }
 
 #agent-cards-container .agent-card__name {
-  font-size: 7px;
+  font-size: 8px;
   letter-spacing: 0.2px;
 }
 
 #agent-cards-container .agent-card__role {
-  font-size: 6px;
+  font-size: 7px;
   max-width: 74px;
 }
 
