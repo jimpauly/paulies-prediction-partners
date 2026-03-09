@@ -1,16 +1,7 @@
 import { useState, useCallback } from "react";
-
-const THEME_IDS = [
-  "webpage", "mosaic-1993", "gen7-cockpit", "ussr-cockpit",
-  "neon-vice-1985", "neon-city-2085", "coniforest", "rainforest",
-  "art-deco", "holographic", "vapor", "paper",
-  "ledger-1920", "blueprint", "chalkboard", "phosphor",
-  "volcano", "oceanic", "aurora", "desert",
-  "cherry-blossom", "hive", "dusk", "amethyst",
-] as const;
-
-export type ThemeId = typeof THEME_IDS[number];
-export type ModeId = "light" | "dark";
+import { THEME_IDS } from "../constants";
+export type { ThemeId, ModeId } from "../constants";
+import type { ThemeId, ModeId } from "../constants";
 
 function readStorage(key: string, fallback: string): string {
   try {

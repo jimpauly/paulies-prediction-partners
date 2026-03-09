@@ -1,11 +1,10 @@
 import { useState } from "react";
 import type { Market } from "../../types/trading";
 import { MarketCard } from "./MarketCard";
+import { MARKETS_PAGE_SIZE } from "../../constants";
 
 const CATEGORIES = ["All", "Crypto", "Sports", "Politics", "Economics", "Weather", "Entertainment", "Tech", "Science"] as const;
 type Category = typeof CATEGORIES[number];
-
-const PAGE_SIZE = 12;
 
 interface TradingStudioProps {
   connected: boolean;
@@ -34,7 +33,7 @@ export function TradingStudio({ connected, markets, onBuy }: TradingStudioProps)
   const [expanded, setExpanded] = useState<Market | null>(null);
 
   const filtered = markets.filter((m) => categoryMatch(m, category));
-  const visible = filtered.slice(0, page * PAGE_SIZE);
+  const visible = filtered.slice(0, page * MARKETS_PAGE_SIZE);
   const hasMore = visible.length < filtered.length;
 
   if (!connected) {

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { WsEventEnvelope } from "../types/trading";
 import { connectEventStream } from "../utils/apiClient";
+import { RECONNECT_DELAY_MS } from "../constants";
 
 interface UseWebSocketOptions {
   enabled: boolean;
@@ -38,7 +39,7 @@ export function useWebSocket({ enabled, onMessage }: UseWebSocketOptions) {
       if (reconnectRef.current) clearTimeout(reconnectRef.current);
       reconnectRef.current = setTimeout(() => {
         if (enabledRef.current) open();
-      }, 5000);
+      }, RECONNECT_DELAY_MS);
     }
 
     open();

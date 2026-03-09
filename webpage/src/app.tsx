@@ -8,6 +8,7 @@ import { useConnection } from "./hooks/useConnection";
 import { useApi } from "./hooks/useApi";
 import { useWebSocket } from "./hooks/useWebSocket";
 import { AppShell } from "./components/layout/AppShell";
+import { MAX_FILLS } from "./constants";
 
 function App() {
   const connection = useConnection();
@@ -40,7 +41,7 @@ function App() {
     } else if (type === "position_update" && data.ticker) {
       setPositions((prev) => ({ ...prev, [data.ticker as string]: data as unknown as Position }));
     } else if (type === "fill" && data.fill_id) {
-      setFills((prev) => [data as unknown as Fill, ...prev].slice(0, 500));
+      setFills((prev) => [data as unknown as Fill, ...prev].slice(0, MAX_FILLS));
     } else if (type === "agent_update" && data.agent_name) {
       setAgents((prev) => ({ ...prev, [data.agent_name as string]: data as unknown as AgentState }));
     }

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { stateApi } from "../utils/apiClient";
+import { PING_INTERVAL_MS } from "../constants";
 
 function formatDateTime(d: Date): string {
   const mm = String(d.getMonth() + 1).padStart(2, "0");
@@ -36,7 +37,7 @@ export function useTelemetry() {
     }
 
     ping();
-    const pingInterval = setInterval(ping, 5000);
+    const pingInterval = setInterval(ping, PING_INTERVAL_MS);
 
     const clockInterval = setInterval(() => {
       if (mountedRef.current) setDateTimeStr(formatDateTime(new Date()));

@@ -3,6 +3,7 @@ import type { ConnectionState } from "../../hooks/useConnection";
 import type { AgentState, Balance, Fill, Market, Position, TradingStatusResponse } from "../../types/trading";
 import { useTelemetry } from "../../hooks/useTelemetry";
 import { useTheme } from "../../hooks/useTheme";
+import { AGENT_CONFIGS } from "../../constants";
 
 interface AppShellProps {
   connectionState: ConnectionState;
@@ -21,8 +22,13 @@ interface AppShellProps {
   onDeny: (orderId: string) => void;
 }
 
-const STUDIO_TABS = ["Design", "Trade", "Fly", "Convert"] as const;
-type StudioTab = typeof STUDIO_TABS[number];
+const STUDIO_TABS = [
+  { id: "Design", label: "🎨 Design" },
+  { id: "Trade",  label: "📈 Trade" },
+  { id: "Fly",    label: "✈️ Fly" },
+  { id: "Convert",label: "🔄 Convert" },
+] as const;
+type StudioTab = typeof STUDIO_TABS[number]["id"];
 
 export function AppShell({
   connectionState,
@@ -50,9 +56,9 @@ export function AppShell({
 
       {/* HEADER — spans all 3 columns */}
       <header className="region region-header" style={{ gridColumn: "1 / -1" }}>
-        <div className="app-title">
-          Paulie's<span className="app-title__accent">PP</span>
-        </div>
+        <h1 className="app-title">
+          <span className="app-title__accent">Paulie's</span> Prediction Partners 🤖
+        </h1>
         <div className="header-center-placeholder" />
         <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 16px", fontSize: 12, color: "var(--color-fg-muted)" }}>
           {connectionState.connected && (
@@ -118,11 +124,11 @@ export function AppShell({
         <div className="main-region-header" style={{ display: "flex", gap: 4, padding: "8px 12px", borderBottom: "1px solid var(--color-border-muted)" }}>
           {STUDIO_TABS.map((tab) => (
             <button
-              key={tab}
-              className={`axis-btn ${activeStudioTab === tab ? "active" : ""}`}
-              onClick={() => setActiveStudioTab(tab)}
+              key={tab.id}
+              className={`axis-btn ${activeStudioTab === tab.id ? "active" : ""}`}
+              onClick={() => setActiveStudioTab(tab.id)}
             >
-              {tab}
+              {tab.label}
             </button>
           ))}
         </div>
@@ -349,16 +355,6 @@ interface AgentBarProps {
   agents: Record<string, AgentState>;
   onModeChange: (name: string, mode: import("../../types/trading").AgentMode) => void;
 }
-
-const AGENT_CONFIGS: Record<string, { displayName: string; icon: string; description: string; chartColor: string }> = {
-  "momentum-agent": { displayName: "Momentum", icon: "🚀", description: "Trend following", chartColor: "var(--color-accent-primary)" },
-  "mean-reversion-agent": { displayName: "Mean Rev.", icon: "🔄", description: "Mean reversion", chartColor: "var(--color-accent-secondary)" },
-  "sentiment-agent": { displayName: "Sentiment", icon: "💬", description: "News sentiment", chartColor: "var(--color-state-info)" },
-  "arbitrage-agent": { displayName: "Arb", icon: "⚡", description: "Arbitrage", chartColor: "var(--color-state-warning)" },
-  "risk-agent": { displayName: "Risk Mgr", icon: "🛡️", description: "Risk management", chartColor: "var(--color-state-error)" },
-  "ml-agent": { displayName: "ML Alpha", icon: "🧠", description: "Machine learning", chartColor: "var(--color-state-success)" },
-  "byob-agent": { displayName: "BYOB", icon: "🔧", description: "Bring your own bot", chartColor: "var(--color-fg-muted)" },
-};
 
 function AgentBar({ connected, agents, onModeChange }: AgentBarProps) {
   const agentNames = Object.keys(AGENT_CONFIGS);

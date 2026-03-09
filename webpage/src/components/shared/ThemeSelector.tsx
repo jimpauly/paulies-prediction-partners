@@ -1,11 +1,4 @@
-const THEMES = [
-  "webpage", "mosaic-1993", "gen7-cockpit", "ussr-cockpit",
-  "neon-vice-1985", "neon-city-2085", "coniforest", "rainforest",
-  "art-deco", "holographic", "vapor", "paper",
-  "ledger-1920", "blueprint", "chalkboard", "phosphor",
-  "volcano", "oceanic", "aurora", "desert",
-  "cherry-blossom", "hive", "dusk", "amethyst",
-] as const;
+import { THEME_IDS } from "../../constants";
 
 interface ThemeSelectorProps {
   currentTheme: string;
@@ -19,7 +12,7 @@ export function ThemeSelector({ currentTheme, onSelect }: ThemeSelectorProps) {
         Theme
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
-        {THEMES.map((t) => (
+        {THEME_IDS.map((t) => (
           <button
             key={t}
             onClick={() => onSelect(t)}

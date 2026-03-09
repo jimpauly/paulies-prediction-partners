@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Fill, Position } from "../../types/trading";
+import { MAX_DISPLAYED_FILLS } from "../../constants";
 
 interface PositionsPanelProps {
   connected: boolean;
@@ -80,7 +81,7 @@ export function PositionsPanel({ connected, positions, fills }: PositionsPanelPr
                 </tr>
               </thead>
               <tbody>
-                {fills.slice(0, 100).map((f) => (
+                {fills.slice(0, MAX_DISPLAYED_FILLS).map((f) => (
                   <tr key={f.fill_id} style={{ borderBottom: "1px solid var(--color-border-muted)" }}>
                     <td style={{ padding: "5px 6px", fontFamily: "var(--font-family-mono)", fontSize: 10, maxWidth: 100, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {f.ticker}
