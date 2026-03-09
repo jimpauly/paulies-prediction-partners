@@ -1670,7 +1670,7 @@ const TradingStudio = (() => {
        fetching public Kalshi data. */
     if (connected) return; /* Main WS handles everything when connected */
     try {
-      publicWs = new WebSocket("ws://127.0.0.1:8000/api/events");
+      publicWs = new WebSocket(BACKEND_URL.replace(/^http/, "ws") + "/api/events");
       publicWs.onopen = () => {
         publicWsRetryDelay = 5000; /* Reset backoff on successful connect */
       };
@@ -1761,10 +1761,6 @@ const TradingStudio = (() => {
     badge.className = "ks-agent-badge";
     badge.title = `${agentName}: ${reasoning}`;
     badge.textContent = `🤖 ${agentName} → ${side}`;
-    badge.style.cssText =
-      "font-size:9px;padding:2px 6px;border-radius:8px;margin-left:6px;" +
-      "background:var(--color-accent-primary,#00d4aa);color:#000;font-weight:700;" +
-      "animation:agentPulse 2s ease-in-out;opacity:0.9;display:inline-block;";
 
     const descCell = row.querySelector(".ks-outcome-cell-desc");
     if (descCell) descCell.appendChild(badge);
