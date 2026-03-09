@@ -74,12 +74,15 @@ const AgentDashboard = (() => {
     },
   };
 
+  /* Canvas fallback color — only used when no CSS variables are available */
+  const CHART_COLOR_FALLBACK = "#6b7280";
+
   /** Resolve a CSS custom property to a usable color value for canvas. */
   function resolveChartColor(config) {
     const val = getComputedStyle(document.documentElement)
       .getPropertyValue(config.chartColorVar)
       .trim();
-    return val || "#6b7280";
+    return val || CHART_COLOR_FALLBACK;
   }
 
   /* Top-performing LLM models (Feb 2026) for BYOB radio selectors */
