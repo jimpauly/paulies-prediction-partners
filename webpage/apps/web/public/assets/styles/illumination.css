@@ -447,22 +447,21 @@
   border-radius: 50%;
   background: conic-gradient(
     from 0deg,
-    color-mix(in srgb, var(--color-fg-subtle) 55%, var(--color-bg-canvas)) 0deg 2deg,
-    transparent 2deg 51.43deg,
-    color-mix(in srgb, var(--color-fg-subtle) 55%, var(--color-bg-canvas)) 51.43deg 53.43deg,
-    transparent 53.43deg 102.86deg,
-    color-mix(in srgb, var(--color-fg-subtle) 55%, var(--color-bg-canvas)) 102.86deg 104.86deg,
-    transparent 104.86deg 154.29deg,
-    color-mix(in srgb, var(--color-fg-subtle) 55%, var(--color-bg-canvas)) 154.29deg 156.29deg,
-    transparent 156.29deg 205.71deg,
-    color-mix(in srgb, var(--color-fg-subtle) 55%, var(--color-bg-canvas)) 205.71deg 207.71deg,
-    transparent 207.71deg 257.14deg,
-    color-mix(in srgb, var(--color-fg-subtle) 55%, var(--color-bg-canvas)) 257.14deg 259.14deg,
-    transparent 259.14deg 308.57deg,
-    color-mix(in srgb, var(--color-fg-subtle) 55%, var(--color-bg-canvas)) 308.57deg 310.57deg,
-    transparent 310.57deg 360deg
+    color-mix(in srgb, var(--color-fg-subtle) 60%, var(--color-bg-canvas)) 0deg 4deg,
+    transparent 4deg 51.43deg,
+    color-mix(in srgb, var(--color-fg-subtle) 60%, var(--color-bg-canvas)) 51.43deg 55.43deg,
+    transparent 55.43deg 102.86deg,
+    color-mix(in srgb, var(--color-fg-subtle) 60%, var(--color-bg-canvas)) 102.86deg 106.86deg,
+    transparent 106.86deg 154.29deg,
+    color-mix(in srgb, var(--color-fg-subtle) 60%, var(--color-bg-canvas)) 154.29deg 158.29deg,
+    transparent 158.29deg 205.71deg,
+    color-mix(in srgb, var(--color-fg-subtle) 60%, var(--color-bg-canvas)) 205.71deg 209.71deg,
+    transparent 209.71deg 257.14deg,
+    color-mix(in srgb, var(--color-fg-subtle) 60%, var(--color-bg-canvas)) 257.14deg 261.14deg,
+    transparent 261.14deg 308.57deg,
+    color-mix(in srgb, var(--color-fg-subtle) 60%, var(--color-bg-canvas)) 308.57deg 312.57deg,
+    transparent 312.57deg 360deg
   );
-  border: 1px solid color-mix(in srgb, var(--color-border-default) 40%, transparent);
   z-index: -1;
 }
 
