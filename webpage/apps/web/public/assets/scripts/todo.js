@@ -569,14 +569,67 @@
     "  flex-shrink: 0;",
     "}",
 
-    /* Toolbar */
+    /* File dropdown menu */
+    ".todo-file-menu {",
+    "  position: relative;",
+    "  flex-shrink: 0;",
+    "  z-index: 10;",
+    "  padding: 4px 10px 4px 42px;",
+    "  background: var(--color-bg-surface, #f8fafc);",
+    "  border-bottom: 1px solid var(--color-border-muted, #e2e8f0);",
+    "}",
+    ".todo-file-menu-btn {",
+    "  font-size: 12px;",
+    "  font-family: var(--font-family-mono, monospace);",
+    "  padding: 3px 10px;",
+    "  border: 1px solid var(--color-border-muted, #cbd5e1);",
+    "  border-radius: 4px;",
+    "  background: var(--color-bg-surface, #fff);",
+    "  color: var(--color-fg-default, #334155);",
+    "  cursor: pointer;",
+    "  transition: background 0.15s;",
+    "}",
+    ".todo-file-menu-btn:hover {",
+    "  background: var(--color-accent-primary, #3b82f6);",
+    "  color: #fff;",
+    "}",
+    ".todo-file-dropdown {",
+    "  position: absolute;",
+    "  top: 100%;",
+    "  left: 42px;",
+    "  min-width: 140px;",
+    "  background: var(--color-bg-surface, #fff);",
+    "  border: 1px solid var(--color-border-muted, #cbd5e1);",
+    "  border-radius: 6px;",
+    "  box-shadow: 0 4px 12px rgba(0,0,0,0.15);",
+    "  z-index: 20;",
+    "  overflow: hidden;",
+    "}",
+    ".todo-file-dropdown-item {",
+    "  display: block;",
+    "  width: 100%;",
+    "  text-align: left;",
+    "  padding: 6px 12px;",
+    "  font-size: 12px;",
+    "  border: none;",
+    "  background: none;",
+    "  color: var(--color-fg-default, #334155);",
+    "  cursor: pointer;",
+    "  transition: background 0.1s;",
+    "}",
+    ".todo-file-dropdown-item:hover {",
+    "  background: var(--color-accent-primary, #3b82f6);",
+    "  color: #fff;",
+    "}",
+
+    /* Toolbar (now below editor) */
     ".todo-toolbar {",
     "  display: flex;",
     "  align-items: center;",
     "  gap: 4px;",
     "  padding: 6px 10px 6px 42px;",
     "  background: var(--color-bg-surface, #f8fafc);",
-    "  border-bottom: 1px solid var(--color-border-muted, #e2e8f0);",
+    "  border-top: 1px solid var(--color-border-muted, #e2e8f0);",
     "  flex-shrink: 0;",
     "  flex-wrap: wrap;",
     "}",
@@ -823,8 +876,9 @@
     dom.root = root;
 
     root.appendChild(buildSpiral());
-    root.appendChild(buildToolbar());
+    root.appendChild(buildFileMenu());
     root.appendChild(buildEditor());
+    root.appendChild(buildToolbar());
     root.appendChild(buildPageNav());
 
     container.appendChild(root);
