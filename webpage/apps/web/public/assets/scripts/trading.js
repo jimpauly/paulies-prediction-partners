@@ -2483,5 +2483,11 @@ const TradingStudio = (() => {
       .replace(/>/g, "&gt;");
   }
 
-  return { initialize, onConnected, onDisconnected, fetchPublicData, cancelOrder };
+  return {
+    initialize,
+    onConnected,
+    onDisconnected,
+    fetchPublicData,
+    cancelOrder,
+  };
 })();
