@@ -46,13 +46,13 @@ This repository enforces a **bot-only pull request policy**. Human contributors 
 
 ### Trusted authors
 
-| Account | Type | Role |
-| ------- | ---- | ---- |
-| `jimpauly` | Owner | Repository owner — full access |
-| `copilot-swe-agent[bot]` | Bot | GitHub Copilot — AI code generation |
-| `dependabot[bot]` | Bot | Dependency security updates |
-| `github-actions[bot]` | Bot | CI/CD automation |
-| `renovate[bot]` | Bot | Dependency updates |
+| Account                  | Type  | Role                                |
+| ------------------------ | ----- | ----------------------------------- |
+| `jimpauly`               | Owner | Repository owner — full access      |
+| `copilot-swe-agent[bot]` | Bot   | GitHub Copilot — AI code generation |
+| `dependabot[bot]`        | Bot   | Dependency security updates         |
+| `github-actions[bot]`    | Bot   | CI/CD automation                    |
+| `renovate[bot]`          | Bot   | Dependency updates                  |
 
 ### How it works
 

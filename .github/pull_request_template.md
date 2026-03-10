@@ -13,9 +13,7 @@
 
 **What does this PR do?**
 
-
 **Which files were changed and why?**
-
 
 ### Security
 
