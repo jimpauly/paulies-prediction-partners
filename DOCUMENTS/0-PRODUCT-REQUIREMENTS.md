@@ -281,7 +281,7 @@ _End Chapter 0._
     - The **Header**, **Nav Bar**, **Main Region**, and **Bottom Bar** (including **Action Bar**) stretch or shrink horizontally.
     - The **two sidebars** remain horizontally static (fixed widths).
   - **Zoom** (Ctrl +/−, pinch):
-    - wherever mouse is pointing is where the scaling should focus 
+    - wherever mouse is pointing is where the scaling should focus
 - **Region Spacing**
   - equal gap between every pair of adjacent regions
   - padding from viewport edges to outermost regions
