@@ -353,25 +353,33 @@ MAIN REGION
 │
 ├── ── DESIGN STUDIO ──
 │   ├── Top bento grid
-│   │   ├── ACTIVE PALETTE card  [left col — irregular paint-palette shape]
+│   │   ├── ACTIVE PALETTE card  [left col — irregular paint‑palette shape]
 │   │   │   ├── Theme name badge  [top right]
-│   │   │   └── Swatch blobs  [~14 irregular splotch shapes, no hex shown]
-│   │   │       [click → copies hex silently → brief toast]
+│   │   │   ├── Swatch blobs  [~14 tiny splotch‑shaped swatches, irregular shapes like paint drops; hex values hidden]
+│   │   │   │   ├── Behavior: click → copies hex silently → brief toast
+│   │   │   │   └── Notes: swatches resize to remain pocket‑sized, card outline resembles an artist’s palette
+│   │   │   └── (updated per polish: card and swatches take on irregular, non‑rectangular shapes)
 │   │   └── Right column stack
 │   │       ├── MAN-O'-METERS card
-│   │       │   └── 4-leaf clover gauge cluster  [art deco plumbing behind]
-│   │       │       ├── BATT  [center/top — main meter, unique design]
+│   │       │   └── 4‑leaf clover gauge cluster  [art deco plumbing behind]
+│   │       │       ├── BATT  [center/top — main meter; label integrated into meter body]
 │   │       │       ├── NET   [arching under, unique design]
 │   │       │       ├── MEM   [arching under, unique design]
 │   │       │       └── CPU   [arching under, unique design]
-│   │       │           [labels + values integrated into each meter face]
+│   │       │           ├── Values display inside each meter face (no external labels)
+│   │       │           └── Layout: meters packed tightly like a four‑leaf clover with decorative piping
 │   │       └── Bottom row
 │   │           ├── SYSTEM LOGS card  [old curved CRT monitor aesthetic]
-│   │           │   └── Log terminal  [7 entries, padding-left fix, timestamp + icon + text]
+│   │           │   ├── Log terminal  [7 entries, padding-left fix, timestamp + icon + text]
+│   │           │   ├── Notes: increased inner padding; card wraps the log window; monitor shape revised to square with rounded edges
+│   │           │   └── Behavior: displays backend and API messages in real time
 │   │           └── WEB ELEMENTS card
 │   │               ├── Buttons  [primary · secondary · danger · ghost · disabled]
+│   │               │   └── Notes: ensure contrast, spacing, and hover states match style token guidelines
 │   │               ├── Form inputs  [text input · select · checkbox · radio]
+│   │               │   └── Notes: placeholder and corner radius consistent across controls
 │   │               └── Alerts  [success]
+│   │                   └── Notes: color contrast meets accessibility standards
 │   └── MS PAINT 1998 card  [full width below bento]
 │       ├── Maximize toggle  [fills entire main region]
 │       ├── Menu bar
@@ -380,18 +388,57 @@ MAIN REGION
 │       └── Canvas
 │
 ├── ── TRADING STUDIO ──
-│   ├── Account summary bar  [balance · portfolio · daily P/L]
-│   ├── Category nav  [horizontal scroll]
-│   ├── Sub-category nav
-│   ├── Filter controls  [volume · frequency · time-to-close]
-│   └── Markets grid  [live data only, no mock]
+│   ├── ACCOUNT SUMMARY BAR  [top strip, sticky]
+│   │   ├── Balance widget  [cash amount, icon; updates live]
+│   │   ├── Portfolio value widget  [total holdings]
+│   │   └── Daily P/L widget  [delta amount with color coding]
+│   │       └── Tooltip on hover shows breakdown by agent
+│   ├── TOP‑LEVEL NAV (sometimes labelled "Trending/New/All")  [horizontal scroll of pill buttons]
+│   │   ├── Mirrors Kalshi’s primary header links (Crypto, Sports, Finance, Politics, etc.) — Kalshi does not use the word “markets”, so we avoid it here too.
+│   │   ├── Each pill acts as a section selector; selecting changes the dataset shown below.
+│   │   ├── Keyboard left/right to change selection; selected pill has `aria-selected="true"` and focus highlight.
+│   │   └── Icons may accompany text for visual clarity; pills wrap/responsive on narrow viewports.
+│   ├── SECONDARY NAV / TAGS  [row beneath top‑level nav]
+│   │   ├── Provides finer segmentation within the chosen section (Crypto → BTC, ETH, SOL)
+│   │   ├── Scrollable if overflow; behaves like the top‑level nav for keyboard and focus.
+│   │   └── Includes an “All” or “Show all” pill to clear the secondary filter.
+│   ├── FILTER CONTROLS  [row of selectors and search tools]
+│   │   ├── Volume dropdown  [Any/High→Low/Low→High]
+│   │   ├── Frequency dropdown  [choices such as Hourly, Daily, Weekly, Monthly]
+│   │   ├── Time‑to‑expiration slider  [range input with min/max labels; allows trimming soon‑closing items]
+│   │   ├── Keyword search field  [placeholder "Search..." allows free‑text matching across titles]
+│   │   ├── Sort toggle  [cycles through preset orderings; icon reflects current direction]
+│   │   └── Advanced filter panel  [expandable/collapsible; contains additional knobs like price range, tags]
+│   ├── MARKET GRID  [primary content area]
+│   │   ├── Layout: responsive card columns; each market card is a semantic `<article>` with `role="region"` and `aria-labelledby` pointing to its title
+│   │   ├── Market card components:
+│   │   │   ├── Icon representing underlying asset
+│   │   │   ├── Title text  [e.g. "BTC Up or Down - 15 minutes"]
+│   │   │   ├── Odds display  [percentage or price; screen reader label "Chance" preceding value]
+│   │   │   ├── Yes/No buttons  [actionable, large tap targets]
+│   │   │   ├── Price info  [shows min $100 → projected payout; small text]
+│   │   │   ├── Time remaining countdown  [`aria-live="polite"` updating] with expand/controls
+│   │   │   └── Expansion icon for details  [opens modal or inline details with full order book]
+│   │   ├── Grid updates live via WebSocket; entire grid region marked `aria-live="polite"`
+│   │   └── Empty state  [displayed when no markets match filters; text "no markets"]
+│   └── FOOTER  [optional pagination or load-more button]
 │
 ├── ── FLY STUDIO ──  [locked until $2k profit]
-│   ├── Lock screen  [progress bar toward $2k]
-│   └── Cockpit  [post-unlock — ISS feeds, flight sim]
+│   ├── Lock screen  [progress bar toward $2k; `aria-live="polite"` updates, `aria-valuenow`/min/max]
+│   └── Cockpit  [post-unlock — ISS feeds, flight sim; embedded video with captions and controls keyboard accessible]
 │
 └── ── CONVERT STUDIO ──
-    └── [placeholder — file/image/PDF/URL converters]
+    └── [placeholder — file/image/PDF/URL converters; form elements with `aria-label`
+]
+
+### Accessibility notes — Main Region
+- Container uses `role="main"`; each studio section has `aria-labelledby` linking to its header.
+- Region label decorative, marked `aria-hidden="true"`.
+- All interactive controls (toggles, nav buttons, filters) are keyboard focusable with visible focus rings and expose state via `aria-pressed` or `aria-selected`.
+- Markets grid and other live data areas use `aria-live` to announce updates; rows use proper table semantics.
+- Fly lock screen progress accompanies `aria-valuenow` and `aria-valuetext` updates for screen readers.
+- Non-interactive graphics labeled `aria-hidden="true"` where appropriate.
+- Placeholder content in Convert studio should still satisfy basic accessibility patterns once implemented.
 ```
 
 ---
@@ -400,7 +447,7 @@ MAIN REGION
 
 ```
 GLOBAL
-├── App shell  [7-region]
+├── Viewport [7-region]
 ├── Theme token system  [24 themes × 2 modes]
 ├── Illumination engine  [6 channels]
 ├── Toast system

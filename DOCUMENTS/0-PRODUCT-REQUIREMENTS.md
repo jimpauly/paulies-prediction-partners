@@ -488,7 +488,7 @@ _End Chapter 0._
 - **Series Cards:** 3 columns, full width of main region. Scroll down allowed.
   - Cards show information similar to Kalshi cards (see photos folder).
   - Tiny expand button in bottom right to expand card to fill main region.
-  - After successful API key connection: collect as much data as allowed, as frequently as allowed.
+  - Collect as much data as allowed, as frequently as allowed without crossing kalshi's guidelines and rules.
   - Render only first 18 series cards to keep UI fast.
   - `Show More Markets` button at bottom loads additional 18 series cards.
   - **Markets that close mid-session grey out** in place; do not disappear. Clear on next refresh.
