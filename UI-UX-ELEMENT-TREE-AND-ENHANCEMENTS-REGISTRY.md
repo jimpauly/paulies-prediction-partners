@@ -1,7 +1,8 @@
 # Paulie's Prediction Partners
-## Element Tree + Polish Register
-_Updated: 03-11-26 · Incorporates Octo-Issue feedback_
 
+## Element Tree + Polish Register
+
+_Updated: 03-11-26 · Incorporates Octo-Issue feedback_
 
 ---
 
@@ -112,7 +113,9 @@ HEADER BAR
     │  # Notes: `masterScale` (0 or 1) multiplies all channel intensities at render time.
     └── Bottom nameplate  "ILLUMINATION SWITCHBOARD""
 ```
+
 ### Accessibility notes — Header Bar
+
 - All interactive controls (switches, dials, tabs) must expose `aria-*` labels and be reachable by keyboard.
 - Focus ring visible on each control; colors chosen to meet WCAG contrast.
 - Decorative text (HUD label) marked `aria-hidden` or `role="presentation"`.
@@ -165,6 +168,7 @@ NAV BAR
 ```
 
 ### Accessibility notes — Nav Bar
+
 - HUD label is decorative; add `aria-hidden="true"` or `role="presentation"`.
 - Tab group uses `role="tablist"` and each tab `role="tab"` with proper `aria-selected` and `tabindex` management.
 - Visibility toggle buttons labelled clearly (e.g., `aria-label="Toggle header bar"`).
@@ -191,7 +195,7 @@ LEFT SIDEBAR
     │       └── Accessibility: `aria-label="Toggle 3D view"`
     └── SYSTEM THEME card
         ├── Container: theme-button grid (2 columns grid)
-        ├── Element: Theme button [×24] 
+        ├── Element: Theme button [×24]
         │   ├── Visual: Looks like a little representation of the theme through it's color and typography
         │   ├── Structure: soft border colored accent
         │   ├── Behavior: click applies that theme (light or dark variant determined by mode) uses backgrounds, text, and border colors of the theme.
@@ -199,12 +203,13 @@ LEFT SIDEBAR
         │   ├── Styling: font 12px, padding 4px, weight 700, centered
         │   └── Accessibility: `aria-label="Select theme [theme name]"`, keyboard focus ring
 ```
+
 ### Accessibility notes — Left Sidebar
+
 - Ensure Light/Dark and 3D/2D toggles are focusable and announce their state (`aria-pressed`).
 - Theme buttons include `aria-pressed` or `role="radio"` in a group to indicate selection.
 - Sidebar container labelled `aria-label="System Design"` and given a `role="complementary"` landmark.
 - Provide visible focus styles for all buttons; include tooltip or `aria-describedby` text for 3D/2D toggle.
-
 
 ## R04 · RIGHT SIDEBAR — INSPECTOR PANEL
 
@@ -252,6 +257,7 @@ RIGHT SIDEBAR
 ```
 
 ### Accessibility notes — Right Sidebar
+
 - Tablist must use `role="tablist"` with proper `role="tab"` children and `aria-selected` updates.
 - Pagination dots and file-upload button require `aria-label` and keyboard focus.
 - Inactive panels (Positions, History) should carry `aria-hidden="true"`; active panel set `aria-live="polite"`.
@@ -304,6 +310,7 @@ BOTTOM BAR  "HANGAR BAY"
 ```
 
 ### Accessibility notes — Bottom Bar
+
 - Container uses `role="region"` with `aria-label="Hangar Bay"`.
 - Agent cards: switches have descriptive `aria-label`; indicator lights are decorative (`aria-hidden`).
 - Hover details should be reachable via keyboard focus and `aria-describedby` or `aria-expanded` state.
@@ -455,6 +462,7 @@ GLOBAL
 ```
 
 ---
+
 ---
 
 # PART II — POLISH REGISTER
@@ -464,6 +472,7 @@ GLOBAL
 ## Chapter 1 · Header Bar
 
 **Brand Logo**
+
 - [ ] should fill the first 1/3 space
 - [ ] Default should now say "Paulies Studios" — design studio is default
 - [ ] When switching studios: "Paulie's Prediction Partners" / "Paulies Flight Simulator" / "Paulie's File Converting Studio"
@@ -471,12 +480,14 @@ GLOBAL
 - [ ] Include the placeholder circle element centred between the title and illumination panel
 
 **Illumination Panel Container**
+
 - [ ] Floats and completely obscures the main viewport content beneath it — header should fit fully around it
 - [ ] Add vertical "ILLUMINATION" sticker label on left edge of panel card
 - [ ] Dimmer readouts should show 10‑to‑2.5 values with no percentage sign
 - [ ] Master switch logic: OFF by default, once flipped ON the rest of the channels fully illuminate
 
 **Flip-Switches & Dimmer-Dials (DAY/NVG, MASTER, TEXT, BARS, FLOOD, DISPLAY)**
+
 - [ ] Text labels are squished and misaligned horizontally with their dials
 - [ ] Indicator dots below dials have uneven spacing
 - [ ] Standardize label alignment relative to dials and space dots uniformly
@@ -486,6 +497,7 @@ GLOBAL
 ## Chapter 2 · Nav Bar
 
 **Left Tabs (HUD, DESIGN, TRADE, FLY, CONVERT)**
+
 - [ ] The blue active indicator line under "DESIGN" is faint and slightly misaligned — could fill more space and be more noticeable
 - [ ] Increase contrast and thickness of the active tab line to make the current location obvious, make centered under tab script
 - [ ] The miniature icons next to HUD, DESIGN, etc., are scaled poorly and look slightly blurry
@@ -493,12 +505,14 @@ GLOBAL
 - [ ] If SVGs will help more things look the same proportions no matter what size of landscape viewport, then let's implement SVGs
 
 **Panel Visibility Toggles**
+
 - [ ] Remove collapse/expand arrows from sidebars — do 4 toggles in the nav bar after the clock instead
 - [ ] Panel visibility toggles in the nav bar should show/hide: Header Bar, Left Side Bar, Right Side Bar, and Bottom Bar
 - [ ] The Nav Bar, Main Region, and Action Bar (Ignition) — these 3 regions should not be toggled away
 - [ ] These 3 regions should actually be the 3 that are shown if the viewport feels it is in Portrait mode, the remaining 4 regions should auto-hide
 
 **Right Metrics (PING, Mach, DATE/TIME)**
+
 - [ ] We could add another component in here — if we take the idea from the market mode card, and develop an indicator that would go first, before ping, this indicator shows 'market mode', live/demo/or no illumination
 - [ ] Market Mode card removed from Bottom Bar; content absorbed here
 - [ ] The "PING" graphic feels cramped
@@ -510,10 +524,12 @@ GLOBAL
 ## Chapter 3 · Left Sidebar
 
 **MODES card**
+
 - [ ] Spacing between "Dark" and "3D Off" buttons and the card edges feels slightly unbalanced — a lot of vertical space underneath
 - [ ] Refactor for minimum padding and spacing for left/right and top/bottom and inner margins for these toggle buttons, the script in them
 
 **SYSTEM THEME card**
+
 - [ ] Theme selection buttons crammed too tightly vertically — increase vertical margin
 
 ---
@@ -521,18 +537,22 @@ GLOBAL
 ## Chapter 4 · Inspector Panel
 
 **Tabs**
+
 - [ ] The icons for Notes, Positions, and History mix flat and 3D illustration styles — use a single, monochromatic icon library for all UI tabs
 - [ ] Center tiny nav icons above the notepad
 
 **Note Editor**
+
 - [ ] Top decorative rings graphic is physically cut off/clipping at the top — adjust the container height or SVG scaling to prevent cutoff
 - [ ] Notebook background horizontal lines run completely edge-to-edge — add a subtle left/right margin to the repeating line background to mimic real paper margins
 - [ ] Editor toolbar (B, H1, bullets) & pagination not centered horizontally relative to the notepad paper lines — apply flexbox or text-align center to the toolbar container
 
 **Input Box ("ideas and requests")**
-- [ ] *(details TBD)*
+
+- [ ] _(details TBD)_
 
 **"Send email" Button**
+
 - [ ] Increase size of script
 - [ ] Rename to 'Send to Paulie'
 
@@ -541,6 +561,7 @@ GLOBAL
 ## Chapter 5 · Bottom Bar (Hangar Bay)
 
 **AGENT ACCESS card**
+
 - [ ] Remove sublabels that are the descriptions — only leave the one-worded category specialty for agents. Volume is just Volume. Crypto is just Crypto.
 - [ ] If hovered over for a pause, then we can have all these elements in the hover window:
   - [ ] Put the sub-label description in this window
@@ -551,11 +572,13 @@ GLOBAL
 - [ ] Horizontal scrollbar in the Agent Access bay overlaps the container's bottom padding — increase bottom padding on the scroll container so the bar doesn't sit directly on the outer border
 
 **P/L MFD card**
+
 - [ ] Remove the heat chart component to the right of the line chart
 - [ ] Remove the script '+/- $' we do not need this
 - [ ] Dollar/Timeframe Buttons: total width should be the width of the line chart
 
 **CONNECT API KEYS card**
+
 - [ ] It should be auto filled to Demo Mode
 - [ ] Live and Demo script font could be larger, the left margin could be increased
 - [ ] "Connect Kalshi Stream" Button: script could fill more space in the button and the right margin could increase the same amount
@@ -563,6 +586,7 @@ GLOBAL
 - [ ] Center-top align default scripts for both fields
 
 **MARKET MODE card**
+
 - [ ] Move into nav bar as a component that is placed first in the telemetry card, so it would be before ping
 
 ---
@@ -570,6 +594,7 @@ GLOBAL
 ## Chapter 6 · Action Bar (Ignition)
 
 **Main Toggle Pill (AUTO, SEMI, STOP)**
+
 - [ ] Should look like a 4 quartered pie, with the third slice not present, but is instead connected to the body of an old timey cruise-liner throttle engine-order-telegraph
 
 ---
@@ -579,44 +604,52 @@ GLOBAL
 ## Chapter 7 · Main Region
 
 **ACTIVE PALETTE card**
+
 - [ ] Let's get the swatches smaller, like a swatch, not regular shaped, and randomly shaped like a splotch
 - [ ] Make the card itself also an irregular illogical shape like a palette
 - [ ] Use the internet for inspiration
 - [ ] Color swatches must be accurate to the active theme
 
 **MAN-O'-METERS card**
+
 - [ ] Remove the value labels underneath each meter — it should instead show in the meter
 - [ ] The main-label itself should be integrated into the meter's body
 - [ ] Make meters close together like a wide 4 leaf clover with art deco plumbing running behind them, 3 meters arching underneath the main 'Batt' meter
 - [ ] All 3 should be unique in architecture like they measure completely different things
 
 **SYSTEM LOGS card**
+
 - [ ] Log text jammed directly against the left inner border of the box — increase inner padding (specifically padding-left) on the log container
 - [ ] Make look like an old-curved-terminal-monitor, square with rounded edges
 - [ ] Log window is also jammed in the system logs card, and the card should wrap around the log window
 
 **WEB ELEMENTS card**
-- [ ] Inputs (Text, Select, Checkbox, Radio): *(details TBD)*
-- [ ] Web Elements Buttons: *(details TBD)*
-- [ ] Alert Contrast: *(details TBD)*
+
+- [ ] Inputs (Text, Select, Checkbox, Radio): _(details TBD)_
+- [ ] Web Elements Buttons: _(details TBD)_
+- [ ] Alert Contrast: _(details TBD)_
 
 ---
 
 ## Chapter 8 · Global
 
 **Global Borders**
+
 - [ ] Use of solid lines, drop shadows, and glowing effects makes the UI look disjointed with inconsistencies
 - [ ] Audit all borders, and establish a unified design token system for borders, shadows, and illumination tokens
 - [ ] Read chapter 1 in PRD for requested illumination physics
 
 **Global Typography**
+
 - [ ] Font weights vary arbitrarily
 
 **Font Rendering**
+
 - [ ] Small text across the UI looks heavily pixelated/aliased
 - [ ] Apply `-webkit-font-smoothing: antialiased;` globally to clean up small text rendering
 
 **Panel Spacing**
+
 - [ ] The negative space between major region containers is uneven
 - [ ] Apply consistent global gap values (e.g., 16px or 24px) between all top-level regions
 
