@@ -204,6 +204,7 @@ _End Chapter 0._
 - CSS, No-Tailwind
 - HTML5
 - Only one index file.
+- No npm install
 - Native desktop and mobile apps later: **Electron** for cross-platform distribution (Windows, macOS, Linux)
 
 ### Desktop App Architecture: Maybe, we have to 100% fully develop all front-end components first until user says "I love our WebPage"
