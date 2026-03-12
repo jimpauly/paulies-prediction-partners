@@ -1,8 +1,6 @@
-# Paulie's Prediction Partners
+# Paulie's Studios
 
-## Element Tree + Design Specifications
-
-_Scratch-build PRD — no prior implementation_
+## Component Tree + Design Specifications
 
 ---
 
