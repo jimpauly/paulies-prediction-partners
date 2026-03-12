@@ -10,27 +10,27 @@ Prediction market trading platform built on custom algorithms (web + desktop + A
 
 ## 📊 Project Completion
 
-**Overall: `83%`**
+**Overall:**
 
 ```
-[████████████████░░░░] 83%
+[]
 ```
 
 | Stage                                            | Completion |
 | :----------------------------------------------- | :--------- |
-| 1st Stage — Design Studio                        | `100%` ✅  |
-| 2nd Stage — Trading Agent Studio                 | `95%` ✅   |
-| 2.5th Stage — Shippable Quality                  | `82%` 🟡   |
-| Stage 3 — Profitability · Flight-Sim · Converter | `0%` ❌    |
+| 1st Stage — Design Studio                        |            |
+| 2nd Stage — Trading Agent Studio                 |            |
+| 2.5th Stage — Shippable Quality                  |            |
+| Stage 3 — Profitability · Flight-Sim · Converter |            |
 
 ---
 
-### 1st Stage — Design Studio `100%` ✅
+### 1st Stage — Design Studio
 
 > Develop up to Design Studio.
 
 ```
-[████████████████████] 100%
+[]
 ```
 
 |     | Feature                                                                          | %    |
@@ -53,12 +53,12 @@ Prediction market trading platform built on custom algorithms (web + desktop + A
 
 ---
 
-### 2nd Stage — Trading Agent Studio `95%` ✅
+### 2nd Stage — Trading Agent Studio
 
 > Deeply develop our algorithm-driven trading agent studio built for Kalshi prediction markets.
 
 ```
-[███████████████████░] 95%
+[]
 ```
 
 |     | Feature                                                                                                           | %    |
@@ -82,12 +82,12 @@ Prediction market trading platform built on custom algorithms (web + desktop + A
 
 ---
 
-### 2.5th Stage — Shippable Quality `82%` 🟡
+### 2.5th Stage — Shippable Quality
 
 > Windows and Mac Desktop apps with setup wizards. Individuals with minimal technical background should be able to easily install and interface with their copy in less than 5 minutes. Include a published page through GitHub for users who don't want to download an app. Open-source, free-to-use, no-ads, all features available. Close security holes. Close data leak possibilities.
 
 ```
-[████████████████░░░░] 82%
+[]
 ```
 
 |     | Feature                                                                                  | %    |
@@ -105,12 +105,12 @@ Prediction market trading platform built on custom algorithms (web + desktop + A
 
 ---
 
-### Stage 3 — Profitability Gate · Flight-Sim · Converter `0%` ❌
+### Stage 3 — Profitability Gate · Flight-Sim · Converter
 
 > Ask if main user has successfully gained efficient profits. If not, stay in Stage 2.5. 1st and 2nd stage must be 110% complete — shippable and exceeding industry-standard quality. _(110% = exceeds industry standard, not just shipped)_
 
 ```
-[░░░░░░░░░░░░░░░░░░░░] 0%
+[]
 ```
 
 |     | Feature                                                           | %   |
