@@ -2,7 +2,6 @@
 
 ## Component Tree + Design Specifications
 
-
 ---
 
 > Region → Card → Component → Element
