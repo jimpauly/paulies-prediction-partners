@@ -5,44 +5,307 @@
   box-sizing: border-box;
 }
 
+/* base font — normal size
+
+   Quadrant‑II is rendered in a miniature viewport by applying a
+   0.25 scale transform to that cell.  Because of the transform, any
+   pixel values used inside the UI will automatically appear at
+   one‑fourth of their specified size (e.g. 8px renders as 2px).  This
+   makes working with pixels natural again and eliminates the need for
+   odd rem/math hacks.  The only place scaling is managed is the
+   .quad-grid.mini rule; everything else can use straight pixel
+   lengths as if on a normal webpage.
+*/
+html {
+  font-size: 14px;
+  /* default theme vars */
+  --bg: #222;
+  --fg: #eee;
+  --accent: #0066cc;
+}
+
+[data-theme="webpage-light"] {
+  --bg: #ffffff;
+  --fg: #000000;
+  --accent: #0066cc;
+}
+[data-theme="mosaic-1993-light"] {
+  --bg: #008080;
+  --fg: #000000;
+  --accent: #cccccc;
+}
+[data-theme="mosaic-1993-dark"] {
+  --bg: #004040;
+  --fg: #ffffff;
+  --accent: #888888;
+}
+
+body, .region, .card {
+  background: var(--bg);
+  color: var(--fg);
+}
+
 html, body, #app {
   height: 100%;
   width: 100%;
 }
 
 /* four-quadrant grid container */
+/* base scaling - tiny cockpit mode by default */
+:root {
+  /* no scaling by default; tiny mode applied via html.tiny class */
+}
+
+html.fullscreen {
+  font-size: 14px; /* override tiny if full screen requested */
+}
+
 .quad-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
+  /* make each quadrant exactly half the viewport in each direction */
+  grid-template-columns: 50% 50%;
+  grid-template-rows: 50% 50%;
+  gap: 4px;               /* space between quadrants */
+  padding: 4px;           /* inset content from viewport edges */
   height: 100vh;
   width: 100vw;
+  /* border around whole grid for debugging */
+  border: 2px solid var(--accent);
+  /* prevent scrollbars from scaled content */
+  overflow: hidden;
+}
+
+/* visual debug hints for quadrants */
+.quadrant {
+  border: 1px dashed #555;
+  background: #eee; /* light grey to distinguish empty cells */
+}
+
+/* previously used mini scaling; removed per manual-tiny philosophy */
+
+/* hide overflow from scaled content so scrollbars disappear */
+.quad-grid {
+  overflow: hidden;
 }
 
 .quadrant {
-  border: 1px dashed #444;
+  /* hide debugging borders now that layout is correct */
+  border: none;
   position: relative;
+  overflow: hidden; /* contain any overflowing content */
 }
 
-/* quadrant II layout: stack regions vertically/horizontally */
+/* quadrant II layout: stack regions vertically/horizontally
+   padding between regions is intentionally tiny (2px) to allow seven
+   rectangles to fit snugly.  all dimensions use explicit small pixel
+   values where appropriate; scrollbars below are also scaled down.
+*/
 #quadrant-ii {
+  /* inset grid inside quadrant for padding */
+  padding: 4px;
+}
+
+#quadrant-ii-inner {
   display: grid;
   grid-template-areas:
     "header header header"
     "left nav right"
     "main main main"
     "bottom bottom action";
-  grid-template-rows: auto auto 1fr auto;
-  grid-template-columns: 1fr auto 1fr;
+  /* proportions based on viewport measurements:
+     header ≈1/12vh, nav ≈1/24vh, bottom ≈1/6vh, action ≈1/6vh
+     sidebars ≈1/6vw, nav ≈4/6vw
+  */
+  grid-template-rows: 8.3333vh 4.1667vh 1fr 16.6667vh;
+  grid-template-columns: 16.6667% 66.6666% 16.6667%;
   height: 100%;
+  gap: 6px; /* extra separation now */
 }
 
-#region {
+/* differentiate each region inside quadrant-II for visibility */
+#header-region { background: #333; }
+#nav-region { background: #444; }
+#left-sidebar { background: #555; min-width: 20px; }
+#right-sidebar { background: #555; min-width: 20px; }
+#main-region { background: #222; }
+#bottom-bar { background: #333; }
+#action-bar { background: #444; }
+
+
+/* scrollable regions with borders; padding tiny to maximize fit */
+.region {
   background: #222;
   color: #eee;
-  padding: 0.5rem;
+  padding: 2px; /* super tiny padding */
   font-family: sans-serif;
+  overflow: auto;
+  border: 1px solid lime; /* bright boundary to expose each region clearly */
 }
+
+/* very small custom scrollbars */
+.region::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.region::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 2px;
+}
+.region::-webkit-scrollbar-track {
+  background: #333;
+}
+
+/* HUD (nav) gets slightly lighter boundary to mimic a header panel */
+#nav-region {
+  border-color: #555;
+}
+
+/* header branding */
+.brand {
+  font-weight: bold;
+  font-size: 1rem;
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+/* HUD label decorative text */
+.hud-label {
+  font-size: 0.9rem;
+  margin-right: 0.5rem;
+  opacity: 0.6;
+}
+
+/* region title inside sidebars/main */
+.region-title {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+/* toggle switch */
+.toggle-switch {
+  background: #444;
+  color: #eee;
+  border: 1px solid #666;
+  border-radius: 2px;
+  padding: 0.15rem 0.3rem;
+  margin-right: 0.25rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.toggle-switch[aria-checked="true"] {
+  background: #666;
+}
+
+/* active palette swatches */
+.palette-swatch-row { display: flex; gap: 0.25rem; }
+.swatch { width: 1rem; height: 1rem; background: #555; border: 1px solid #777; }
+
+/* manometer grid */
+.manometer-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 0.5rem; }
+.manometer { background: #444; padding: 0.25rem; border-radius: 3px; }
+.meter-face { text-align: center; font-size: 0.75rem; }
+
+#header-region { grid-area: header; }
+#nav-region { grid-area: nav; display: flex; align-items: center; gap: 0.5rem; }
+#nav-region .studio-tabs { display: flex; gap: 0.5rem; }
+#nav-region .studio-tabs button { background: none; color: #eee; border: none; padding: 0.25rem 0.5rem; cursor: pointer; }
+#nav-region .studio-tabs button.active { text-decoration: underline; }
+#nav-region .toggles { margin-left: auto; display: flex; gap: 0.25rem; }
+#nav-region button { background: #444; color: #eee; border: none; padding: 0.15rem 0.4rem; cursor: pointer; font-size: 0.85rem; }
+#nav-region button[aria-pressed="true"] { background: #666; }
+
+/* card component styles */
+.card {
+  background: #333;
+  border: 1px solid #555;
+  border-radius: 3px;
+  padding: 0.25rem;
+  margin: 0.25rem 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  font-size: 0.85rem;
+}
+.card-header {
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+}
+.card-icon {
+  margin-right: 0.5rem;
+}
+.card-content {
+  font-size: 0.9rem;
+}
+
+/* small grid for theme buttons */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.25rem;
+}
+
+/* region-specific tweaks */
+#right-sidebar .card {
+  margin: 0.25rem 0;
+}
+.main-cards {
+  display: flex;
+  flex-direction: column;
+}
+#bottom-bar {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+}
+
+/* inspector tabs */
+.inspector-books, .inspector-tabs { display: flex; gap: 0.3rem; margin-bottom: 0.3rem; }
+.inspector-books button, .inspector-tabs button { background: #444; color: #eee; border: none; padding: 0.15rem 0.4rem; cursor: pointer; font-size: 0.85rem; }
+.inspector-books button[aria-selected="true"], .inspector-tabs button[aria-selected="true"] { background: #666; }
+.inspector-panel { font-size: 0.8rem; }
+.inspector-panel textarea {
+  width: 100%;
+  height: 4rem;
+  box-sizing: border-box;
+}
+
+/* send card should omit header when using class */
+.card.no-header .card-header {
+  display: none;
+}
+.card.no-header .card-content {
+  padding-top: 0.5rem; /* reduce top padding after hiding header */
+}
+
+/* telemetry strip */
+.telemetry-strip { margin-left: auto; display: flex; gap: 0.75rem; font-size: 0.85rem; color: #ccc; }
+.telemetry-strip span { white-space: nowrap; }
+
+/* throttle telegraph */
+.throttle-telegraph { display: flex; gap: 0.25rem; outline: none; }
+.telegraph-panel { padding: 0.25rem 0.5rem; background:#444; color:#eee; cursor:pointer; border:1px solid #666; }
+.telegraph-panel.active { background:#666; }
+.lock-toggle { margin-top:0.5rem; padding:0.25rem 0.5rem; font-size:0.8rem; }
+
+/* hangar bay card shapes */
+.hangar-row { display: flex; gap: 0.5rem; }
+.hangar-card { flex: 1 1 auto; }
+.hangar-card.rectangle { flex: 2 1 0; } /* wider */
+.hangar-card.square { flex: 1 1 0; aspect-ratio: 1 / 1; }
+
+/* system-logs card */
+.logs-list { list-style: none; padding: 0.5rem 0; margin: 0; font-size: 0.9rem; }
+.log-empty { color: #888; font-style: italic; }
+
+/* web elements grid */
+.elements-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 0.5rem; }
+.btn { padding: 0.5rem 1rem; font-size: 0.9rem; border: 1px solid #666; background: #333; color: #eee; cursor: pointer; }
+.btn.primary { background: #444; }
+.btn.secondary { background: #333; }
+.input { padding: 0.4rem; border: 1px solid #666; background: #222; color: #eee; width: 100%; box-sizing: border-box; }
+.checkbox { font-size: 0.9rem; color: #eee; }
 
 #header-region { grid-area: header; }
 #nav-region { grid-area: nav; }
@@ -51,3 +314,14 @@ html, body, #app {
 #main-region { grid-area: main; }
 #bottom-bar { grid-area: bottom; }
 #action-bar { grid-area: action; }
+
+/* portrait mode: hide support regions when toggled off, also auto-hide on narrow width */
+@media (max-aspect-ratio: 1/1) {
+  #header-region,
+  #left-sidebar,
+  #right-sidebar,
+  #bottom-bar {
+    display: none;
+  }
+}
+

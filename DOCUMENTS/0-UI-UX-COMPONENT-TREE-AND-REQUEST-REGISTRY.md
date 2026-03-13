@@ -2,11 +2,18 @@
 
 ## Component Tree + Design Specifications
 
+- Before creating components. Only create a thin placement header and thin placement footer for all 7 regions.
+- All 7 regions are in Quadrant II with proper padding with fixed proprotions and postions.
+- All 4 quadrants must be shared equal dimension sizes in the viewport.
+
+
 ---
 
 > Region → Card → Component → Element
 
 ---
+
+Plea from User: User will be using the webpage on a broswer, with a huge number of pixels on a phone, it has an insane amount of pixels. User will also equally be using this webpage on a browser in a quad-split-window setup, with barely any pixels. Both are the same physical height and width. This webpage must not be different on either of those devices. **Every component must be coded at a naturally super‑tiny size**; if a normal design would call for 8 px, we write 2 px. There is no “mini mode” – the tiny sizing is baked into the values so the quadrant stays small by default. If i full screen on my laptop, nothing should change position of portions. There should be only one file-base, no app versions only the webpage that is the published page thru github.
 
 ```
 COMPONENT TREE
@@ -173,10 +180,9 @@ COMPONENT TREE
 │       ├── Market Mode Indicator  [FIRST — live / demo / offline, multi-cold-colored LED indicator]
 │       ├── PING sparkline + value
 │       │   ├── Visualization: `<canvas>` with slow smooth bezier curves (no jagged lines)
-│       │   ├── Y axis: fixed 300ms (top) to 0ms (bottom)
+│       │   ├── Y axis: fixed 300ms (top) to 0ms (bottom), intentionally upside down so more mircoseconds would reflect a lower quality signal.
 │       │   ├── X axis: ~15s history, 1s sampling interval
 │       │   └── Styling: no labels, equal width to ping script, only the word "PING" then the chart
-│       ├── SVC health dot
 │       ├── Mach 4.20  [static/decorative]
 │       └── DATE/TIME  [live, M/D HH:MM] No seconds
 ```
@@ -237,10 +243,10 @@ COMPONENT TREE
 │   │
 │   ├── Region title  "INSPECTOR PANEL"  [top, centered, bold, wide kerning]
 │   │
-│   ├── Tab behavior
-│   │   ├── Only one tab active at a time; switching hides old panel and reveals new panel without page reload
-│   │   ├── Keyboard nav: arrow left/right cycles tabs, Enter activates
-│   │   └── Locked tabs are non-interactive and show tooltip on hover
+│   ├── Tab behavior  (note: code refers to these as “books” to avoid confusion with nav tabs)
+│   │   ├── Only one book active at a time; switching hides old panel and reveals new panel without page reload
+│   │   ├── Keyboard nav: arrow left/right cycles books, Enter activates
+│   │   └── Locked books are non-interactive and show tooltip on hover
 │   │
 │   ├── Tabs  [monochromatic icons, centered above notepad]
 │   │   │
@@ -548,8 +554,8 @@ CONNECT API KEYS card  →  Kalshi API
 │   ├── Demo          →  wss://demo-api.kalshi.co/trade-api/ws/v2
 │   └── Live          →  wss://api.elections.kalshi.com/trade-api/ws/v2
 └── "Connect Kalshi Stream" button
-    ├── On success: SVC health dot → green; Market Mode Indicator → live or demo
-    └── On failure: toast error; SVC health dot → red
+    ├── On success: Market Mode Indicator → live or demo
+    └── On failure: toast error; Market Mode Indicator → red
 ```
 
 - API keys are never stored in plaintext; held in memory only for the session lifetime.
@@ -672,7 +678,7 @@ Secondary Nav tag  →  event_ticker grouping
 ```
 System Logs card  →  API / WebSocket event stream
 ├── Successful handshake     →  log "Kalshi stream connected [mode]"
-├── Authentication failure   →  log error code + message; SVC dot → red
+├── Authentication failure   →  log error code + message; indicator dot → red
 ├── 429 rate-limit           →  log "Rate limit hit — backing off"; pause agent
 ├── Insufficient balance     →  log "available_balance_too_low"; hard-stop agent
 ├── Order fill               →  log fill_id resolved to subtitle + count_fp + yes_price_fixed
@@ -680,4 +686,4 @@ System Logs card  →  API / WebSocket event stream
 ```
 
 - Surface raw API response bodies in the System Logs card during development (can be toggled off in production via a log-level setting).
-- SVC health dot in Nav Bar reflects the live WebSocket connection state, not just page-load success.
+- Market Mode Indicator in Nav Bar reflects the live WebSocket connection state, not just page-load success.

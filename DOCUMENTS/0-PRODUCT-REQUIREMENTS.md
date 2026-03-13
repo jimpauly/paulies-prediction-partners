@@ -19,6 +19,13 @@ Last update: 03-06-26
     - Tools
   - Main User Needs
 
+> **NOTE TO ASSISTANT:**
+> ```text
+> // TODO: [@assistant] remove any remaining references to the SVC health dot from the docs and code
+> // (this comment is just for you; once done you can delete it)
+> ```
+> This reminder is placed here so any developer or AI reviewing chapter 0 will spot the maintenance task.
+
 - Chapter 1. Front End
   - Front End Stack
   - WebPage
@@ -198,14 +205,33 @@ _End Chapter 0._
 
 ### Front End Stack:
 
-**Begin with:**
+The front end should be a **minimal, hand‑built web app** that can be opened directly
+from the filesystem or hosted on any static server.  There is no dependency on
+package managers or build tools for day‑to‑day development; a very small
+pre‑build step (e.g. `tsc` or a simple script) may be used to compile TypeScript
+if desired, but the user should never need to run `npm install`, `npm run dev`,
+or similar commands.
 
-- Typescript
-- CSS, No-Tailwind
-- HTML5
-- Only one index file.
-- No npm install
-- Native desktop and mobile apps later: **Electron** for cross-platform distribution (Windows, macOS, Linux)
+> **Sizing philosophy:** every component and element must be authored at an
+> intrinsically *super‑tiny* scale.  Rather than relying on CSS transforms or
+> viewport tricks, designers should simply pick pixel values roughly one
+> quarter of what would be 'normal' on a typical webpage (e.g. use 2 px instead
+> of 8 px).  This enforces a naturally compact cockpit aesthetic and prevents
+> oversized widgets from creeping into the tiny quadrant.  The grid itself only
+> serves as a positioning container; it does not perform any automatic scaling.
+
+
+**Key requirements:**
+
+- Plain HTML5 entrypoint (`index.html`) in the `frontend/` root.
+- A `css/` folder contains stylesheets; no Tailwind or other frameworks.
+- A `typescript/` (or `ts/`) folder may hold `.ts` source, but compiled output lives
+  alongside `index.html` so the page works standalone.
+- One index file only; all other code is imported relative to that file.
+- No npm or external package installation required by end users.
+- Use CDN links for any third‑party libraries if absolutely necessary.
+- Later packaging for native desktop/mobile apps can still be handled via
+  Electron Maybe, once the web UI is complete keep file-base simple until stage 2.5th.
 
 ### Desktop App Architecture: Maybe, we have to 100% fully develop all front-end components first until user says "I love our WebPage"
 
@@ -223,6 +249,8 @@ _End Chapter 0._
 - **helpul Subdirectories:**
   - `frontend/`
     - `config/`
+    - `json/`  # store static or generated JSON assets, e.g. token palettes or
+      persisted UI state
   - `backend/`
   - `keys/` — encrypted API keys (never stored as plain text if ever)
   - `logs/` — application logs and audit trails
@@ -314,23 +342,23 @@ After all regions and their components fully fit, are features, and function in 
 
 #### Overview:
 
-| #   | Name          | Size                                                    | Scroll             |
-| :-- | :------------ | :------------------------------------------------------ | :----------------- |
-| 1   | Header        | ~ 1/12th of viewport height                             | No Scroll          |
-| 2   | Nav Bar       | ~ 1/24th of viewport height                             | No Scroll          |
-| 3   | Left Sidebar  | ~ 1/6th of viewport width                               | Vertical only      |
-| 4   | Right Sidebar | ~ 1/6th of viewport width                               | Vertical only      |
-| 5   | Bottom Bar    | ~ 1/6th of viewport height; ~ 4/6th of viewport width   | Horizontal Scroll  |
-| 6   | Action Bar    | ~ 1/6th of viewport height, one-third width of viewport | No Scroll          |
-| 7   | Main Stage    | No fixed dimensions                                     | Varies with studio |
+| #   | Name          | Starting proportions                                   | Scroll             |
+| :-- | :------------ | :----------------------------------------------------- | :----------------- |
+| 1   | Header        | ~0.0833 vh                                             | No Scroll          |
+| 2   | Nav Bar       | ~0.0417 vh                                             | No Scroll          |
+| 3   | Left Sidebar  | ~0.1667 vw                                             | Vertical only      |
+| 4   | Right Sidebar | ~0.1667 vw                                             | Vertical only      |
+| 5   | Bottom Bar    | ~0.1667 vh; ~0.6667 vw                                 | Horizontal Scroll  |
+| 6   | Action Bar    | ~0.1667 vh; ~0.3333 vw                                 | No Scroll          |
+| 7   | Main Stage    | No fixed dimensions                                    | Varies with studio |
 
 #### UI-UX COMPONENT-TREE:
 
-> **NOTE FOR AUTOBOTS:** upon encountering this heading, immediately open and read `DOCUMENTS/0-UI-UX-COMPONENT-TREE-AND-REQUEST-REGISTRY.md` for the complete component requirements.
+> **NOTE FOR AUTOBOTS:** upon encountering this heading, immediately open and read `DOCUMENTS/0-UI-UX-COMPONENT-TREE-AND-REQUEST-REGISTRY.md` for the complete component requirements and list of elements for all states.
 
 ##### Basic Component Tree:
 
-Region → Card → Component → Element
+Region → Card → Component → Element (This list might not list every element-end-leaf on the metaphorical tree)
 
 HEADER BAR
 ├── Brand Logo / Studio Title
@@ -485,7 +513,7 @@ GLOBAL
 | Webpage Light        | 2026 webpage. Modern default. Diverse colors, professional                |
 | Webpage Dark         | Modern default "Night Mode" reading. Like Google's dark mode              |
 | Mosaic 1993 Light    | Windows 3.1 Silver chrome, chiseled borders. Teal BG (0, 128, 128)        |
-| Mosaic 1993 Dark     | Exact inverse of Mosaic 1993 Light                                        |
+| Mosaic 1993 Dark     | Exact inverse colors of Mosaic 1993 Light                                        |
 | Gen7 Cockpit Light   | Gen 7 Fighter. Dark Gull Gray (FS 36231), MFD Green                       |
 | Gen7 Cockpit Dark    | Night Vision/Stealth. Deep charcoal, NVG Green glow                       |
 | USSR Cockpit Light   | Soviet Cold War. MiG Turquoise (#3d90a2). Stress-reducing blue            |

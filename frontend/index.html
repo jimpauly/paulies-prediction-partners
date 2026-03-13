@@ -5,25 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Paulie's Studios</title>
   <link rel="stylesheet" href="src/styles.css" />
+  <!-- load React from CDN so we don't need a build step -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 </head>
 <body>
-  <!-- global container for four-quadrant grid -->
-  <div id="app" class="quad-grid">
-    <!-- Quadrant II: the real development zone -->
-    <div id="quadrant-ii" class="quadrant">
-      <div id="header-region" class="region">HEADER</div>
-      <div id="nav-region" class="region">NAV</div>
-      <div id="left-sidebar" class="region">LEFT SIDEBAR</div>
-      <div id="right-sidebar" class="region">RIGHT SIDEBAR</div>
-      <div id="main-region" class="region">MAIN</div>
-      <div id="bottom-bar" class="region">BOTTOM BAR</div>
-      <div id="action-bar" class="region">ACTION BAR</div>
-    </div>
-    <!-- other quadrants intentionally left blank -->
-    <div id="quadrant-i" class="quadrant"></div>
-    <div id="quadrant-iii" class="quadrant"></div>
-    <div id="quadrant-iv" class="quadrant"></div>
-  </div>
-  <script type="module" src="src/index.ts"></script>
+  <!-- React will render the application into this container -->
+  <div id="app"></div>
+  <!-- load the TypeScript entry directly so Vite can compile it -->
+  <script type="module" src="src/main.tsx"></script>
 </body>
 </html>
