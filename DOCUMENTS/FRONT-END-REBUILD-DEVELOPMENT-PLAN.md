@@ -22,6 +22,7 @@
 7. Verified the app runs via `npm run dev` and the full test suite passes via `npm run test`.
 
 **Tips (what we learned):**
+
 - Keep layout logic in CSS. The more you rely on JS for sizing, the harder it becomes to keep everything tiny and stable.
 - Don’t trust DOM layout in Jest; tests should assert structure, aria labels, and expected elements, not pixel positions.
 
@@ -38,6 +39,7 @@
 7. Tuned row heights and bottom split so sidebars and main region share the same bottom edge and the footer split is roughly 2/3 + 1/3.
 
 **Tips (what we learned):**
+
 - When you keep everything in a single top-level grid, the layout stays predictable; nested grids lead to subtle overflow issues.
 - Visual fitting should be done by shrinking the contents, not by expanding the container; otherwise the cockpit stops feeling tiny.
 
@@ -54,6 +56,7 @@
 7. Expanded unit tests to cover card presence, card headers, and the core interactivity (toggle visibility, tab switching, theme switching).
 
 **Tips (what we learned):**
+
 - When cards are tiny, focus rings and hit targets become critical; small buttons need padding-rich hits even if the visuals are small.
 - CSS variables make refining the “tiny cockpit aesthetic” far easier than overhauling styles in multiple places.
 
@@ -70,6 +73,7 @@
 7. Kept all tests green after every layout change by relying on structure/ARIA, not computed layout.
 
 **Tips (what we learned):**
+
 - When you’re trying to fit too much into a small nav, reduce **content size first**, not container size. The container must remain stable.
 - Don’t be afraid to make elements functionally tiny — as long as the hit area is reasonable (use padding or larger click regions), it can still be usable.
 
@@ -78,6 +82,7 @@
 ---
 
 #### Current status: Phase 4.6 (nav polishing + tiny cockpit fit)
+
 - The nav bar is fully functional, fits within the quadrant height, and all components (tabs, toggles, telemetry) are operational and tiny.
 - Ongoing adjustments are focused purely on micro‑spacing and alignment, not on structural layout.
 
@@ -96,6 +101,7 @@
 
 (All components must pull coloring from and according to the active theme palette and mode)
 **Done when:**
+
 - all Quadrant II cards/children in the registry are present on screen, fully fit inside their regions with no overflow or cutoff for them or their children components (only exception is ms paint which will be too tall and need to scroll down in main region).
 - all regions have well-fit headers and footers.
 - everything is developed to be one fourth [edit let's start saying one-third] normal development size without a global scale hack.
@@ -109,7 +115,7 @@
    Too small/hard to read — Header brand text (“Paulie’s Studios”), illumination labels/readouts, nav tab labels + telemetry text, left sidebar labels (Modes/System Theme), main region section headers, logs row text, Web Elements button labels, MS Paint menu/tool labels, right sidebar notes placeholder + toolbar labels, Send button text, bottom bar labels (agent tiles, P/L labels, API labels), action bar header/lock labels.
    Other observations — label baselines drift within rows, contrast is weak for light text on mid‑gray panels, and inner padding is inconsistent between cards.
 1. Normalize sizing, padding, and gaps so every card fits without scrolling in its region, and every text or script and icons are visible and equal sizes.
-2.0 Ensure regions have stable proportions; also inner padding so cards arent touching borders. PRD note: Achieved by tuning the CSS tokens `--header-height`, `--nav-height`, and `--footer-height` to match the diagram ratios (approx 1.5:1:4.5), and by driving all region gaps + quadrant padding from a single `--quad-gap` token (currently 12px). These proportions are locked — future component work must fit content inside the regions without altering region sizes.
+   2.0 Ensure regions have stable proportions; also inner padding so cards arent touching borders. PRD note: Achieved by tuning the CSS tokens `--header-height`, `--nav-height`, and `--footer-height` to match the diagram ratios (approx 1.5:1:4.5), and by driving all region gaps + quadrant padding from a single `--quad-gap` token (currently 12px). These proportions are locked — future component work must fit content inside the regions without altering region sizes.
 2. Move all hardcoded colors into theme tokens; no raw hex values in components.
 3. Remove random/mock data; keep placeholders or user‑driven values only.
 4. Tighten typography scales and bezel borders for the tiny cockpit look.
@@ -248,6 +254,5 @@ Elements: ~45 out of ~70 required by registry (logs list, buttons, inputs, check
 ### Phase 9
 
 ## Stage 2.5
-
 
 ## Stage 3

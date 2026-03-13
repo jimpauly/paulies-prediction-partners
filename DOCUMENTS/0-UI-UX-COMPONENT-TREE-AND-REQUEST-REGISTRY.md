@@ -7,7 +7,6 @@
 - Region sizes/proportions are LOCKED. Do not change any region dimensions to fit content; shrink/adjust content instead.
 - All 4 quadrants must be shared equal dimension sizes in the viewport.
 
-
 ---
 
 > Region → Card → Component → Element
@@ -260,7 +259,7 @@ COMPONENT TREE
 │       └── Behavior: expands into detailed position table later
 │
 ├── ══════════════════════════════════════════════════
-│   R06 · 
+│   R06 ·
 │   ══════════════════════════════════════════════════
 │   │
 │   ├── System card

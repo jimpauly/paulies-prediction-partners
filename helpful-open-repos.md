@@ -30,7 +30,7 @@ This is a curated list of open-source repositories, toolkits, and projects that 
 - **clsx / classnames** — small utilities for class string composition.
   - Repo: https://github.com/lukeed/clsx
 
-- **Tailwind CSS** — utility-first CSS framework (very useful for rapid prototyping of small layouts). 
+- **Tailwind CSS** — utility-first CSS framework (very useful for rapid prototyping of small layouts).
   - Repo: https://github.com/tailwindlabs/tailwindcss
 
 - **UnoCSS** — on-demand utility CSS, can produce extremely small output.
