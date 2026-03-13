@@ -4,6 +4,7 @@
 
 - Before creating components. Only create a thin placement header and thin placement footer for all 7 regions.
 - All 7 regions are in Quadrant II with proper padding with fixed proprotions and postions.
+- Region sizes/proportions are LOCKED. Do not change any region dimensions to fit content; shrink/adjust content instead.
 - All 4 quadrants must be shared equal dimension sizes in the viewport.
 
 
@@ -22,7 +23,7 @@ COMPONENT TREE
 │   R01 · HEADER BAR
 │   ══════════════════════════════════════════════════
 │   │
-│   ├── Brand Logo / Studio Title  [left, fills first 1/3; placeholder circle centred between title and illumination panel]
+│   ├── Brand Logo / Studio Title  [left, fills first 1/3; placeholder circle deprecated]
 │   │   ├── "Paulie's Studios"  [default / design studio]
 │   │   ├── "Paulie's Prediction Partners 🤖"  [trade studio; robot emoji appended]
 │   │   ├── "Paulie's Flight Simulator"  [flight studio]
@@ -163,7 +164,7 @@ COMPONENT TREE
 │   │       ├── FLY tab  [locked]
 │   │       │   ├── Label: "FLY" with padlock icon overlay
 │   │       │   ├── Disabled state: low opacity, pointer-events:none
-│   │       │   └── Tooltip: "Unlock after $2k profit"
+│   │       │   └── Tooltip: deprecated (no tooltip)
 │   │       └── CONVERT tab
 │   │           ├── Label: "CONVERT"
 │   │           └── Behavior: click opens converter studio
@@ -235,7 +236,7 @@ COMPONENT TREE
 │               └── Size/spacing: equal width, responsive to widest label; weight 700, centered
 │
 ├── ══════════════════════════════════════════════════
-│   R04 · QUADRANT I (Market Dashboard)
+│   R04 · Inspector Panel
 │   ══════════════════════════════════════════════════
 │   │
 │   ├── Market Snapshot card
@@ -247,7 +248,7 @@ COMPONENT TREE
 │       └── Behavior: later will render real-time level-2 flow bars
 │
 ├── ══════════════════════════════════════════════════
-│   R05 · QUADRANT III (Account & Positions)
+│   R05 ·
 │   ══════════════════════════════════════════════════
 │   │
 │   ├── Balance card
@@ -259,7 +260,7 @@ COMPONENT TREE
 │       └── Behavior: expands into detailed position table later
 │
 ├── ══════════════════════════════════════════════════
-│   R06 · QUADRANT IV (Notifications)
+│   R06 · 
 │   ══════════════════════════════════════════════════
 │   │
 │   ├── System card
@@ -343,7 +344,7 @@ COMPONENT TREE
 │   R05 · BOTTOM BAR — HANGAR BAY
 │   ══════════════════════════════════════════════════
 │   │
-│   ├── Region title
+│   ├── Region title [top, centered, bold, wide kerning]
 │   └── Cards row  [all cards visible simultaneously; no scrolling]
 │       │
 │       ├── AGENT ACCESS card
@@ -402,8 +403,8 @@ COMPONENT TREE
 │   ══════════════════════════════════════════════════
 │   │
 │   └── Ignition panel
-│       ├── Header: "IGNITION" + mode display + status dot
-│       ├── Global throttle (engine-order-telegraph) — three-position control
+│       ├── Header: "IGNITION"
+│       ├── Global throttle (engine-order-telegraph) — three-position control - slightly larger yet way more detailed 3-position switch as in the agent modules.
 │       │   ├── Visual: 4-quartered-pie shape with third slice absent, connected to the body of an old timey cruise-liner engine-order-telegraph
 │       │   ├── Positions: AUTO, SEMI-AUTO, STOP  (STOP default)
 │       │   ├── Interaction: keyboard (Left/Right to change, Space/Enter to select)

@@ -128,7 +128,6 @@ const StudioTabs: React.FC<StudioTabsProps> = ({ current, setCurrent }) => {
               className={`studio-tab ${current === s ? 'active' : ''}`}
               onClick={() => !locked && setCurrent(s)}
               aria-disabled={locked}
-              title={locked ? 'Unlock after $2k profit' : s}
               style={locked ? { opacity: 0.5, pointerEvents: 'none' } : undefined}
             >
               <span className="tab-icon" aria-hidden="true">
@@ -226,6 +225,15 @@ const TelemetryStrip: React.FC = () => {
   const [ping, setPing] = React.useState(12);
   const [cpu, setCpu] = React.useState(42);
   const [mem, setMem] = React.useState(1.2);
+  const [marketMode] = React.useState<'live' | 'demo' | 'offline'>('demo');
+
+  const formatTimestamp = (d: Date) => {
+    const month = d.getMonth() + 1;
+    const day = d.getDate();
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${month}/${day} ${hours}:${minutes}`;
+  };
 
   React.useEffect(() => {
     const interval = window.setInterval(() => {
@@ -240,10 +248,14 @@ const TelemetryStrip: React.FC = () => {
 
   return (
     <div className="telemetry-strip" aria-label="Telemetry readout" role="status">
+      <span className="market-indicator" aria-label={`Market mode ${marketMode}`}>
+        <span className={`market-led ${marketMode}`} aria-hidden="true" />
+        {marketMode.toUpperCase()}
+      </span>
       <span>PING {Math.round(ping)}ms</span>
       <span>CPU {Math.round(cpu)}%</span>
       <span>MEM {mem.toFixed(1)}GB</span>
-      <span>{now.toLocaleTimeString()}</span>
+      <span>{formatTimestamp(now)}</span>
     </div>
   );
 };
@@ -256,6 +268,8 @@ const Dial: React.FC<{ value: number; onChange: (v: number) => void }> = ({ valu
   const step = 1;
   const min = 2;
   const max = 10;
+  const sweep = ((value - min) / (max - min)) * 270;
+  const pointer = sweep - 135;
   return (
     <input
       type="range"
@@ -266,38 +280,105 @@ const Dial: React.FC<{ value: number; onChange: (v: number) => void }> = ({ valu
       onChange={(e) => onChange(Number(e.target.value))}
       className="dial"
       aria-label="Dimmer dial"
+      style={
+        {
+          '--dial-sweep': `${sweep}deg`,
+          '--dial-pointer': `${pointer}deg`,
+        } as React.CSSProperties
+      }
     />
   );
 };
 
-const ChannelControl: React.FC<{
+type IlluminationToggleConfig = {
   label: string;
   on: boolean;
   onToggle: () => void;
-  dimmer: number;
-  onDimmer: (v: number) => void;
-}> = ({ label, on, onToggle, dimmer, onDimmer }) => (
-  <div className="channel-control">
-    <div className="channel-row">
-      <button
-        className={`flip-switch ${on ? 'on' : 'off'}`}
-        onClick={onToggle}
-        aria-pressed={on}
-        aria-label={`${label} power`}
-      >
-        {label}
-      </button>
-      <div className="channel-badge" aria-hidden="true" />
+  ledOn: boolean;
+  ledTone?: 'accent' | 'day' | 'nvg';
+  dimmer?: number;
+  onDimmer?: (v: number) => void;
+  channelLabel?: string;
+};
+
+const IlluminationToggleUnit: React.FC<IlluminationToggleConfig> = ({
+  label,
+  on,
+  onToggle,
+  ledOn,
+  ledTone = 'accent',
+}) => (
+  <div className="illumination-toggle-unit">
+    <button
+      className={`illumination-toggle ${on ? 'on' : 'off'}`}
+      onClick={onToggle}
+      aria-pressed={on}
+      aria-label={`${label} toggle`}
+    >
+      <span className="illumination-toggle-knob" aria-hidden="true" />
+    </button>
+    <span
+      className={`illumination-led ${ledOn ? 'on' : ''} ${ledTone}`}
+      aria-hidden="true"
+    />
+  </div>
+);
+
+const IlluminationChannelRow: React.FC<IlluminationToggleConfig> = ({
+  label,
+  on,
+  onToggle,
+  ledOn,
+  ledTone,
+  dimmer,
+  onDimmer,
+  channelLabel,
+}) => {
+  const hasDial = typeof dimmer === 'number' && typeof onDimmer === 'function';
+  return (
+    <div className={`illumination-channel${hasDial ? '' : ' no-dial'}`}>
+      {channelLabel && (
+        <div className="illumination-channel-label" aria-hidden="true">
+          {channelLabel}
+        </div>
+      )}
+      <IlluminationToggleUnit
+        label={label}
+        on={on}
+        onToggle={onToggle}
+        ledOn={ledOn}
+        ledTone={ledTone}
+      />
+      {hasDial && (
+        <div className="illumination-dial-stack">
+          <Dial value={dimmer} onChange={onDimmer} />
+          <Nixie value={dimmer} />
+        </div>
+      )}
     </div>
-    <div className="channel-row">
-      <Dial value={dimmer} onChange={onDimmer} />
-      <Nixie value={dimmer} />
+  );
+};
+
+const IlluminationColumn: React.FC<{
+  label: string;
+  channels: IlluminationToggleConfig[];
+}> = ({ label, channels }) => (
+  <div className="illumination-column">
+    <div className="illumination-column-label" aria-hidden="true">
+      {label}
+    </div>
+    <div className="illumination-channel-stack">
+      {channels.map((channel) => (
+        <IlluminationChannelRow key={channel.label} {...channel} />
+      ))}
     </div>
   </div>
 );
 
-const IlluminationSwitchboard: React.FC = () => {
-  const [dayMode, setDayMode] = useState(true);
+const IlluminationSwitchboard: React.FC<{
+  dayMode: boolean;
+  setDayMode: (v: boolean) => void;
+}> = ({ dayMode, setDayMode }) => {
   const [masterOn, setMasterOn] = useState(false);
   const [masterDimmer, setMasterDimmer] = useState(10);
   const [textPrimaryOn, setTextPrimaryOn] = useState(true);
@@ -369,94 +450,124 @@ const IlluminationSwitchboard: React.FC = () => {
   ]);
 
   return (
-    <Card title="ILLUMINATION SWITCHBOARD">
-      <div className="illumination-grid">
-        <div className="illumination-group">
-          <div className="illumination-group-title">DAY / NVG</div>
-          <button
-            className={`flip-switch ${dayMode ? 'on' : 'off'}`}
-            onClick={() => setDayMode((v) => !v)}
-            aria-pressed={dayMode}
-            aria-label="Day/Night toggle"
-          >
-            {dayMode ? 'DAY' : 'NVG'}
-          </button>
+    <Card className="illumination-card">
+      <div className="illumination-panel" aria-label="Illumination switchboard">
+        <div className="illumination-sticker" aria-hidden="true">
+          ILLUMINATION
         </div>
-
-        <div className="illumination-group">
-          <div className="illumination-group-title">MASTER</div>
-          <ChannelControl
+        <div className="illumination-top-rail" aria-hidden="true" />
+        <div className="illumination-columns">
+          <IlluminationColumn
+            label="DAY/NVG"
+            channels={[
+              {
+                label: 'Day/NVG mode',
+                on: dayMode,
+                onToggle: () => setDayMode(!dayMode),
+                ledOn: true,
+                ledTone: dayMode ? 'day' : 'nvg',
+              },
+            ]}
+          />
+          <IlluminationColumn
             label="MASTER"
-            on={masterOn}
-            onToggle={() => setMasterOn((v) => !v)}
-            dimmer={masterDimmer}
-            onDimmer={setMasterDimmer}
+            channels={[
+              {
+                label: 'Master power',
+                on: masterOn,
+                onToggle: () => setMasterOn((v) => !v),
+                ledOn: masterOn,
+                dimmer: masterDimmer,
+                onDimmer: setMasterDimmer,
+              },
+            ]}
           />
-        </div>
-
-        <div className="illumination-group">
-          <div className="illumination-group-title">TEXT</div>
-          <ChannelControl
-            label="PRIMARY"
-            on={textPrimaryOn}
-            onToggle={() => setTextPrimaryOn((v) => !v)}
-            dimmer={textPrimaryDimmer}
-            onDimmer={setTextPrimaryDimmer}
+          <IlluminationColumn
+            label="TEXT"
+            channels={[
+              {
+                label: 'Text primary',
+                on: textPrimaryOn,
+                onToggle: () => setTextPrimaryOn((v) => !v),
+                ledOn: masterOn && textPrimaryOn,
+                dimmer: textPrimaryDimmer,
+                onDimmer: setTextPrimaryDimmer,
+                channelLabel: 'PRI',
+              },
+              {
+                label: 'Text secondary',
+                on: textSecondaryOn,
+                onToggle: () => setTextSecondaryOn((v) => !v),
+                ledOn: masterOn && textSecondaryOn,
+                dimmer: textSecondaryDimmer,
+                onDimmer: setTextSecondaryDimmer,
+                channelLabel: 'SEC',
+              },
+            ]}
           />
-          <ChannelControl
-            label="SECONDARY"
-            on={textSecondaryOn}
-            onToggle={() => setTextSecondaryOn((v) => !v)}
-            dimmer={textSecondaryDimmer}
-            onDimmer={setTextSecondaryDimmer}
+          <IlluminationColumn
+            label="BARS"
+            channels={[
+              {
+                label: 'Bars primary',
+                on: barsPrimaryOn,
+                onToggle: () => setBarsPrimaryOn((v) => !v),
+                ledOn: masterOn && barsPrimaryOn,
+                dimmer: barsPrimaryDimmer,
+                onDimmer: setBarsPrimaryDimmer,
+                channelLabel: 'PRI',
+              },
+              {
+                label: 'Bars secondary',
+                on: barsSecondaryOn,
+                onToggle: () => setBarsSecondaryOn((v) => !v),
+                ledOn: masterOn && barsSecondaryOn,
+                dimmer: barsSecondaryDimmer,
+                onDimmer: setBarsSecondaryDimmer,
+                channelLabel: 'SEC',
+              },
+            ]}
           />
-        </div>
-
-        <div className="illumination-group">
-          <div className="illumination-group-title">BARS</div>
-          <ChannelControl
-            label="PRIMARY"
-            on={barsPrimaryOn}
-            onToggle={() => setBarsPrimaryOn((v) => !v)}
-            dimmer={barsPrimaryDimmer}
-            onDimmer={setBarsPrimaryDimmer}
-          />
-          <ChannelControl
-            label="SECONDARY"
-            on={barsSecondaryOn}
-            onToggle={() => setBarsSecondaryOn((v) => !v)}
-            dimmer={barsSecondaryDimmer}
-            onDimmer={setBarsSecondaryDimmer}
-          />
-        </div>
-
-        <div className="illumination-group">
-          <div className="illumination-group-title">FLOOD</div>
-          <ChannelControl
+          <IlluminationColumn
             label="FLOOD"
-            on={floodOn}
-            onToggle={() => setFloodOn((v) => !v)}
-            dimmer={floodDimmer}
-            onDimmer={setFloodDimmer}
+            channels={[
+              {
+                label: 'Flood lights',
+                on: floodOn,
+                onToggle: () => setFloodOn((v) => !v),
+                ledOn: masterOn && floodOn,
+                dimmer: floodDimmer,
+                onDimmer: setFloodDimmer,
+              },
+            ]}
+          />
+          <IlluminationColumn
+            label="DISPLAY"
+            channels={[
+              {
+                label: 'Display lights',
+                on: displayOn,
+                onToggle: () => setDisplayOn((v) => !v),
+                ledOn: masterOn && displayOn,
+                dimmer: displayDimmer,
+                onDimmer: setDisplayDimmer,
+              },
+            ]}
           />
         </div>
-
-        <div className="illumination-group">
-          <div className="illumination-group-title">DISPLAY</div>
-          <ChannelControl
-            label="DISPLAY"
-            on={displayOn}
-            onToggle={() => setDisplayOn((v) => !v)}
-            dimmer={displayDimmer}
-            onDimmer={setDisplayDimmer}
-          />
+        <div className="illumination-bottom-title" aria-hidden="true">
+          ILLUMINATION SWITCHBOARD
         </div>
       </div>
     </Card>
   );
 };
 
-const HeaderRegion: React.FC<{ studio: Studio }> = ({ studio }) => {
+const HeaderRegion: React.FC<{
+  studio: Studio;
+  dayMode: boolean;
+  setDayMode: (v: boolean) => void;
+}> = ({ studio, dayMode, setDayMode }) => {
   const title = React.useMemo(() => {
     switch (studio) {
       case 'design':
@@ -475,47 +586,153 @@ const HeaderRegion: React.FC<{ studio: Studio }> = ({ studio }) => {
   return (
     <header id="header-region" className="region" data-testid="header-region">
       <div className="brand">{title}</div>
-      <IlluminationSwitchboard />
+      <IlluminationSwitchboard dayMode={dayMode} setDayMode={setDayMode} />
     </header>
   );
 };
 
 // theme management
-const themes: Record<string, Record<string,string>> = {
+type ThemeConfig = {
+  vars: Record<string, string>;
+  palette: string[];
+};
+
+const themes: Record<string, ThemeConfig> = {
   'webpage-light': {
-    '--bg': '#ffffff',
-    '--fg': '#000000',
-    '--accent': '#0066cc',
+    vars: {
+      '--bg': '#f5f6f8',
+      '--fg': '#121316',
+      '--accent': '#0b6bcb',
+      '--panel-bg': 'rgba(255,255,255,0.7)',
+      '--panel-bg-strong': 'rgba(255,255,255,0.92)',
+      '--panel-border': 'rgba(0,0,0,0.12)',
+      '--panel-border-strong': 'rgba(0,0,0,0.2)',
+      '--panel-muted': 'rgba(0,0,0,0.35)',
+      '--panel-muted-strong': 'rgba(0,0,0,0.55)',
+      '--panel-ink': 'rgba(0,0,0,0.72)',
+      '--panel-shadow': 'rgba(0,0,0,0.2)',
+      '--accent-soft': 'rgba(11,107,203,0.25)',
+      '--accent-strong': 'rgba(11,107,203,0.9)',
+      '--success': '#2da44e',
+      '--danger': '#d1242f',
+      '--warning': '#b88100',
+      '--nixie-bg': 'rgba(20,14,8,0.85)',
+      '--nixie-border': 'rgba(171,87,0,0.7)',
+      '--nixie-text': 'rgba(204,120,40,1)',
+      '--nixie-glow': 'rgba(204,120,40,0.6)',
+    },
+    palette: [
+      '#0b6bcb', '#2aa3ff', '#77d1ff', '#eff4ff',
+      '#20a36c', '#6cd3a1', '#e6f7ef', '#f3f1e7',
+      '#f2b705', '#ffd166', '#fff2c2', '#f29f05',
+      '#b12a5b', '#e86b9b', '#f8d6e2', '#8a6fd1',
+    ],
   },
   'webpage-dark': {
-    '--bg': '#111111',
-    '--fg': '#f1f1f1',
-    '--accent': '#49a1ff',
+    vars: {
+      '--bg': '#0f1114',
+      '--fg': '#f0f2f5',
+      '--accent': '#49a1ff',
+      '--panel-bg': 'rgba(12,14,18,0.75)',
+      '--panel-bg-strong': 'rgba(18,20,26,0.9)',
+      '--panel-border': 'rgba(255,255,255,0.14)',
+      '--panel-border-strong': 'rgba(255,255,255,0.25)',
+      '--panel-muted': 'rgba(255,255,255,0.55)',
+      '--panel-muted-strong': 'rgba(255,255,255,0.75)',
+      '--panel-ink': 'rgba(0,0,0,0.55)',
+      '--panel-shadow': 'rgba(0,0,0,0.6)',
+      '--accent-soft': 'rgba(73,161,255,0.25)',
+      '--accent-strong': 'rgba(73,161,255,0.9)',
+      '--success': '#7cff73',
+      '--danger': '#ff6b6b',
+      '--warning': '#f4b000',
+      '--nixie-bg': 'rgba(0,0,0,0.75)',
+      '--nixie-border': 'rgba(255,135,0,0.75)',
+      '--nixie-text': 'rgba(255,175,50,1)',
+      '--nixie-glow': 'rgba(255,160,50,0.7)',
+    },
+    palette: [
+      '#49a1ff', '#2f6fdd', '#1b2a41', '#1a1d24',
+      '#3ddc97', '#1f6f4b', '#0c3b2e', '#3a4a5f',
+      '#f4b000', '#f8d277', '#5a4a1a', '#1c1510',
+      '#d85b7b', '#7a2f44', '#2b1b22', '#6f5bd4',
+    ],
   },
   'mosaic-1993-light': {
-    '--bg': '#008080',
-    '--fg': '#000000',
-    '--accent': '#cccccc',
+    vars: {
+      '--bg': '#0c7c7a',
+      '--fg': '#051414',
+      '--accent': '#c0c0c0',
+      '--panel-bg': 'rgba(10,110,110,0.72)',
+      '--panel-bg-strong': 'rgba(14,130,130,0.9)',
+      '--panel-border': 'rgba(5,20,20,0.25)',
+      '--panel-border-strong': 'rgba(5,20,20,0.4)',
+      '--panel-muted': 'rgba(5,20,20,0.55)',
+      '--panel-muted-strong': 'rgba(5,20,20,0.75)',
+      '--panel-ink': 'rgba(0,0,0,0.4)',
+      '--panel-shadow': 'rgba(0,0,0,0.3)',
+      '--accent-soft': 'rgba(192,192,192,0.3)',
+      '--accent-strong': 'rgba(192,192,192,0.9)',
+      '--success': '#2ea47b',
+      '--danger': '#d45555',
+      '--warning': '#c49a2e',
+      '--nixie-bg': 'rgba(8,18,18,0.7)',
+      '--nixie-border': 'rgba(180,120,40,0.7)',
+      '--nixie-text': 'rgba(255,195,120,1)',
+      '--nixie-glow': 'rgba(255,195,120,0.6)',
+    },
+    palette: [
+      '#c0c0c0', '#9bb1a6', '#c5d9d2', '#e6f2ee',
+      '#2ea47b', '#7bd4b3', '#d6f5ea', '#0c7c7a',
+      '#f1c40f', '#f7dc6f', '#f0e2b6', '#c49a2e',
+      '#b65b5b', '#d98f8f', '#f0c8c8', '#7a8aa6',
+    ],
   },
   'mosaic-1993-dark': {
-    '--bg': '#004040',
-    '--fg': '#ffffff',
-    '--accent': '#888888',
+    vars: {
+      '--bg': '#003c3c',
+      '--fg': '#e8f5f5',
+      '--accent': '#8f8f8f',
+      '--panel-bg': 'rgba(0,42,42,0.78)',
+      '--panel-bg-strong': 'rgba(0,54,54,0.92)',
+      '--panel-border': 'rgba(232,245,245,0.18)',
+      '--panel-border-strong': 'rgba(232,245,245,0.3)',
+      '--panel-muted': 'rgba(232,245,245,0.55)',
+      '--panel-muted-strong': 'rgba(232,245,245,0.75)',
+      '--panel-ink': 'rgba(0,0,0,0.55)',
+      '--panel-shadow': 'rgba(0,0,0,0.6)',
+      '--accent-soft': 'rgba(143,143,143,0.3)',
+      '--accent-strong': 'rgba(143,143,143,0.9)',
+      '--success': '#7cdcae',
+      '--danger': '#e77878',
+      '--warning': '#e2c065',
+      '--nixie-bg': 'rgba(0,0,0,0.72)',
+      '--nixie-border': 'rgba(255,135,0,0.65)',
+      '--nixie-text': 'rgba(255,200,120,1)',
+      '--nixie-glow': 'rgba(255,200,120,0.6)',
+    },
+    palette: [
+      '#8f8f8f', '#5b6c6c', '#1a2c2c', '#0a1f1f',
+      '#4cc28e', '#2d7d5b', '#1a4a38', '#7a8a98',
+      '#e2c065', '#f0dda2', '#4a3f22', '#1b1f1f',
+      '#c07c7c', '#6b3a3a', '#2d1b1b', '#5c6cc2',
+    ],
   },
 };
 
 function applyTheme(name: string) {
   const root = document.documentElement;
   root.setAttribute('data-theme', name);
-  const vars = themes[name] || {};
+  const theme = themes[name] || themes['webpage-light'];
+  const vars = theme.vars;
   for (const k in vars) {
     root.style.setProperty(k, vars[k]);
   }
 }
 
 interface LeftSidebarContentProps {
-  darkMode: boolean;
-  setDarkMode: (v: boolean) => void;
+  dayMode: boolean;
+  setDayMode: (v: boolean) => void;
   elevationOn: boolean;
   setElevationOn: (v: boolean) => void;
   themeBase: 'webpage' | 'mosaic-1993';
@@ -524,24 +741,29 @@ interface LeftSidebarContentProps {
 }
 
 const LeftSidebarContent: React.FC<LeftSidebarContentProps> = ({
-  darkMode,
-  setDarkMode,
+  dayMode,
+  setDayMode,
   elevationOn,
   setElevationOn,
   themeBase,
   setThemeBase,
   themeKey,
 }) => {
+  const darkMode = !dayMode;
   return (
     <>
       <div className="region-title">SYSTEM DESIGN</div>
       <Card title="MODES">
         <div className="mode-toggle-row">
-          <ToggleSwitch
-            label="Dark"
-            on={darkMode}
-            onChange={setDarkMode}
-          />
+          <button
+            className="toggle-switch"
+            onClick={() => setDayMode(!dayMode)}
+            role="switch"
+            aria-checked={darkMode}
+            aria-label="Light or dark mode"
+          >
+            {darkMode ? '🌙 Dark' : '☀️ Light'}
+          </button>
           <ToggleSwitch
             label="Elevation"
             on={elevationOn}
@@ -578,43 +800,125 @@ const LeftSidebarContent: React.FC<LeftSidebarContentProps> = ({
   );
 };
 
-const NoteTaker: React.FC = () => {
+const NotesPanel: React.FC = () => {
   const [text, setText] = useState('');
   return (
-    <div>
-      <textarea
-        aria-label="Inspector notes"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Type notes here..."
-      />
+    <div className="notes-panel" aria-live="polite">
+      <div className="notes-top">
+        <div className="notes-dots" aria-hidden="true">
+          <span className="dot active" />
+          <span className="dot" />
+          <span className="dot" />
+        </div>
+        <button className="btn tiny" type="button" aria-label="Upload note">
+          Upload
+        </button>
+      </div>
+      <div className="notepad">
+        <textarea
+          aria-label="Inspector notes"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Type notes here..."
+        />
+      </div>
+      <div className="notes-toolbar" role="group" aria-label="Formatting toolbar">
+        <button className="btn tiny" type="button">B</button>
+        <button className="btn tiny" type="button">H1</button>
+        <button className="btn tiny" type="button">•</button>
+        <button className="btn tiny" type="button">☑</button>
+      </div>
+      <div className="notes-controls">
+        <button className="btn tiny" type="button">Save</button>
+        <button className="btn tiny" type="button" aria-label="Previous page">◄</button>
+        <span className="notes-page">Page 1 of 1</span>
+        <button className="btn tiny" type="button" aria-label="Next page">►</button>
+        <button className="btn tiny" type="button">Delete</button>
+      </div>
     </div>
   );
 };
 
+const PositionsPanel: React.FC = () => (
+  <div className="positions-panel" aria-live="polite">
+    <div className="positions-list">
+      <div className="empty">no positions</div>
+    </div>
+    <div className="positions-chart">
+      <span className="chart-placeholder">no positions</span>
+    </div>
+  </div>
+);
+
+const HistoryPanel: React.FC = () => (
+  <div className="history-panel" aria-live="polite">
+    <div className="history-title">History log</div>
+    <ul className="history-list">
+      <li className="empty">no history</li>
+    </ul>
+  </div>
+);
+
 const InspectorBooks: React.FC = () => {
-  const books = ['Notes', 'Positions', 'History'] as const;
-  type Book = typeof books[number];
+  const books = [
+    { id: 'Notes', label: 'Notes', icon: '📓' },
+    { id: 'Positions', label: 'Positions', icon: '📈' },
+    { id: 'History', label: 'History', icon: '🕒' },
+  ] as const;
+  type Book = typeof books[number]['id'];
   const [active, setActive] = useState<Book>('Notes');
+  const tabRefs = React.useRef<Array<HTMLButtonElement | null>>([]);
+
+  const focusTab = (index: number) => {
+    const el = tabRefs.current[index];
+    if (el) el.focus();
+  };
+
+  const handleKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const currentIndex = books.findIndex((b) => b.id === active);
+    if (currentIndex === -1) return;
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      const next = (currentIndex + 1) % books.length;
+      focusTab(next);
+      setActive(books[next].id);
+    }
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      const prev = (currentIndex - 1 + books.length) % books.length;
+      focusTab(prev);
+      setActive(books[prev].id);
+    }
+  };
 
   return (
     <div className="inspector">
-      <div role="tablist" className="inspector-books">
-        {books.map((b) => (
+      <div role="tablist" className="inspector-tabs" onKeyDown={handleKey}>
+        {books.map((b, idx) => (
           <button
-            key={b}
+            key={b.id}
+            ref={(el) => (tabRefs.current[idx] = el)}
             role="tab"
-            aria-selected={active === b}
-            onClick={() => setActive(b)}
+            aria-selected={active === b.id}
+            tabIndex={active === b.id ? 0 : -1}
+            onClick={() => setActive(b.id)}
+            title={b.label}
           >
-            {b}
+            <span aria-hidden="true">{b.icon}</span>
+            {b.id === 'Positions' && <span className="tab-badge" aria-hidden="true">0</span>}
           </button>
         ))}
       </div>
       <div className="inspector-panel">
-        {active === 'Notes' && <NoteTaker />}
-        {active === 'Positions' && <p>Positions list / P&amp;L chart</p>}
-        {active === 'History' && <p>History log</p>}
+        <div aria-hidden={active !== 'Notes'} hidden={active !== 'Notes'}>
+          <NotesPanel />
+        </div>
+        <div aria-hidden={active !== 'Positions'} hidden={active !== 'Positions'}>
+          <PositionsPanel />
+        </div>
+        <div aria-hidden={active !== 'History'} hidden={active !== 'History'}>
+          <HistoryPanel />
+        </div>
       </div>
     </div>
   );
@@ -629,34 +933,62 @@ const RightSidebarContent: React.FC = () => (
     {/* send-card pinned to bottom, no header */}
     <Card className="no-header">
       <textarea placeholder="ideas and requests" aria-label="Feedback" />
-      <button>Send to Paulie</button>
+      <a
+        className="btn primary"
+        href="mailto:chickensaurusrex@outlook.com"
+        role="button"
+      >
+        Send to Paulie
+      </a>
     </Card>
   </>
 );
 
 // small representation of active palette
-const ActivePaletteCard: React.FC = () => {
+const ActivePaletteCard: React.FC<{ palette: string[] }> = ({ palette }) => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const swatches = ['#42a5ff', '#ffca28', '#66bb6a', '#ab47bc', '#ff7043'];
+  const [copied, setCopied] = useState<string | null>(null);
+  const swatches = palette.slice(0, 16);
+
+  const selectSwatch = async (index: number) => {
+    setActiveIndex(index);
+    const color = swatches[index];
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(color);
+        setCopied(color);
+        window.setTimeout(() => setCopied(null), 1200);
+      } catch {
+        setCopied(null);
+      }
+    }
+  };
 
   return (
     <Card title="Active Palette">
       <div className="palette-swatch-row">
-        {swatches.map((color, i) => (
-          <div
-            key={color}
-            className={`swatch${i === activeIndex ? ' active' : ''}`}
-            style={{ background: color }}
-            role="button"
-            aria-pressed={i === activeIndex}
-            aria-label={`Select palette ${i + 1}`}
-            tabIndex={0}
-            onClick={() => setActiveIndex(i)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') setActiveIndex(i);
-            }}
-          />
-        ))}
+        {swatches.map((color, i) => {
+          const radius = 6 + ((i * 7) % 10);
+          return (
+            <div
+              key={`${color}-${i}`}
+              className={`swatch${i === activeIndex ? ' active' : ''}`}
+              style={{ background: color, borderRadius: `${radius}px` }}
+              role="button"
+              aria-pressed={i === activeIndex}
+              aria-label={`Copy ${color}`}
+              tabIndex={0}
+              onClick={() => selectSwatch(i)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') selectSwatch(i);
+              }}
+            />
+          );
+        })}
+      </div>
+      <div className="palette-meta">
+        <span className="palette-active">{swatches[activeIndex]}</span>
+        {copied && <span className="palette-copied">Copied</span>}
       </div>
     </Card>
   );
@@ -665,17 +997,21 @@ const ActivePaletteCard: React.FC = () => {
 // placeholder man-o'-meters card
 const ManometersCard: React.FC = () => {
   const gauges = [
-    { label: 'BATT', value: 7 },
-    { label: 'NET', value: 4 },
-    { label: 'MEM', value: 5 },
-    { label: 'CPU', value: 3 },
+    { key: 'batt', label: 'BATT', value: 7 },
+    { key: 'net', label: 'NET', value: 4 },
+    { key: 'mem', label: 'MEM', value: 5 },
+    { key: 'cpu', label: 'CPU', value: 3 },
   ];
 
   return (
     <Card title="Man-O'-Meters">
-      <div className="manometer-grid">
-        {gauges.map(({ label, value }) => (
-          <div key={label} className="manometer" aria-label={`${label} meter`}>
+      <div className="manometer-clover">
+        {gauges.map(({ key, label, value }) => (
+          <div
+            key={label}
+            className={`manometer meter-${key}`}
+            aria-label={`${label} meter`}
+          >
             <div className="meter-face">{label}</div>
             <div className="meter-bar">
               {[...Array(10)].map((_, idx) => (
@@ -687,6 +1023,7 @@ const ManometersCard: React.FC = () => {
             </div>
           </div>
         ))}
+        <div className="manometer-pipes" aria-hidden="true" />
       </div>
     </Card>
   );
@@ -694,30 +1031,34 @@ const ManometersCard: React.FC = () => {
 
 // System logs card component
 const SystemLogsCard: React.FC = () => {
-  const [logs, setLogs] = useState<string[]>([]);
+  const [logs, setLogs] = useState(() =>
+    Array.from({ length: 7 }, () => ({ time: '--:--', text: 'awaiting log entry' }))
+  );
+
   const addLog = () => {
     const now = new Date();
-    const msg = `${now.toLocaleTimeString()} – system event`; 
-    setLogs((l) => [msg, ...l].slice(0, 20));
+    const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    setLogs((prev) => {
+      const next = [{ time, text: 'log added' }, ...prev];
+      return next.slice(0, 7);
+    });
   };
-  const clearLogs = () => setLogs([]);
 
   return (
     <Card title="System Logs">
       <div className="logs-header">
-        <button className="btn secondary" onClick={addLog} aria-label="Add log">
-          +
-        </button>
-        <button className="btn secondary" onClick={clearLogs} aria-label="Clear logs">
-          Clear
+        <button className="btn tiny" type="button" onClick={addLog}>
+          Add log
         </button>
       </div>
       <ul className="logs-list">
-        {logs.length === 0 ? (
-          <li className="log-empty">no logs</li>
-        ) : (
-          logs.map((l, i) => <li key={i}>{l}</li>)
-        )}
+        {logs.map((log, i) => (
+          <li key={i}>
+            <span className="log-time">{log.time}</span>
+            <span className="log-icon" aria-hidden="true">•</span>
+            <span className="log-text">{log.text}</span>
+          </li>
+        ))}
       </ul>
     </Card>
   );
@@ -728,12 +1069,16 @@ const WebElementsCard: React.FC = () => {
   const [sliderValue, setSliderValue] = useState(50);
   const [showGrid, setShowGrid] = useState(true);
   const [dropdown, setDropdown] = useState('Option A');
+  const [radio, setRadio] = useState('A');
 
   return (
     <Card title="Web Elements">
       <div className="elements-grid">
         <button className="btn primary">Primary</button>
         <button className="btn secondary">Secondary</button>
+        <button className="btn danger">Danger</button>
+        <button className="btn ghost">Ghost</button>
+        <button className="btn" disabled>Disabled</button>
         <div className="field">
           <label className="field-label" htmlFor="sample-input">
             Text Input
@@ -747,6 +1092,24 @@ const WebElementsCard: React.FC = () => {
             onChange={(e) => setShowGrid(e.target.checked)}
           />
           Grid
+        </label>
+        <label className="radio">
+          <input
+            type="radio"
+            name="sample-radio"
+            checked={radio === 'A'}
+            onChange={() => setRadio('A')}
+          />
+          Radio A
+        </label>
+        <label className="radio">
+          <input
+            type="radio"
+            name="sample-radio"
+            checked={radio === 'B'}
+            onChange={() => setRadio('B')}
+          />
+          Radio B
         </label>
         <div className="field">
           <label className="field-label" htmlFor="sample-range">
@@ -778,6 +1141,54 @@ const WebElementsCard: React.FC = () => {
             <option>Option C</option>
           </select>
         </div>
+        <div className="alert success" role="status">
+          Success alert
+        </div>
+      </div>
+    </Card>
+  );
+};
+
+const MsPaintCard: React.FC<{ palette: string[] }> = ({ palette }) => {
+  const [maximized, setMaximized] = useState(false);
+  const paintPalette = palette.slice(0, 12);
+
+  return (
+    <Card title="MS PAINT 1998" className={`ms-paint-card${maximized ? ' maximized' : ''}`}>
+      <div className="paint-header">
+        <button
+          className="btn tiny"
+          type="button"
+          onClick={() => setMaximized((v) => !v)}
+          aria-pressed={maximized}
+        >
+          {maximized ? 'Restore' : 'Maximize'}
+        </button>
+      </div>
+      <div className="paint-menu" role="menubar">
+        <span role="menuitem">File</span>
+        <span role="menuitem">Edit</span>
+        <span role="menuitem">View</span>
+        <span role="menuitem">Image</span>
+        <span role="menuitem">Colors</span>
+        <span role="menuitem">Help</span>
+      </div>
+      <div className="paint-body">
+        <div className="paint-tools" aria-label="Tool palette">
+          {['✏️', '🧽', '🖌️', '🪣', '✂️', '🔍'].map((tool, i) => (
+            <button key={i} className="tool-btn" type="button" aria-label={`Tool ${i + 1}`}>
+              {tool}
+            </button>
+          ))}
+        </div>
+        <div className="paint-canvas" aria-label="Canvas" role="img">
+          Canvas
+        </div>
+        <div className="paint-colors" aria-label="Color palette">
+          {paintPalette.map((color, i) => (
+            <span key={i} className="paint-swatch" style={{ background: color }} />
+          ))}
+        </div>
       </div>
     </Card>
   );
@@ -787,7 +1198,8 @@ const PeriscopeViewingPort: React.FC<{
   studio: Studio;
   themeKey: string;
   elevationOn: boolean;
-}> = ({ studio, themeKey, elevationOn }) => {
+  palette: string[];
+}> = ({ studio, themeKey, elevationOn, palette }) => {
   const isDesign = studio === 'design';
 
   return (
@@ -800,7 +1212,7 @@ const PeriscopeViewingPort: React.FC<{
       </div>
       <div className="periscope-grid">
         <div className="periscope-card">
-          <ActivePaletteCard />
+          <ActivePaletteCard palette={palette} />
         </div>
         <div className="periscope-card">
           <ManometersCard />
@@ -819,6 +1231,11 @@ const PeriscopeViewingPort: React.FC<{
           </Card>
         </div>
       </div>
+      {isDesign && (
+        <div className="periscope-paint">
+          <MsPaintCard palette={palette} />
+        </div>
+      )}
     </div>
   );
 };
@@ -827,15 +1244,17 @@ interface MainRegionContentProps {
   studio: Studio;
   themeKey: string;
   elevationOn: boolean;
+  palette: string[];
 }
 
-const MainRegionContent: React.FC<MainRegionContentProps> = ({ studio, themeKey, elevationOn }) => (
+const MainRegionContent: React.FC<MainRegionContentProps> = ({ studio, themeKey, elevationOn, palette }) => (
   <>
     <div className="region-title">MAIN REGION - {studio.toUpperCase()}</div>
     <PeriscopeViewingPort
       studio={studio}
       themeKey={themeKey}
       elevationOn={elevationOn}
+      palette={palette}
     />
   </>
 );
@@ -845,19 +1264,21 @@ const MainRegionContent: React.FC<MainRegionContentProps> = ({ studio, themeKey,
 const TriStateToggle: React.FC<{
   value: 'AUTO' | 'STANDBY' | 'OFF';
   onChange: (v: 'AUTO' | 'STANDBY' | 'OFF') => void;
-}> = ({ value, onChange }) => {
+  label: string;
+}> = ({ value, onChange, label }) => {
   const options: Array<'AUTO' | 'STANDBY' | 'OFF'> = ['AUTO', 'STANDBY', 'OFF'];
   return (
-    <div className="tri-toggle" role="radiogroup" aria-label="Agent mode">
+    <div className="telegraph-switch" role="radiogroup" aria-label={`${label} mode`}>
       {options.map((opt) => (
         <button
           key={opt}
           role="radio"
           aria-checked={value === opt}
-          className={value === opt ? 'active' : ''}
+          className={`telegraph-switch-panel${value === opt ? ' active' : ''}`}
           onClick={() => onChange(opt)}
         >
-          {opt}
+          <span className="telegraph-led" aria-hidden="true" />
+          <span className="telegraph-label">{opt}</span>
         </button>
       ))}
     </div>
@@ -866,7 +1287,6 @@ const TriStateToggle: React.FC<{
 
 const AgentCard: React.FC<{ name: string; icon: string }> = ({ name, icon }) => {
   const [mode, setMode] = useState<'AUTO' | 'STANDBY' | 'OFF'>('OFF');
-  const indicatorColor = mode === 'AUTO' ? 'var(--accent)' : mode === 'STANDBY' ? 'rgba(255, 204, 0, 0.8)' : 'rgba(255, 80, 80, 0.75)';
 
   return (
     <div className="agent-card">
@@ -875,9 +1295,8 @@ const AgentCard: React.FC<{ name: string; icon: string }> = ({ name, icon }) => 
           {icon}
         </span>
         <span className="agent-name">{name}</span>
-        <span className="agent-led" style={{ background: indicatorColor }} aria-hidden="true" />
       </div>
-      <TriStateToggle value={mode} onChange={setMode} />
+      <TriStateToggle value={mode} onChange={setMode} label={name} />
     </div>
   );
 };
@@ -885,8 +1304,9 @@ const AgentCard: React.FC<{ name: string; icon: string }> = ({ name, icon }) => 
 const PLMFDCard: React.FC = () => {
   const [pl, setPl] = useState(123.45);
   const [equity, setEquity] = useState(10000);
-  const [timeframe, setTimeframe] = useState('1m');
-  const timeframes = ['1m', '5m', '15m', '1h', '1d'];
+  const [timeframe, setTimeframe] = useState('24h');
+  const timeframes = ['24h', '1w', '1m', '1y', 'ALL'];
+  const scales = ['$10', '$100', '$1k', '$10k', 'ALL'];
 
   return (
     <Card title="P/L MFD">
@@ -921,7 +1341,7 @@ const PLMFDCard: React.FC = () => {
         <div className="pl-axis-controls">
           <div className="pl-axis-label">Y:</div>
           <div className="pl-axis-buttons">
-            {[10, 5, 0, -5, -10].map((v) => (
+            {scales.map((v) => (
               <button key={v} className="btn secondary">
                 {v}
               </button>
@@ -946,7 +1366,7 @@ const PLMFDCard: React.FC = () => {
 };
 
 const ConnectAPIKeysCard: React.FC = () => {
-  const [mode, setMode] = useState<'Live' | 'Demo'>('Live');
+  const [mode, setMode] = useState<'Live' | 'Demo'>('Demo');
   const [key, setKey] = useState('');
   const [secret, setSecret] = useState('');
   const [connected, setConnected] = useState(false);
@@ -968,12 +1388,14 @@ const ConnectAPIKeysCard: React.FC = () => {
           <button
             className={`btn secondary${mode === 'Live' ? ' active' : ''}`}
             onClick={() => setMode('Live')}
+            aria-pressed={mode === 'Live'}
           >
             Live
           </button>
           <button
             className={`btn secondary${mode === 'Demo' ? ' active' : ''}`}
             onClick={() => setMode('Demo')}
+            aria-pressed={mode === 'Demo'}
           >
             Demo
           </button>
@@ -985,11 +1407,13 @@ const ConnectAPIKeysCard: React.FC = () => {
           </label>
           <input
             id="api-key"
-            className="input"
+            className="input masked"
+            type="password"
             value={key}
             onChange={(e) => setKey(e.target.value)}
             placeholder="enter key"
             disabled={connected}
+            aria-label="API key input"
           />
         </div>
 
@@ -999,19 +1423,20 @@ const ConnectAPIKeysCard: React.FC = () => {
           </label>
           <textarea
             id="api-secret"
-            className="input"
+            className="input masked"
             value={secret}
             onChange={(e) => setSecret(e.target.value)}
             placeholder="enter secret"
             rows={2}
             disabled={connected}
+            aria-label="RSA key input"
           />
         </div>
 
         <div className="api-actions">
           {!connected ? (
-            <button className="btn primary" onClick={connect} disabled={!key || !secret}>
-              Connect
+            <button className="btn primary" onClick={connect} disabled={!key || !secret} aria-label="Connect Kalshi Stream">
+              Connect Kalshi Stream
             </button>
           ) : (
             <button className="btn secondary" onClick={forget}>
@@ -1051,13 +1476,19 @@ const HangarBayContent: React.FC = () => (
     <div className="hangar-row">
       <Card title="Agent Access" className="hangar-card rectangle">
         <div className="card-strip" aria-hidden="true" />
-        <div className="agent-grid">
-          <AgentCard name="Peritia" icon="🤖" />
-          <AgentCard name="Triton" icon="⚙️" />
-          <AgentCard name="Orion" icon="🚀" />
-          <AgentCard name="Helix" icon="🧠" />
+        <div className="agent-legend" aria-hidden="true">
+          A · S · ⛔
         </div>
-        <div className="card-nameplate">AGENT ACCESS</div>
+        <div className="agent-grid">
+          <AgentCard name="Peritia" icon="🔮" />
+          <AgentCard name="Volume" icon="⚙️" />
+          <AgentCard name="Crypto" icon="🚀" />
+          <AgentCard name="Financials" icon="📈" />
+          <AgentCard name="Politics" icon="🗳️" />
+          <AgentCard name="B.Y.O.B" icon="🧠" />
+          <AgentCard name="007-Gemini" icon="🛰️" />
+        </div>
+        <div className="card-nameplate">AGENT ACCESS BAY</div>
       </Card>
       <div className="hangar-card square">
         <PLMFDCard />
@@ -1075,22 +1506,28 @@ const HangarBayContent: React.FC = () => (
 const BottomBarContent: React.FC = () => (
   <>
     <HangarBayContent />
-    <Card title="Ignition" />
   </>
 );
 
-// throttle control for ignition panel
-const ThrottleCard: React.FC = () => {
-  const modes = ['AUTO','SEMI-AUTO','STOP'] as const;
+// ignition panel with telegraph control
+const IgnitionPanel: React.FC<{ elevationOn?: boolean }> = ({ elevationOn }) => {
+  const modes = ['AUTO', 'SEMI-AUTO', 'STOP'] as const;
   type Mode = typeof modes[number];
   const [mode, setMode] = useState<Mode>('STOP');
   const [locked, setLocked] = useState(false);
+  const [lastAction, setLastAction] = useState<string>('—');
 
-  const cycle = (dir: 1|-1) => {
+  const handleSelect = (next: Mode) => {
+    if (locked) return;
+    setMode(next);
+    setLastAction(new Date().toLocaleTimeString());
+  };
+
+  const cycle = (dir: 1 | -1) => {
     if (locked) return;
     const idx = modes.indexOf(mode);
     const next = modes[(idx + dir + modes.length) % modes.length];
-    setMode(next);
+    handleSelect(next);
   };
 
   const handleKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -1099,34 +1536,54 @@ const ThrottleCard: React.FC = () => {
     if (e.key === ' ' || e.key === 'Enter') cycle(1);
   };
 
+  const engineStatus = mode === 'STOP' ? 'OFFLINE' : 'ONLINE';
+  const connectivity = mode === 'STOP' ? 'DISCONNECTED' : 'CONNECTED';
+
   return (
-    <Card title="Global Throttle">
+    <Card title="IGNITION">
       <div
-        role="radiogroup"
-        tabIndex={0}
-        onKeyDown={handleKey}
-        className="throttle-telegraph"
-        aria-label="Global throttle control"
+        className="ignition-panel vintage"
+        data-3d={elevationOn ? 'true' : 'false'}
+        aria-live="polite"
       >
-        {modes.map((m) => (
-          <div
-            key={m}
-            role="radio"
-            aria-checked={mode===m}
-            className={"telegraph-panel" + (mode===m?" active":"")}
-            onClick={() => !locked && setMode(m)}
-          >
-            {m}
+        <div className="ignition-header">
+          <span className="ignition-title">IGNITION</span>
+          <span className={`status-dot ${mode === 'STOP' ? 'off' : 'on'}`} aria-hidden="true" />
+        </div>
+        <div
+          role="radiogroup"
+          tabIndex={0}
+          onKeyDown={handleKey}
+          className="telegraph-ignition"
+          aria-label="Global throttle control"
+        >
+          {modes.map((m) => (
+            <button
+              key={m}
+              role="radio"
+              aria-checked={mode === m}
+              className={`telegraph-panel${mode === m ? ' active' : ''}`}
+              onClick={() => handleSelect(m)}
+            >
+              {m}
+            </button>
+          ))}
+        </div>
+        <button
+          className="lock-toggle"
+          aria-pressed={locked}
+          onClick={() => setLocked(!locked)}
+        >
+          {locked ? 'Unlock' : 'Lock'}
+        </button>
+        <div className="ignition-readouts">
+          <div>
+            Engine status: <strong>{engineStatus}</strong>
           </div>
-        ))}
+          <div>Last action: {lastAction}</div>
+          <div>Connectivity: {connectivity}</div>
+        </div>
       </div>
-      <button
-        className="lock-toggle"
-        aria-pressed={locked}
-        onClick={() => setLocked(!locked)}
-      >
-        {locked ? 'Unlock' : 'Lock'}
-      </button>
     </Card>
   );
 };
@@ -1144,11 +1601,13 @@ export function App() {
   const [fullscreenOn, setFullscreenOn] = useState(false);
 
   // Theme / UI state
-  const [darkMode, setDarkMode] = useState(false);
+  const [dayMode, setDayMode] = useState(true);
   const [elevationOn, setElevationOn] = useState(true);
   const [themeBase, setThemeBase] = useState<'webpage' | 'mosaic-1993'>('webpage');
 
+  const darkMode = !dayMode;
   const themeKey = `${themeBase}-${darkMode ? 'dark' : 'light'}`;
+  const themePalette = themes[themeKey]?.palette || themes['webpage-light'].palette;
 
   React.useEffect(() => {
     applyTheme(themeKey);
@@ -1174,7 +1633,9 @@ export function App() {
       {/* everything that belongs in quadrant II goes inside this container */}
       <div id="quadrant-ii" className="quadrant" data-testid="quadrant-ii">
         <div id="quadrant-ii-inner">
-        {vis.header && <HeaderRegion studio={currentStudio} />}
+        {vis.header && (
+          <HeaderRegion studio={currentStudio} dayMode={dayMode} setDayMode={setDayMode} />
+        )}
         <nav id="nav-region" className="region" aria-label="Navigation">
           <StudioTabs current={currentStudio} setCurrent={setCurrentStudio} />
           <PanelToggles
@@ -1186,10 +1647,16 @@ export function App() {
           <TelemetryStrip />
         </nav>
         {vis.left && (
-          <aside id="left-sidebar" className="region" data-testid="left-sidebar">
+          <aside
+            id="left-sidebar"
+            className="region"
+            data-testid="left-sidebar"
+            role="complementary"
+            aria-label="System Design"
+          >
             <LeftSidebarContent
-              darkMode={darkMode}
-              setDarkMode={setDarkMode}
+              dayMode={dayMode}
+              setDayMode={setDayMode}
               elevationOn={elevationOn}
               setElevationOn={setElevationOn}
               themeBase={themeBase}
@@ -1199,18 +1666,35 @@ export function App() {
           </aside>
         )}
         {vis.right && (
-          <aside id="right-sidebar" className="region" data-testid="right-sidebar">
+          <aside
+            id="right-sidebar"
+            className="region"
+            data-testid="right-sidebar"
+            role="complementary"
+            aria-label="Inspector Panel"
+          >
             <RightSidebarContent />
           </aside>
         )}
         <main id="main-region" className="region" data-testid="main-region">
           <div className="main-cards">
-            <MainRegionContent studio={currentStudio} themeKey={themeKey} elevationOn={elevationOn} />
+            <MainRegionContent
+              studio={currentStudio}
+              themeKey={themeKey}
+              elevationOn={elevationOn}
+              palette={themePalette}
+            />
           </div>
         </main>
         <div id="footer-row" className="footer-row">
           {vis.bottom ? (
-            <div id="bottom-bar" className="region" data-testid="bottom-bar">
+            <div
+              id="bottom-bar"
+              className="region"
+              data-testid="bottom-bar"
+              role="region"
+              aria-label="Hangar Bay"
+            >
               <BottomBarContent />
             </div>
           ) : (
@@ -1221,8 +1705,14 @@ export function App() {
               aria-hidden="true"
             />
           )}
-          <div id="action-bar" className="region" data-testid="action-bar">
-            <ThrottleCard />
+          <div
+            id="action-bar"
+            className="region"
+            data-testid="action-bar"
+            role="region"
+            aria-label="Ignition"
+          >
+            <IgnitionPanel elevationOn={elevationOn} />
           </div>
         </div>
       </div> {/* end quadrant-ii-inner */}

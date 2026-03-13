@@ -19,12 +19,9 @@ Last update: 03-06-26
     - Tools
   - Main User Needs
 
-> **NOTE TO ASSISTANT:**
-> ```text
 > // TODO: [@assistant] remove any remaining references to the SVC health dot from the docs and code
 > // (this comment is just for you; once done you can delete it)
-> ```
-> This reminder is placed here so any developer or AI reviewing chapter 0 will spot the maintenance task.
+
 
 - Chapter 1. Front End
   - Front End Stack

@@ -8,6 +8,7 @@
 - Quadrant II is the only area being developed (the other quadrants are placeholders). The goal is to make **everything naturally tiny**, with components built to fit the quadrant, not scaled.
 - This project is explicitly designed to run at **1/4 scale** in the browser; there are no global scaling hacks (`transform: scale(0.25)` etc.). Everything must be built tiny by default.
 - The nav bar needs to fit its contents without leaking to the edges; the content must be smaller as needed, not the container larger.
+- Region sizes/proportions are locked; do not adjust region dimensions to fit content — only scale/fit the content itself.
 - NOTE: the build has already proven this is possible — we now have a fully working tiny nav with studio tabs, a cross-shaped panel toggle cluster, and a compact telemetry strip that all fit without changing region proportions.
 
 ### Phase 1 - Skeleton (what actually happened)
@@ -76,9 +77,61 @@
 
 ---
 
-### Current status: Phase 4.6 (nav polishing + tiny cockpit fit)
+#### Current status: Phase 4.6 (nav polishing + tiny cockpit fit)
 - The nav bar is fully functional, fits within the quadrant height, and all components (tabs, toggles, telemetry) are operational and tiny.
 - Ongoing adjustments are focused purely on micro‑spacing and alignment, not on structural layout.
+
+---
+
+#### Phase 4.7 - Complete missing components (registry parity)
+
+1. Header: [Edit: do not add logo placeholder circle, mark in component tree as deprecated] Develop Illumination Switchboard internals (top strip, vertical label, channel LEDs, dial/readout alignment).
+2. Nav: add Market Mode indicator LED, telemetry format `M/D HH:MM`, active tab underline, [edit: do not add locked FLY tooltip, mark in component tree as deprecated].
+3. Left Sidebar: sync Day/NVG with Dark/Light, [Edit: only deeply develop with the first two themes and give them light and dark modes. Keep System Theme grid 2 buttons], tighten ARIA labels.
+
+4. Right Sidebar: icon tabs + keyboard nav; Notes panel (dots, upload, ruled pad, toolbar, page controls); Positions list + chart placeholder; History log list; Send card mailto.
+5. Bottom Bar: Agent Access with 7 agents + telegraph switches; P/L MFD axis buttons; Connect API Keys inputs + connect button; remove duplicate Ignition.
+6. Action Bar: Ignition panel with telegraph control, lock toggle, status dots, 100-year-old-design and aria‑live updates.
+7. Main Region: finish Active Palette ([edit: 16, not 14] swatches + copy), Man‑o‑Meters clover layout, System Logs 7‑row list, Web Elements full set, MS Paint 1998 card.
+
+(All components must pull coloring from and according to the active theme palette and mode)
+**Done when:**
+- all Quadrant II cards/children in the registry are present on screen, fully fit inside their regions with no overflow or cutoff for them or their children components (only exception is ms paint which will be too tall and need to scroll down in main region).
+- all regions have well-fit headers and footers.
+- everything is developed to be one fourth [edit let's start saying one-third] normal development size without a global scale hack.
+
+---
+
+#### Phase 4.8 - Micro‑polish and consistency pass
+
+0. Deep sweep size audit (from current screenshot).
+   Too big — Agent Access tiles (only 3 oversized tiles; should fit 7 smaller), Connect API Keys input height and button height, Ignition telegraph buttons and inner padding, Periscope Viewing Port card height, MS Paint block height, and the Nav long bar height/toggle cluster footprint.
+   Too small/hard to read — Header brand text (“Paulie’s Studios”), illumination labels/readouts, nav tab labels + telemetry text, left sidebar labels (Modes/System Theme), main region section headers, logs row text, Web Elements button labels, MS Paint menu/tool labels, right sidebar notes placeholder + toolbar labels, Send button text, bottom bar labels (agent tiles, P/L labels, API labels), action bar header/lock labels.
+   Other observations — label baselines drift within rows, contrast is weak for light text on mid‑gray panels, and inner padding is inconsistent between cards.
+1. Normalize sizing, padding, and gaps so every card fits without scrolling in its region, and every text or script and icons are visible and equal sizes.
+2.0 Ensure regions have stable proportions; also inner padding so cards arent touching borders. PRD note: Achieved by tuning the CSS tokens `--header-height`, `--nav-height`, and `--footer-height` to match the diagram ratios (approx 1.5:1:4.5), and by driving all region gaps + quadrant padding from a single `--quad-gap` token (currently 12px). These proportions are locked — future component work must fit content inside the regions without altering region sizes.
+2. Move all hardcoded colors into theme tokens; no raw hex values in components.
+3. Remove random/mock data; keep placeholders or user‑driven values only.
+4. Tighten typography scales and bezel borders for the tiny cockpit look.
+5. Ensure focus rings and hit targets are usable at micro scale.
+6. Verify all ARIA roles/labels and keyboard navigation per registry.
+7. Clean up layout edge cases (no touching edges, no clipped labels).
+
+**Done when:** visual spacing is stable and accessible without layout hacks.
+
+---
+
+#### Phase 4.9 - Verification + readiness to move on
+
+1. Update unit tests to cover new cards, controls, and ARIA states.
+2. Manual visual check at quad‑split and narrow viewports; fix any overflow.
+3. Confirm cards/components/elements counts align with registry targets.
+4. Verify theme switching, studio tabs, visibility toggles, and throttle control still work.
+5. Ensure Send card mailto, tab tooltips, and locks behave correctly.
+6. Update progress counters in this plan.
+7. Declare Phase 4 complete and gate Phase 5.
+
+**Done when:** tests pass, UI fits cleanly, and Phase 5 can begin without structural rework.
 
 ---
 
@@ -176,8 +229,6 @@ Elements: ~45 out of ~70 required by registry (logs list, buttons, inputs, check
 
 ## Stage 2
 
-## Stage 2
-
 ### Phase 1
 
 ### Phase 2
@@ -200,4 +251,3 @@ Elements: ~45 out of ~70 required by registry (logs list, buttons, inputs, check
 
 
 ## Stage 3
-
